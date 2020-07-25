@@ -3,7 +3,9 @@ pub fn to_code_point(c: &char) -> u32 {
     *c as u32
 }
 
-pub fn from_code_point(d: u8) -> char { d as char }
+pub fn from_code_point(d: u8) -> char {
+    d as char
+}
 
 pub fn is_whitespace(c: &char) -> bool {
     match to_code_point(c) {
@@ -96,9 +98,9 @@ pub fn is_single_escape_character(c: &char) -> bool {
 }
 
 pub fn parse_unicode_to_string(input: &str) -> Result<String, ()> {
-    if let Ok(parsed) = u64::from_str_radix(input, 16){
+    if let Ok(parsed) = u64::from_str_radix(input, 16) {
         if let Ok(utf16String) = String::from_utf16(&[parsed as u16]) {
-            return Ok(utf16String)
+            return Ok(utf16String);
         }
     }
 
@@ -106,9 +108,11 @@ pub fn parse_unicode_to_string(input: &str) -> Result<String, ()> {
 }
 
 pub fn parse_utf8_to_string(input: &str) -> Result<String, ()> {
-    if let Ok(parsed) = u64::from_str_radix(input, 16){
-        return Ok((parsed as u8 as char).to_string())
+    if let Ok(parsed) = u64::from_str_radix(input, 16) {
+        return Ok((parsed as u8 as char).to_string());
     }
 
     Err(())
 }
+
+pub fn char_to_string(c : char) -> String { c.to_string() }

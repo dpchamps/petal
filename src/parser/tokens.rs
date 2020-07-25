@@ -10,5 +10,9 @@ pub enum Token {
     Keyword(String),
     ConditionalKeyword(String),
     ReservedKeyword(String),
+    NoSubstitutionTemplate(String),
+    TemplateHead(String),
+    TemplateMiddle(String),
+    TemplateTail(String),
     EOF,
 }
