@@ -10,6 +10,7 @@ use unic_ucd_ident::{is_xid_continue, is_xid_start};
 pub struct Lexer {
     cursor: usize,
     source: Vec<char>,
+    context: LexerContext,
 }
 
 #[derive(Debug, PartialOrd, PartialEq)]
@@ -18,6 +19,14 @@ pub enum LexingError {
     ErrorWithMessage(&'static str),
     InvalidToken,
     UnexpectedToken(String),
+}
+
+#[derive(Debug, PartialOrd, PartialEq)]
+pub enum LexerContext {
+    InputElementDiv,
+    InputElementRegExp,
+    InputElementRegExpOrTemplateTail,
+    InputElementTemplateTail
 }
 
 type LexerResult<T> = Result<Option<T>, LexingError>;
@@ -31,6 +40,7 @@ impl Lexer {
                 .iter()
                 .map(|x| x.clone() as char)
                 .collect(),
+            context: LexerContext::InputElementDiv
         }
     }
 
@@ -52,9 +62,7 @@ impl Lexer {
 
     fn consume(&mut self, c: char) -> Option<char> {
         match self.current() {
-            Some(x) if x == &c => {
-                self.chomp()
-            }
+            Some(x) if x == &c => self.chomp(),
             _ => None,
         }
     }
@@ -90,7 +98,7 @@ impl Lexer {
         seq.chars().for_each(|c| {
             if let Some(next) = self.consume(c) {
                 result.push_str(&c.to_string())
-            }else{
+            } else {
                 return ();
             }
         });
@@ -105,54 +113,42 @@ impl Lexer {
 
     fn consume_alpha_numeric(&mut self) -> Option<char> {
         match self.current() {
-            Some(x) if x.is_alphanumeric() => {
-                self.chomp()
-            }
+            Some(x) if x.is_alphanumeric() => self.chomp(),
             _ => None,
         }
     }
 
     fn consume_digit(&mut self, radix: u32) -> Option<char> {
         match self.current() {
-            Some(x) if x.to_digit(radix).is_some() => {
-               self.chomp()
-            }
+            Some(x) if x.to_digit(radix).is_some() => self.chomp(),
             _ => None,
         }
     }
 
     fn consume_codepoint_id_start(&mut self) -> Option<char> {
         match self.current() {
-            Some(x) if is_xid_start(*x) => {
-                self.chomp()
-            }
+            Some(x) if is_xid_start(*x) => self.chomp(),
             _ => None,
         }
     }
 
     fn consume_codepoint_id_continue(&mut self) -> Option<char> {
         match self.current() {
-            Some(x) if is_xid_continue(*x) => {
-               self.chomp()
-            }
+            Some(x) if is_xid_continue(*x) => self.chomp(),
             _ => None,
         }
     }
 
     fn consume_zero_width_codepoint(&mut self) -> Option<char> {
-        match self.current(){
-            Some(x) if string_utils::is_zwj(x) || string_utils::is_zwnj(x) => {
-                self.chomp()
-            }
-            _ => None
+        match self.current() {
+            Some(x) if string_utils::is_zwj(x) || string_utils::is_zwnj(x) => self.chomp(),
+            _ => None,
         }
     }
 
     fn consume_single_punctuator(&mut self) -> Option<char> {
         match self.current() {
-            Some(x) if string_utils::is_valid_punctuator_char(x) => {
-               self.chomp()
-            }
+            Some(x) if string_utils::is_valid_punctuator_char(x) => self.chomp(),
             _ => None,
         }
     }
@@ -166,10 +162,8 @@ impl Lexer {
 
     fn is(&self, c: char) -> bool {
         match self.current() {
-            Some(x) if *x == c => {
-                true
-            },
-            _ => false
+            Some(x) if *x == c => true,
+            _ => false,
         }
     }
 
@@ -306,7 +300,7 @@ impl Lexer {
         } else if let Some(u) = self.consume('_') {
             Some(u.to_string())
         } else {
-             self.consume_unicode_escape_seq().unwrap_or(None)
+            self.consume_unicode_escape_seq().unwrap_or(None)
         };
     }
 
@@ -348,9 +342,9 @@ impl Lexer {
 
     fn consume_div_punctuator(&mut self) -> Option<Token> {
         if let Some(div) = self.consume('/') {
-            return Some(Token::Punctuator(div.to_string()))
-        }else if let Some(stream) = self.consume_sequence("/=") {
-            return Some(Token::Punctuator(stream))
+            return Some(Token::Punctuator(div.to_string()));
+        } else if let Some(stream) = self.consume_sequence("/=") {
+            return Some(Token::Punctuator(stream));
         }
 
         None
@@ -717,7 +711,9 @@ impl Lexer {
     }
 
     fn consume_template_esc_seq(&mut self) -> LexerResult<String> {
-        if !self.is('\\'){ return Ok(None) }
+        if !self.is('\\') {
+            return Ok(None);
+        }
 
         return if let Some(like_esc_seq) = self.consume_not_escape_seq() {
             Ok(Some(like_esc_seq))
@@ -725,11 +721,11 @@ impl Lexer {
             Ok(Some(unicode_esc_seq))
         } else if let Some(string_esc) = self.consume_string_escape_sequence() {
             Ok(Some(string_esc))
-        } else if let Some(_) = self.consume_line_terminator_sequence(){
+        } else if let Some(_) = self.consume_line_terminator_sequence() {
             Ok(Some('\n'.to_string()))
         } else {
             Ok(None)
-        }
+        };
     }
 
     fn consume_template(&mut self) -> LexerResult<Token> {
@@ -745,7 +741,7 @@ impl Lexer {
                     result.push_str(&source_char.to_string());
                 } else if let Some(line_term) = self.consume_line_terminator_sequence() {
                     result.push_str(&'\n'.to_string());
-                } else if let Some(template_esc) = self.consume_template_esc_seq()?{
+                } else if let Some(template_esc) = self.consume_template_esc_seq()? {
                     result.push_str(&template_esc);
                 } else if let Some(dollar_sign) = self.consume('$') {
                     if !self.peek('{', 1) {
@@ -760,6 +756,139 @@ impl Lexer {
         }
 
         Ok(None)
+    }
+
+    fn consume_regex_flags(&mut self) -> String {
+        let mut result = String::new();
+
+        while let Some(x) = self.consume_id_part(){
+            result.push_str(&x)
+        }
+
+        result
+    }
+
+    fn consume_regex_non_terminator(&mut self) -> Option<String> {
+        match self.current() {
+            Some(x) if !string_utils::is_line_terminator(x) => {
+                self.chomp().map(|x| x.to_string())
+            },
+            _ => None
+        }
+    }
+
+    fn consume_regex_backslash_seq(&mut self) -> Option<String> {
+        if let None = self.consume('\\') { return None }
+
+        self.consume_regex_non_terminator()
+    }
+
+    fn consume_regex_non_term_exception(&mut self) -> Option<String> {
+        match self.current() {
+            Some(x) => {
+                if x == &'*' || x == &'\\' || x == &'/' || x == &'[' {
+                    return None
+                }
+
+                self.consume_regex_non_terminator()
+            },
+            _ => None
+        }
+    }
+
+    fn consume_regex_non_term_class_exception(&mut self) -> Option<String> {
+        match self.current() {
+            Some(x) => {
+                if x == &'\\' || x == &'[' {
+                    return None
+                }
+
+                self.consume_regex_non_terminator()
+            },
+            _ => None
+        }
+    }
+
+    fn consume_regex_class_char(&mut self) -> Option<String> {
+        return if let Some(backslash_seq) = self.consume_regex_backslash_seq() {
+            Some(backslash_seq)
+        }else if let Some(non_term) = self.consume_regex_non_term_class_exception() {
+            Some(non_term)
+        } else{
+            None
+        }
+    }
+
+    fn consume_regex_class_chars(&mut self) -> String {
+        let mut result = String::new();
+
+        while let Some(next) = self.consume_regex_class_char(){
+            result.push_str(&next)
+        }
+
+        result
+    }
+
+    fn consume_regex_class(&mut self) -> LexerResult<String> {
+        if let None = self.consume('['){ return Ok(None)}
+
+        let chars = self.consume_regex_class_chars();
+
+        if let None = self.consume(']'){ return Err(LexingError::InvalidToken)}
+
+        Ok(Some(chars))
+    }
+
+    fn consume_regex_char(&mut self) -> LexerResult<String> {
+        return if let Some(class) = self.consume_regex_class()?{
+            Ok(Some(class))
+        } else if let Some(backslash_seq) = self.consume_regex_backslash_seq() {
+            Ok(Some(backslash_seq))
+        } else if let Some(non_term) = self.consume_regex_non_term_exception() {
+            Ok(Some(non_term))
+        } else {
+            Ok(None)
+        }
+    }
+
+    fn consume_regex_chars(&mut self) -> LexerResult<String> {
+        let mut result = String::new();;
+
+        while let Some(next) = self.consume_regex_char()? {
+            result.push_str(&next)
+        }
+
+        return if result.len() > 0 {
+            Ok(Some(result))
+        } else {
+            Ok(None)
+        }
+    }
+
+    fn consume_regex_body(&mut self) -> LexerResult<String> {
+        self.consume_regex_char()?
+            .map(|first_char| {
+                let regex_chars = self.consume_regex_chars()?.unwrap_or(String::new());
+
+                Ok(Some(format!("{}{}", first_char, regex_chars)))
+            })
+            .unwrap_or(Ok(None))
+    }
+
+    fn consume_regex_literal(&mut self) -> LexerResult<Token> {
+        if let None = self.consume('/') {
+            return Ok(None);
+        }
+
+        self.consume_regex_body()?
+            .map(|body| {
+                let flags = self.consume_regex_flags();
+                self.consume('/')
+                    .map_or(Err(LexingError::InvalidToken), |_| {
+                        Ok(Some(Token::RegexLiteral(body, flags)))
+                    })
+            })
+            .unwrap_or(Ok(None))
     }
 
     fn consume_common_token(&mut self) -> LexerResult<Token> {
@@ -780,14 +909,39 @@ impl Lexer {
         };
     }
 
-    pub fn next(&mut self) -> Result<Token, LexingError> {
+    fn set_context_from_token(&mut self, token: &Token){
+        match token {
+            _ => self.context = LexerContext::InputElementDiv
+        }
+    }
+
+    fn next_input_el_div(&mut self) -> Result<Token, LexingError> {
+        return if let Some(rbp) = self.consume_right_brace_punc(){
+            Ok(rbp)
+        } else if let Some(dp) = self.consume_div_punctuator() {
+           Ok(dp)
+        } else if let Some(common) = self.consume_common_token()? {
+            Ok(common)
+        }else {
+            Ok(Token::EOF)
+        };
+    }
+
+    fn next_from_context(&mut self) -> Result<Token, LexingError> {
         self.skip_whitespace_and_comments();
 
-        if let Some(common) = self.consume_common_token()? {
-            return Ok(common);
+        match self.context {
+            LexerContext::InputElementDiv => self.next_input_el_div(),
+            _ => unimplemented!()
         }
+    }
 
-        Ok(Token::EOF)
+    pub fn next(&mut self) -> Result<Token, LexingError> {
+        let token = self.next_from_context()?;
+
+        self.set_context_from_token(&token);
+
+        Ok(token)
     }
 }
 

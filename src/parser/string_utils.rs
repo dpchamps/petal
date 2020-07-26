@@ -115,4 +115,6 @@ pub fn parse_utf8_to_string(input: &str) -> Result<String, ()> {
     Err(())
 }
 
-pub fn char_to_string(c : char) -> String { c.to_string() }
+pub fn char_to_string(c: char) -> String {
+    c.to_string()
+}

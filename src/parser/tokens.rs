@@ -14,5 +14,6 @@ pub enum Token {
     TemplateHead(String),
     TemplateMiddle(String),
     TemplateTail(String),
+    RegexLiteral(String, String),
     EOF,
 }
