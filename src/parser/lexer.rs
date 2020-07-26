@@ -164,6 +164,15 @@ impl Lexer {
         }
     }
 
+    fn is(&self, c: char) -> bool {
+        match self.current() {
+            Some(x) if *x == c => {
+                true
+            },
+            _ => false
+        }
+    }
+
     fn lookahead(&self, i: usize) -> Option<&char> {
         self.source.get(self.cursor + i)
     }
@@ -335,6 +344,24 @@ impl Lexer {
         }
 
         Ok(None)
+    }
+
+    fn consume_div_punctuator(&mut self) -> Option<Token> {
+        if let Some(div) = self.consume('/') {
+            return Some(Token::Punctuator(div.to_string()))
+        }else if let Some(stream) = self.consume_sequence("/=") {
+            return Some(Token::Punctuator(stream))
+        }
+
+        None
+    }
+
+    fn consume_right_brace_punc(&mut self) -> Option<Token> {
+        if let Some(rb) = self.consume('{') {
+            return Some(Token::Punctuator(rb.to_string()));
+        }
+
+        None
     }
 
     fn consume_punctuator(&mut self) -> Option<Token> {
@@ -689,42 +716,50 @@ impl Lexer {
         None
     }
 
+    fn consume_template_esc_seq(&mut self) -> LexerResult<String> {
+        if !self.is('\\'){ return Ok(None) }
+
+        return if let Some(like_esc_seq) = self.consume_not_escape_seq() {
+            Ok(Some(like_esc_seq))
+        } else if let Some(unicode_esc_seq) = self.consume_unicode_escape_seq()? {
+            Ok(Some(unicode_esc_seq))
+        } else if let Some(string_esc) = self.consume_string_escape_sequence() {
+            Ok(Some(string_esc))
+        } else if let Some(_) = self.consume_line_terminator_sequence(){
+            Ok(Some('\n'.to_string()))
+        } else {
+            Ok(None)
+        }
+    }
+
     fn consume_template(&mut self) -> LexerResult<Token> {
         let mut result = String::from("");
 
-        if let None = self.consume('`') {
-            return Ok(None);
-        }
+        if let Some(_) = self.consume('`') {
+            loop {
+                if let Some(_) = self.consume('`') {
+                    break;
+                }
 
-        loop {
-            if let Some(_) = self.consume('`') {
-                break;
-            }
-
-            if let Some(source_char) = self.consume_template_character() {
-                result.push_str(&source_char.to_string());
-            } else if let Some(line_term) = self.consume_line_terminator_sequence() {
-                result.push_str(&'\n'.to_string());
-            } else if self.peek('\\', 0) {
-                if let Some(like_escape_seq) = self
-                    .consume_not_escape_seq()
-                    .or(self.consume_unicode_escape_seq()?)
-                    .or(self.consume_string_escape_sequence())
-                {
-                    result.push_str(&like_escape_seq);
-                } else if let Some(_) = self.consume_line_terminator_sequence() {
+                if let Some(source_char) = self.consume_template_character() {
+                    result.push_str(&source_char.to_string());
+                } else if let Some(line_term) = self.consume_line_terminator_sequence() {
                     result.push_str(&'\n'.to_string());
-                }
-            } else if let Some(dollar_sign) = self.consume('$') {
-                if !self.peek('{', 1) {
-                    result.push_str(&dollar_sign.to_string());
-                } else {
-                    return Ok(Some(Token::TemplateHead(result)));
+                } else if let Some(template_esc) = self.consume_template_esc_seq()?{
+                    result.push_str(&template_esc);
+                } else if let Some(dollar_sign) = self.consume('$') {
+                    if !self.peek('{', 1) {
+                        result.push_str(&dollar_sign.to_string());
+                    } else {
+                        return Ok(Some(Token::TemplateHead(result)));
+                    }
                 }
             }
+
+            return Ok(Some(Token::NoSubstitutionTemplate(result)));
         }
 
-        Ok(Some(Token::NoSubstitutionTemplate(result)))
+        Ok(None)
     }
 
     fn consume_common_token(&mut self) -> LexerResult<Token> {
