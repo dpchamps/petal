@@ -758,6 +758,10 @@ impl Lexer {
         Ok(None)
     }
 
+    fn consume_template_sub_tail(&mut self) -> LexerResult<Token> {
+        unimplemented!()
+    }
+
     fn consume_regex_flags(&mut self) -> String {
         let mut result = String::new();
 
@@ -927,12 +931,50 @@ impl Lexer {
         };
     }
 
+    fn next_input_el_regex(&mut self) -> Result<Token, LexingError> {
+        return if let Some(regex) = self.consume_regex_literal()? {
+            Ok(regex)
+        }else if let Some(rbp) = self.consume_right_brace_punc(){
+            Ok(rbp)
+        } else if let Some(common) = self.consume_common_token()? {
+            Ok(common)
+        }else {
+            Ok(Token::EOF)
+        };
+    }
+
+    fn next_input_el_regex_template_tail(&mut self) -> Result<Token, LexingError> {
+        return if let Some(template_tail) = self.consume_template_sub_tail()?{
+            Ok(template_tail)
+        } else if let Some(regex) = self.consume_regex_literal()? {
+            Ok(regex)
+        }else if let Some(common) = self.consume_common_token()? {
+            Ok(common)
+        }else {
+            Ok(Token::EOF)
+        };
+    }
+
+    fn next_input_el_template_tail(&mut self) -> Result<Token, LexingError> {
+        return if let Some(template_tail) = self.consume_template_sub_tail()?{
+            Ok(template_tail)
+        } else if let Some(div) = self.consume_div_punctuator() {
+            Ok(div)
+        }else if let Some(common) = self.consume_common_token()? {
+            Ok(common)
+        }else {
+            Ok(Token::EOF)
+        };
+    }
+
     fn next_from_context(&mut self) -> Result<Token, LexingError> {
         self.skip_whitespace_and_comments();
 
         match self.context {
             LexerContext::InputElementDiv => self.next_input_el_div(),
-            _ => unimplemented!()
+            LexerContext::InputElementRegExp => self.next_input_el_regex(),
+            LexerContext::InputElementRegExpOrTemplateTail => self.next_input_el_regex_template_tail(),
+            LexerContext::InputElementTemplateTail => self.next_input_el_template_tail(),
         }
     }
 
