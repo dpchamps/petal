@@ -93,7 +93,7 @@ impl Lexer {
     }
 
     fn consume_sequence(&mut self, seq: &str) -> Option<String> {
-        let mut result = String::from("");
+        let mut result = String::new();
 
         seq.chars().for_each(|c| {
             if let Some(next) = self.consume(c) {
@@ -240,7 +240,7 @@ impl Lexer {
     }
 
     fn consume_hex_4_digits(&mut self) -> Option<String> {
-        let mut result = String::from("");
+        let mut result = String::new();
 
         for _ in 0..4 {
             if let Some(x) = self.consume_digit(16) {
@@ -255,7 +255,7 @@ impl Lexer {
     }
 
     fn consume_code_point(&mut self) -> Option<String> {
-        let mut result = String::from("");
+        let mut result = String::new();
 
         while let Some(x) = self.consume_digit(16) {
             result.push_str(&x.to_string());
@@ -263,7 +263,7 @@ impl Lexer {
 
         if i64::from_str_radix(&result, 16).unwrap() > 0x10FFFF {
             self.backtrack(result.len());
-            result = String::from("");
+            result = String::new();
         }
 
         return if result.len() > 0 { Some(result) } else { None };
@@ -272,7 +272,7 @@ impl Lexer {
     // TODO: This is _definitely_ not correct
     //  validation needs to take place here.
     fn consume_unicode_escape_seq(&mut self) -> LexerResult<String> {
-        let mut result = String::from("");
+        let mut result = String::new();
 
         if self.consume_push('\\', &mut result) && self.consume_push('u', &mut result) {
             if let Some(hex_4) = self.consume_hex_4_digits() {
@@ -319,7 +319,7 @@ impl Lexer {
     }
 
     fn consume_identifier_name(&mut self) -> LexerResult<Token> {
-        let mut result = String::from("");
+        let mut result = String::new();
 
         if let Some(id_start) = self.consume_iden_start() {
             result.push_str(&id_start);
@@ -361,7 +361,7 @@ impl Lexer {
     }
 
     fn consume_punctuator(&mut self) -> Option<Token> {
-        let mut result = String::from("");
+        let mut result = String::new();
 
         if let Some(punc) = self.consume_single_punctuator() {
             result.push_str(&punc.to_string());
@@ -405,7 +405,7 @@ impl Lexer {
     fn consume_non_decimal_digits(&mut self, radix: u32) -> LexerResult<Token> {
         // eat radix specifier
         self.advance();
-        let mut result = String::from("");
+        let mut result = String::new();
 
         while let Some(digit) = self.consume_digit(radix) {
             result.push_str(&digit.to_string())
@@ -421,7 +421,7 @@ impl Lexer {
     }
 
     fn consume_decimal_stream(&mut self) -> Option<String> {
-        let mut result = String::from("");
+        let mut result = String::new();
 
         while let Some(digit) = self.consume_digit(10) {
             result.push_str(&digit.to_string())
@@ -431,7 +431,7 @@ impl Lexer {
     }
 
     fn consume_fraction_stream(&mut self) -> LexerResult<String> {
-        let mut result = String::from("");
+        let mut result = String::new();
 
         if self.consume_push('.', &mut result) {
             if let Some(decimalStream) = self.consume_decimal_stream() {
@@ -450,7 +450,7 @@ impl Lexer {
     }
 
     fn consume_decimal_exponent_fragment(&mut self) -> LexerResult<String> {
-        let mut result = String::from("");
+        let mut result = String::new();
         match self.current() {
             Some(x) if x.to_ascii_lowercase() == 'e' => {
                 result.push_str(&x.to_string());
@@ -473,7 +473,7 @@ impl Lexer {
     }
 
     fn consume_decimal_big_int_literal(&mut self) -> LexerResult<Token> {
-        let mut result = String::from("");
+        let mut result = String::new();
 
         if let Some(_) = self.consume('0') {
             if let None = self.consume('n') {
@@ -497,7 +497,7 @@ impl Lexer {
     }
 
     fn consume_decimal_literal(&mut self) -> LexerResult<Token> {
-        let mut result = String::from("");
+        let mut result = String::new();
 
         // consume numbers starting with .
         if let Some(fraction_stream) = self.consume_fraction_stream()? {
@@ -668,7 +668,7 @@ impl Lexer {
 
     fn consume_string_literal(&mut self) -> LexerResult<Token> {
         if let Some(quote) = self.consume('\'').or(self.consume('"')) {
-            let mut result = String::from("");
+            let mut result = String::new();
 
             while let Some(x) = self.consume_source_character(&quote) {
                 result.push_str(&x)
@@ -733,7 +733,7 @@ impl Lexer {
     }
 
     fn consume_template_part(&mut self) -> LexerResult<(String, bool)> {
-        let mut result = String::from("");
+        let mut result = String::new();
 
         loop {
             if let Some(_) = self.consume('`') {
