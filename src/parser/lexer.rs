@@ -829,7 +829,7 @@ impl Lexer {
     fn consume_regex_non_term_class_exception(&mut self) -> Option<String> {
         match self.current() {
             Some(x) => {
-                if x == &'\\' || x == &'[' {
+                if x == &'\\' || x == &']' {
                     return None;
                 }
 
@@ -875,7 +875,7 @@ impl Lexer {
 
     fn consume_regex_char(&mut self) -> LexerResult<String> {
         return if let Some(class) = self.consume_regex_class()? {
-            Ok(Some(class))
+            Ok(Some(format!("[{}]", class)))
         } else if let Some(backslash_seq) = self.consume_regex_backslash_seq() {
             Ok(Some(backslash_seq))
         } else if let Some(non_term) = self.consume_regex_non_term_exception() {
