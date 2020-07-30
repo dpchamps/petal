@@ -943,6 +943,8 @@ impl Lexer {
         };
     }
 
+    // Note: cheating a bit here.
+    //  The specification is just too dang broad. Going the way of JSLint, and using punctuators as a best faith decider.
     fn set_context_from_token(&mut self, token: &Token) {
         let current_context = self.context;
         self.context = match token {
