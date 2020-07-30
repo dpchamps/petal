@@ -21,12 +21,12 @@ pub enum LexingError {
     UnexpectedToken(String),
 }
 
-#[derive(Debug, PartialOrd, PartialEq)]
+#[derive(Debug, PartialOrd, PartialEq, Copy, Clone)]
 pub enum LexerContext {
     InputElementDiv,
     InputElementRegExp,
     InputElementRegExpOrTemplateTail,
-    InputElementTemplateTail
+    InputElementTemplateTail,
 }
 
 type LexerResult<T> = Result<Option<T>, LexingError>;
@@ -40,7 +40,7 @@ impl Lexer {
                 .iter()
                 .map(|x| x.clone() as char)
                 .collect(),
-            context: LexerContext::InputElementDiv
+            context: LexerContext::InputElementRegExp,
         }
     }
 
@@ -222,6 +222,8 @@ impl Lexer {
                 self.skip_multiline_comments();
             } else if self.eat('/') {
                 self.skip_single_line_comment();
+            } else {
+                self.backtrack(1);
             }
         }
     }
@@ -351,7 +353,7 @@ impl Lexer {
     }
 
     fn consume_right_brace_punc(&mut self) -> Option<Token> {
-        if let Some(rb) = self.consume('{') {
+        if let Some(rb) = self.consume('}') {
             return Some(Token::Punctuator(rb.to_string()));
         }
 
@@ -440,6 +442,8 @@ impl Lexer {
 
                 return Ok(Some(result));
             }
+
+            self.backtrack(1);
         }
 
         Ok(None)
@@ -728,44 +732,66 @@ impl Lexer {
         };
     }
 
-    fn consume_template(&mut self) -> LexerResult<Token> {
+    fn consume_template_part(&mut self) -> LexerResult<(String, bool)> {
         let mut result = String::from("");
 
-        if let Some(_) = self.consume('`') {
-            loop {
-                if let Some(_) = self.consume('`') {
-                    break;
-                }
-
-                if let Some(source_char) = self.consume_template_character() {
-                    result.push_str(&source_char.to_string());
-                } else if let Some(line_term) = self.consume_line_terminator_sequence() {
-                    result.push_str(&'\n'.to_string());
-                } else if let Some(template_esc) = self.consume_template_esc_seq()? {
-                    result.push_str(&template_esc);
-                } else if let Some(dollar_sign) = self.consume('$') {
-                    if !self.peek('{', 1) {
-                        result.push_str(&dollar_sign.to_string());
-                    } else {
-                        return Ok(Some(Token::TemplateHead(result)));
-                    }
-                }
+        loop {
+            if let Some(_) = self.consume('`') {
+                break;
             }
 
-            return Ok(Some(Token::NoSubstitutionTemplate(result)));
+            if let Some(source_char) = self.consume_template_character() {
+                result.push_str(&source_char.to_string());
+            } else if let Some(line_term) = self.consume_line_terminator_sequence() {
+                result.push_str(&'\n'.to_string());
+            } else if let Some(template_esc) = self.consume_template_esc_seq()? {
+                result.push_str(&template_esc);
+            } else if let Some(dollar_sign) = self.consume('$') {
+                if !self.eat('{') {
+                    result.push_str(&dollar_sign.to_string());
+                } else {
+                    return Ok(Some((result, true)));
+                }
+            }
+        }
+
+        return Ok(Some((result, false)));
+    }
+
+    fn consume_template(&mut self) -> LexerResult<Token> {
+        if let Some(_) = self.consume('`') {
+            if let Some((result, is_fragment)) = self.consume_template_part()? {
+                return if is_fragment {
+                    Ok(Some(Token::TemplateHead(result)))
+                } else {
+                    Ok(Some(Token::NoSubstitutionTemplate(result)))
+                };
+            }
         }
 
         Ok(None)
     }
 
     fn consume_template_sub_tail(&mut self) -> LexerResult<Token> {
-        unimplemented!()
+        if let None = self.consume('}') {
+            return Ok(None);
+        }
+
+        if let Some((result, is_fragment)) = self.consume_template_part()? {
+            return if is_fragment {
+                Ok(Some(Token::TemplateMiddle(result)))
+            } else {
+                Ok(Some(Token::TemplateTail(result)))
+            };
+        }
+
+        Ok(None)
     }
 
     fn consume_regex_flags(&mut self) -> String {
         let mut result = String::new();
 
-        while let Some(x) = self.consume_id_part(){
+        while let Some(x) = self.consume_id_part() {
             result.push_str(&x)
         }
 
@@ -774,15 +800,15 @@ impl Lexer {
 
     fn consume_regex_non_terminator(&mut self) -> Option<String> {
         match self.current() {
-            Some(x) if !string_utils::is_line_terminator(x) => {
-                self.chomp().map(|x| x.to_string())
-            },
-            _ => None
+            Some(x) if !string_utils::is_line_terminator(x) => self.chomp().map(|x| x.to_string()),
+            _ => None,
         }
     }
 
     fn consume_regex_backslash_seq(&mut self) -> Option<String> {
-        if let None = self.consume('\\') { return None }
+        if let None = self.consume('\\') {
+            return None;
+        }
 
         self.consume_regex_non_terminator()
     }
@@ -791,12 +817,12 @@ impl Lexer {
         match self.current() {
             Some(x) => {
                 if x == &'*' || x == &'\\' || x == &'/' || x == &'[' {
-                    return None
+                    return None;
                 }
 
                 self.consume_regex_non_terminator()
-            },
-            _ => None
+            }
+            _ => None,
         }
     }
 
@@ -804,29 +830,29 @@ impl Lexer {
         match self.current() {
             Some(x) => {
                 if x == &'\\' || x == &'[' {
-                    return None
+                    return None;
                 }
 
                 self.consume_regex_non_terminator()
-            },
-            _ => None
+            }
+            _ => None,
         }
     }
 
     fn consume_regex_class_char(&mut self) -> Option<String> {
         return if let Some(backslash_seq) = self.consume_regex_backslash_seq() {
             Some(backslash_seq)
-        }else if let Some(non_term) = self.consume_regex_non_term_class_exception() {
+        } else if let Some(non_term) = self.consume_regex_non_term_class_exception() {
             Some(non_term)
-        } else{
+        } else {
             None
-        }
+        };
     }
 
     fn consume_regex_class_chars(&mut self) -> String {
         let mut result = String::new();
 
-        while let Some(next) = self.consume_regex_class_char(){
+        while let Some(next) = self.consume_regex_class_char() {
             result.push_str(&next)
         }
 
@@ -834,17 +860,21 @@ impl Lexer {
     }
 
     fn consume_regex_class(&mut self) -> LexerResult<String> {
-        if let None = self.consume('['){ return Ok(None)}
+        if let None = self.consume('[') {
+            return Ok(None);
+        }
 
         let chars = self.consume_regex_class_chars();
 
-        if let None = self.consume(']'){ return Err(LexingError::InvalidToken)}
+        if let None = self.consume(']') {
+            return Err(LexingError::InvalidToken);
+        }
 
         Ok(Some(chars))
     }
 
     fn consume_regex_char(&mut self) -> LexerResult<String> {
-        return if let Some(class) = self.consume_regex_class()?{
+        return if let Some(class) = self.consume_regex_class()? {
             Ok(Some(class))
         } else if let Some(backslash_seq) = self.consume_regex_backslash_seq() {
             Ok(Some(backslash_seq))
@@ -852,11 +882,11 @@ impl Lexer {
             Ok(Some(non_term))
         } else {
             Ok(None)
-        }
+        };
     }
 
     fn consume_regex_chars(&mut self) -> LexerResult<String> {
-        let mut result = String::new();;
+        let mut result = String::new();
 
         while let Some(next) = self.consume_regex_char()? {
             result.push_str(&next)
@@ -866,7 +896,7 @@ impl Lexer {
             Ok(Some(result))
         } else {
             Ok(None)
-        }
+        };
     }
 
     fn consume_regex_body(&mut self) -> LexerResult<String> {
@@ -886,9 +916,9 @@ impl Lexer {
 
         self.consume_regex_body()?
             .map(|body| {
-                let flags = self.consume_regex_flags();
                 self.consume('/')
                     .map_or(Err(LexingError::InvalidToken), |_| {
+                        let flags = self.consume_regex_flags();
                         Ok(Some(Token::RegexLiteral(body, flags)))
                     })
             })
@@ -913,20 +943,42 @@ impl Lexer {
         };
     }
 
-    fn set_context_from_token(&mut self, token: &Token){
-        match token {
-            _ => self.context = LexerContext::InputElementDiv
+    fn set_context_from_token(&mut self, token: &Token) {
+        let current_context = self.context;
+        self.context = match token {
+            Token::TemplateHead(_) => LexerContext::InputElementRegExpOrTemplateTail,
+            Token::Punctuator(punc) => match punc.as_str() {
+                "(" | "," | "=" | ":" | "[" | "!" | "&" | "|" | "?" | "{" | "}" | ";" => {
+                    if self.context == LexerContext::InputElementRegExpOrTemplateTail
+                        || self.context == LexerContext::InputElementTemplateTail
+                    {
+                        LexerContext::InputElementRegExpOrTemplateTail
+                    } else {
+                        LexerContext::InputElementRegExp
+                    }
+                }
+                _ => {
+                    if self.context == LexerContext::InputElementRegExpOrTemplateTail
+                        || self.context == LexerContext::InputElementTemplateTail
+                    {
+                        LexerContext::InputElementTemplateTail
+                    } else {
+                        LexerContext::InputElementDiv
+                    }
+                }
+            },
+            _ => current_context,
         }
     }
 
     fn next_input_el_div(&mut self) -> Result<Token, LexingError> {
-        return if let Some(rbp) = self.consume_right_brace_punc(){
+        return if let Some(rbp) = self.consume_right_brace_punc() {
             Ok(rbp)
         } else if let Some(dp) = self.consume_div_punctuator() {
-           Ok(dp)
+            Ok(dp)
         } else if let Some(common) = self.consume_common_token()? {
             Ok(common)
-        }else {
+        } else {
             Ok(Token::EOF)
         };
     }
@@ -934,35 +986,35 @@ impl Lexer {
     fn next_input_el_regex(&mut self) -> Result<Token, LexingError> {
         return if let Some(regex) = self.consume_regex_literal()? {
             Ok(regex)
-        }else if let Some(rbp) = self.consume_right_brace_punc(){
+        } else if let Some(rbp) = self.consume_right_brace_punc() {
             Ok(rbp)
         } else if let Some(common) = self.consume_common_token()? {
             Ok(common)
-        }else {
+        } else {
             Ok(Token::EOF)
         };
     }
 
     fn next_input_el_regex_template_tail(&mut self) -> Result<Token, LexingError> {
-        return if let Some(template_tail) = self.consume_template_sub_tail()?{
+        return if let Some(template_tail) = self.consume_template_sub_tail()? {
             Ok(template_tail)
         } else if let Some(regex) = self.consume_regex_literal()? {
             Ok(regex)
-        }else if let Some(common) = self.consume_common_token()? {
+        } else if let Some(common) = self.consume_common_token()? {
             Ok(common)
-        }else {
+        } else {
             Ok(Token::EOF)
         };
     }
 
     fn next_input_el_template_tail(&mut self) -> Result<Token, LexingError> {
-        return if let Some(template_tail) = self.consume_template_sub_tail()?{
+        return if let Some(template_tail) = self.consume_template_sub_tail()? {
             Ok(template_tail)
         } else if let Some(div) = self.consume_div_punctuator() {
             Ok(div)
-        }else if let Some(common) = self.consume_common_token()? {
+        } else if let Some(common) = self.consume_common_token()? {
             Ok(common)
-        }else {
+        } else {
             Ok(Token::EOF)
         };
     }
@@ -970,12 +1022,16 @@ impl Lexer {
     fn next_from_context(&mut self) -> Result<Token, LexingError> {
         self.skip_whitespace_and_comments();
 
-        match self.context {
+        let result = match self.context {
             LexerContext::InputElementDiv => self.next_input_el_div(),
             LexerContext::InputElementRegExp => self.next_input_el_regex(),
-            LexerContext::InputElementRegExpOrTemplateTail => self.next_input_el_regex_template_tail(),
+            LexerContext::InputElementRegExpOrTemplateTail => {
+                self.next_input_el_regex_template_tail()
+            }
             LexerContext::InputElementTemplateTail => self.next_input_el_template_tail(),
-        }
+        };
+
+        result
     }
 
     pub fn next(&mut self) -> Result<Token, LexingError> {
@@ -1009,7 +1065,7 @@ mod test {
     fn single_line_comment_newline() {
         let mut lexer = Lexer::new(String::from("// This is a comment \n 10"));
 
-        assert_eq!(Ok(Token::NumericLiteral(10.0)), lexer.next());
+        assert_eq!(lexer.next(), Ok(Token::NumericLiteral(10.0)));
     }
 
     #[test]
@@ -1289,5 +1345,78 @@ mod test {
         let expectation = String::from("abra	kadabra \n\n hullo  海 ú");
 
         assert_eq!(Ok(Token::NoSubstitutionTemplate(expectation)), lexer.next());
+    }
+
+    #[test]
+    fn template_parts() {
+        let mut lexer = Lexer::new(String::from("`a${b}c${d}e`"));
+
+        assert_eq!(lexer.next(), Ok(Token::TemplateHead(String::from("a"))));
+        assert_eq!(lexer.next(), Ok(Token::IdentifierName(String::from("b"))));
+        assert_eq!(lexer.next(), Ok(Token::TemplateMiddle(String::from("c"))));
+        assert_eq!(lexer.next(), Ok(Token::IdentifierName(String::from("d"))));
+        assert_eq!(lexer.next(), Ok(Token::TemplateTail(String::from("e"))));
+    }
+
+    #[test]
+    fn template_edge_cases() {
+        let mut lexer = Lexer::new(String::from(
+            r"`Price is $${price.replace(/,/g, '.')} \$\{`",
+        ));
+
+        assert_eq!(
+            lexer.next(),
+            Ok(Token::TemplateHead(String::from("Price is $")))
+        );
+        assert_eq!(
+            lexer.next(),
+            Ok(Token::IdentifierName(String::from("price")))
+        );
+        assert_eq!(lexer.next(), Ok(Token::Punctuator(String::from("."))));
+        assert_eq!(
+            lexer.next(),
+            Ok(Token::IdentifierName(String::from("replace")))
+        );
+        assert_eq!(lexer.next(), Ok(Token::Punctuator(String::from("("))));
+        assert_eq!(
+            lexer.next(),
+            Ok(Token::RegexLiteral(String::from(","), String::from("g")))
+        );
+        assert_eq!(lexer.next(), Ok(Token::Punctuator(String::from(","))));
+        assert_eq!(lexer.next(), Ok(Token::StringLiteral(String::from("."))));
+        assert_eq!(lexer.next(), Ok(Token::Punctuator(String::from(")"))));
+        assert_eq!(lexer.next(), Ok(Token::TemplateTail(String::from(" ${"))));
+    }
+
+    #[test]
+    fn regex() {
+        let mut lexer = Lexer::new(String::from("/abx/gi"));
+
+        assert_eq!(
+            lexer.next(),
+            Ok(Token::RegexLiteral(String::from("abx"), String::from("gi")))
+        );
+    }
+
+    #[test]
+    fn regex_ambiguity() {
+        let mut lexer = Lexer::new(String::from("('a')/a/g {}/a/g +{}/a/g"));
+
+        lexer.next();
+        lexer.next();
+        lexer.next();
+
+        assert_eq!(lexer.next(), Ok(Token::Punctuator(String::from("/"))));
+        assert_eq!(lexer.next(), Ok(Token::IdentifierName(String::from("a"))));
+        assert_eq!(lexer.next(), Ok(Token::Punctuator(String::from("/"))));
+        assert_eq!(lexer.next(), Ok(Token::IdentifierName(String::from("g"))));
+
+        lexer.next();
+        lexer.next();
+
+        assert_eq!(
+            lexer.next(),
+            Ok(Token::RegexLiteral(String::from("a"), String::from("g")))
+        );
     }
 }
