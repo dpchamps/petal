@@ -96,12 +96,20 @@ pub fn is_single_escape_character(c: &char) -> bool {
         _ => false,
     }
 }
-
+// https://www.ecma-international.org/ecma-262/#sec-utf16encoding
 pub fn parse_unicode_to_string(input: &str) -> Result<String, ()> {
     if let Ok(parsed) = u64::from_str_radix(input, 16) {
-        if let Ok(utf16String) = String::from_utf16(&[parsed as u16]) {
-            return Ok(utf16String);
+        // Static Semantics Check
+        if parsed > 0x10FFFF { return Err(())}
+
+        if parsed < 0xFFFF {
+            return String::from_utf16(&[parsed as u16]).ok().ok_or(());
         }
+
+        let cu1 = ((parsed - 0x10000) / 0x400) + 0xD800;
+        let cu2 = ((parsed - 0x10000) % 0x400) + 0xDC00;
+
+        return String::from_utf16(&[cu1 as u16, cu2 as u16]).ok().ok_or(());
     }
 
     Err(())

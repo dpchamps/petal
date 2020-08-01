@@ -5,12 +5,53 @@ use std::str::Chars;
 use std::thread::current;
 use unic_ucd_ident::{is_xid_continue, is_xid_start};
 
-// TODO: This incorrectly assumes that all source input will be a utf-8 string.
-//  However, ECMA-2020 supports unicode strings.
-pub struct Lexer {
-    cursor: usize,
-    source: Vec<char>,
-    context: LexerContext,
+
+#[derive(Debug, Clone, PartialOrd, PartialEq)]
+pub struct LexerState {
+    row: usize,
+    col: usize,
+    cols: Vec<usize>
+}
+
+impl LexerState {
+    pub fn new() -> Self {
+        LexerState{
+            row: 0,
+            col: 0,
+            cols: vec![]
+        }
+    }
+
+    pub fn increment(&mut self, input: &char){
+        if string_utils::is_line_terminator(input){
+            self.newline()
+        }else{
+            self.col += 1;
+        }
+    }
+
+    pub fn decrement(&mut self){
+        if self.col == 0 && self.row == 0 {
+            return;
+        }
+
+        if self.col == 0 {
+            self.retreat()
+        } else {
+            self.col -= 1;
+        }
+    }
+
+    fn newline(&mut self){
+        self.cols.push(self.col);
+        self.row += 1;
+        self.col = 0;
+    }
+
+    fn retreat(&mut self){
+        self.col = self.cols.pop().unwrap_or(0);
+        self.row -= 1;
+    }
 }
 
 #[derive(Debug, PartialOrd, PartialEq)]
@@ -19,6 +60,7 @@ pub enum LexingError {
     ErrorWithMessage(&'static str),
     InvalidToken,
     UnexpectedToken(String),
+    EarlyError(usize, usize)
 }
 
 #[derive(Debug, PartialOrd, PartialEq, Copy, Clone)]
@@ -31,6 +73,15 @@ pub enum LexerContext {
 
 type LexerResult<T> = Result<Option<T>, LexingError>;
 
+// TODO: This incorrectly assumes that all source input will be a utf-8 string.
+//  However, ECMA-2020 supports unicode strings.
+pub struct Lexer {
+    cursor: usize,
+    source: Vec<char>,
+    context: LexerContext,
+    state: LexerState,
+}
+
 impl Lexer {
     pub fn new(source: String) -> Self {
         Lexer {
@@ -41,16 +92,22 @@ impl Lexer {
                 .map(|x| x.clone() as char)
                 .collect(),
             context: LexerContext::InputElementRegExp,
+            state: LexerState::new(),
         }
     }
 
     fn advance(&mut self) {
+        if let Some(cur) = self.current() {
+            self.state.increment(&cur.clone());
+        }
+
         self.cursor += 1;
     }
 
     fn retreat(&mut self) {
         if self.cursor > 0 {
             self.cursor -= 1;
+            self.state.decrement();
         }
     }
 
@@ -269,15 +326,13 @@ impl Lexer {
         return if result.len() > 0 { Some(result) } else { None };
     }
 
-    // TODO: This is _definitely_ not correct
-    //  validation needs to take place here.
     fn consume_unicode_escape_seq(&mut self) -> LexerResult<String> {
         let mut result = String::new();
 
         if self.consume_push('\\', &mut result) && self.consume_push('u', &mut result) {
             if let Some(hex_4) = self.consume_hex_4_digits() {
                 let utf_16_str = string_utils::parse_unicode_to_string(&hex_4)
-                    .or(Err(LexingError::InvalidToken))?;
+                    .or(Err(LexingError::EarlyError(self.state.row, self.state.col)))?;
                 return Ok(Some(utf_16_str));
             } else if self.consume_push('{', &mut result) {
                 if let Some(code_point) = self.consume_code_point() {
@@ -294,37 +349,37 @@ impl Lexer {
         return Ok(None);
     }
 
-    fn consume_iden_start(&mut self) -> Option<String> {
+    fn consume_iden_start(&mut self) -> LexerResult<String> {
         return if let Some(an) = self.consume_codepoint_id_start() {
-            Some(an.to_string())
+            Ok(Some(an.to_string()))
         } else if let Some(q) = self.consume('$') {
-            Some(q.to_string())
+            Ok(Some(q.to_string()))
         } else if let Some(u) = self.consume('_') {
-            Some(u.to_string())
+            Ok(Some(u.to_string()))
         } else {
-            self.consume_unicode_escape_seq().unwrap_or(None)
+            self.consume_unicode_escape_seq()
         };
     }
 
-    fn consume_id_part(&mut self) -> Option<String> {
+    fn consume_id_part(&mut self) -> LexerResult<String> {
         if let Some(id_part) = self.consume_codepoint_id_continue() {
-            return Some(id_part.to_string());
-        } else if let Some(iden) = self.consume_iden_start() {
-            return Some(iden.to_string());
+            return Ok(Some(id_part.to_string()));
+        } else if let Some(iden) = self.consume_iden_start()? {
+            return Ok(Some(iden.to_string()));
         } else if let Some(zwcp) = self.consume_zero_width_codepoint() {
-            return Some(zwcp.to_string());
+            return Ok(Some(zwcp.to_string()));
         }
 
-        None
+        Ok(None)
     }
 
     fn consume_identifier_name(&mut self) -> LexerResult<Token> {
         let mut result = String::new();
 
-        if let Some(id_start) = self.consume_iden_start() {
+        if let Some(id_start) = self.consume_iden_start()? {
             result.push_str(&id_start);
 
-            while let Some(id_part) = self.consume_id_part() {
+            while let Some(id_part) = self.consume_id_part()? {
                 result.push_str(&id_part);
             }
 
@@ -393,7 +448,7 @@ impl Lexer {
     }
 
     fn consume_digit_end_source_char(&mut self) -> LexerResult<()> {
-        if let Some(_) = self.consume_iden_start() {
+        if let Some(_) = self.consume_iden_start()? {
             return Err(LexingError::InvalidToken);
         } else if let Some(_) = self.consume_digit(10) {
             return Err(LexingError::InvalidToken);
@@ -788,14 +843,14 @@ impl Lexer {
         Ok(None)
     }
 
-    fn consume_regex_flags(&mut self) -> String {
+    fn consume_regex_flags(&mut self) -> LexerResult<String> {
         let mut result = String::new();
 
-        while let Some(x) = self.consume_id_part() {
+        while let Some(x) = self.consume_id_part()? {
             result.push_str(&x)
         }
 
-        result
+        Ok(Some(result))
     }
 
     fn consume_regex_non_terminator(&mut self) -> Option<String> {
@@ -918,7 +973,7 @@ impl Lexer {
             .map(|body| {
                 self.consume('/')
                     .map_or(Err(LexingError::InvalidToken), |_| {
-                        let flags = self.consume_regex_flags();
+                        let flags = self.consume_regex_flags()?.unwrap_or(String::new());
                         Ok(Some(Token::RegexLiteral(body, flags)))
                     })
             })
