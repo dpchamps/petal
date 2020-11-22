@@ -1168,3 +1168,38 @@ impl Lexer {
         semicolon
     }
 }
+
+pub struct LexerIntoIterator {
+    lexer: Lexer,
+    index: usize,
+}
+
+impl Iterator for LexerIntoIterator {
+    type Item = Token;
+
+    fn next(&mut self) -> Option<Token> {
+        if let Some(next_token) = self.lexer.state.retrieve_next_token().or(self.lexer.next_from_context().ok()){
+            self.lexer.set_context_from_token(&next_token);
+
+            if next_token == Token::EOF {
+                return None
+            }
+
+            return Some(next_token);
+        }
+
+        None
+    }
+}
+
+impl IntoIterator for Lexer {
+    type Item = Token;
+    type IntoIter = LexerIntoIterator;
+
+    fn into_iter(self) -> Self::IntoIter {
+        LexerIntoIterator {
+            lexer: self,
+            index: 0
+        }
+    }
+}

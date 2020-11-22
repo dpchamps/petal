@@ -5,7 +5,6 @@ use Petal::parser::tokens::Token;
 fn lex_file_expected_output() {
     let source = std::fs::read_to_string("./tests/lexer-fixture.js").unwrap();
     let mut lexer = Lexer::new(source);
-    let mut tokens: Vec<Token> = vec![];
 
     let expectation = vec![
         Token::Keyword(String::from("import")),
@@ -79,12 +78,7 @@ fn lex_file_expected_output() {
         Token::Punctuator(String::from(";")),
     ];
 
-    while let Ok(token) = lexer.next() {
-        if token == Token::EOF {
-            break;
-        }
-        tokens.push(token);
-    }
+    let tokens = lexer.into_iter().collect::<Vec<Token>>();
 
     assert_eq!(tokens, expectation)
 }
