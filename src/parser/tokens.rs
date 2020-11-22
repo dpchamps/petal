@@ -1,4 +1,4 @@
-#[derive(Debug, PartialOrd, PartialEq)]
+#[derive(Debug, Clone, PartialOrd, PartialEq)]
 pub enum Token {
     IdentifierName(String),
     Punctuator(String),

@@ -2,7 +2,6 @@ use crate::parser::string_utils;
 use crate::parser::tokens::Token;
 use std::i64;
 use std::str::Chars;
-use std::thread::current;
 use unic_ucd_ident::{is_xid_continue, is_xid_start};
 
 
@@ -10,7 +9,10 @@ use unic_ucd_ident::{is_xid_continue, is_xid_start};
 pub struct LexerState {
     row: usize,
     col: usize,
-    cols: Vec<usize>
+    cols: Vec<usize>,
+    last_token: Option<Token>,
+    next_token: Option<Token>,
+    last_row: Option<usize>,
 }
 
 impl LexerState {
@@ -18,7 +20,10 @@ impl LexerState {
         LexerState{
             row: 0,
             col: 0,
-            cols: vec![]
+            cols: vec![],
+            last_token: None,
+            next_token: None,
+            last_row: None,
         }
     }
 
@@ -40,6 +45,25 @@ impl LexerState {
         } else {
             self.col -= 1;
         }
+    }
+
+    pub fn capture(&mut self){
+        self.last_row = Some(self.row);
+    }
+
+    pub fn retrieve_next_token(&mut self) -> Option<Token>{
+        let next = self.next_token.clone();
+        self.next_token = None;
+
+        return next
+    }
+
+    pub fn was_newline(&self) -> bool{
+        if let Some(last) = self.last_row{
+            return last != self.row
+        }
+
+        false
     }
 
     fn newline(&mut self){
@@ -1047,6 +1071,7 @@ impl Lexer {
             _ => self.context,
         };
 
+        self.state.last_token = Some(token.clone());
         self.context = next_context;
     }
 
@@ -1099,23 +1124,47 @@ impl Lexer {
     }
 
     fn next_from_context(&mut self) -> Result<Token, LexingError> {
+        self.state.capture();
         self.skip_whitespace_and_comments();
 
-        match self.context {
+        let next_token = match self.context {
             LexerContext::InputElementDiv => self.next_input_el_div(),
             LexerContext::InputElementRegExp => self.next_input_el_regex(),
             LexerContext::InputElementRegExpOrTemplateTail => {
                 self.next_input_el_regex_template_tail()
             }
             LexerContext::InputElementTemplateTail => self.next_input_el_template_tail(),
-        }
+        };
+
+        return next_token;
     }
 
     pub fn next(&mut self) -> Result<Token, LexingError> {
-        let token = self.next_from_context()?;
+        let token = self.state.retrieve_next_token().unwrap_or(self.next_from_context()?);
 
         self.set_context_from_token(&token);
 
         Ok(token)
+    }
+
+    pub fn semicolon() -> Token {
+        Token::Punctuator(String::from(";"))
+    }
+
+    pub fn was_newline_sequence(&self) -> bool {
+        self.state.was_newline()
+    }
+
+    // The parser has to decide whether or not to perform ASI.
+    // Instead of making the parser maintain internal state of individual tokens, maintain it here.
+    // This way, a parser just calls next(), followed by asi(), and doesn't have to do
+    // any backtracking or branching, just continue iteration.
+    pub fn automatic_semicolon_insertion(&mut self) -> Token{
+        let semicolon = Lexer::semicolon();
+
+        self.state.next_token = self.state.last_token.clone();
+        self.state.last_token = Some(semicolon.clone());
+
+        semicolon
     }
 }
