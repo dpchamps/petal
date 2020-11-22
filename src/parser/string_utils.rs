@@ -102,7 +102,7 @@ pub fn parse_unicode_to_string(input: &str) -> Result<String, ()> {
         // Static Semantics Check
         if parsed > 0x10FFFF { return Err(())}
 
-        if parsed < 0xFFFF {
+        if parsed <= 0xFFFF {
             return String::from_utf16(&[parsed as u16]).ok().ok_or(());
         }
 

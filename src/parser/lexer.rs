@@ -73,8 +73,6 @@ pub enum LexerContext {
 
 type LexerResult<T> = Result<Option<T>, LexingError>;
 
-// TODO: This incorrectly assumes that all source input will be a utf-8 string.
-//  However, ECMA-2020 supports unicode strings.
 pub struct Lexer {
     cursor: usize,
     source: Vec<char>,
@@ -296,7 +294,7 @@ impl Lexer {
         }
     }
 
-    fn consume_hex_4_digits(&mut self) -> Option<String> {
+    fn consume_hex_4_digits(&mut self) -> LexerResult<String> {
         let mut result = String::new();
 
         for _ in 0..4 {
@@ -304,11 +302,33 @@ impl Lexer {
                 result.push_str(&x.to_string());
             } else {
                 self.backtrack(result.len());
-                return None;
+                return Ok(None);
             }
         }
 
-        Some(result)
+        Ok(Some(result))
+    }
+
+    fn consume_unicode_code_point_stream(&mut self) -> LexerResult<String> {
+        let mut result = String::new();
+
+        if let Some(_) = self.consume('{') {
+            loop{
+                if self.eat('}') {
+                    break;
+                }
+
+                if let Some(cp) = self.consume_code_point(){
+                    result.push_str(&cp)
+                } else {
+                    return Err(LexingError::EarlyError(self.state.row, self.state.col))
+                }
+            }
+
+            return Ok(Some(result));
+        }
+
+        Ok(None)
     }
 
     fn consume_code_point(&mut self) -> Option<String> {
@@ -330,22 +350,23 @@ impl Lexer {
         let mut result = String::new();
 
         if self.consume_push('\\', &mut result) && self.consume_push('u', &mut result) {
-            if let Some(hex_4) = self.consume_hex_4_digits() {
-                let utf_16_str = string_utils::parse_unicode_to_string(&hex_4)
-                    .or(Err(LexingError::EarlyError(self.state.row, self.state.col)))?;
-                return Ok(Some(utf_16_str));
-            } else if self.consume_push('{', &mut result) {
-                if let Some(code_point) = self.consume_code_point() {
-                    result.push_str(&code_point);
+            let unicode_result = if let Some(ues) = self.consume_hex_4_digits()?{
+                ues
+            } else if let Some(ues) = self.consume_unicode_code_point_stream()?{
+                ues
+            } else {
+                return Ok(None)
+            };
 
-                    if self.consume_push('}', &mut result) {
-                        return Ok(Some(result));
-                    }
-                }
-            }
+            return string_utils::parse_unicode_to_string(&unicode_result)
+                    .or(Err(LexingError::EarlyError(self.state.row, self.state.col)))
+                    .map(|result| {
+                        Some(result)
+                    });
         }
 
         self.backtrack(result.len());
+
         return Ok(None);
     }
 
@@ -1001,8 +1022,7 @@ impl Lexer {
     // Note: cheating a bit here.
     //  The specification is just too dang broad. Going the way of JSLint, and using punctuators as a best faith decider.
     fn set_context_from_token(&mut self, token: &Token) {
-        let current_context = self.context;
-        self.context = match token {
+        let next_context = match token {
             Token::TemplateHead(_) => LexerContext::InputElementRegExpOrTemplateTail,
             Token::Punctuator(punc) => match punc.as_str() {
                 "(" | "," | "=" | ":" | "[" | "!" | "&" | "|" | "?" | "{" | "}" | ";" => {
@@ -1024,12 +1044,14 @@ impl Lexer {
                     }
                 }
             },
-            _ => current_context,
-        }
+            _ => self.context,
+        };
+
+        self.context = next_context;
     }
 
     fn next_input_el_div(&mut self) -> Result<Token, LexingError> {
-        return if let Some(rbp) = self.consume_right_brace_punc() {
+        if let Some(rbp) = self.consume_right_brace_punc() {
             Ok(rbp)
         } else if let Some(dp) = self.consume_div_punctuator() {
             Ok(dp)
@@ -1037,7 +1059,7 @@ impl Lexer {
             Ok(common)
         } else {
             Ok(Token::EOF)
-        };
+        }
     }
 
     fn next_input_el_regex(&mut self) -> Result<Token, LexingError> {
@@ -1065,7 +1087,7 @@ impl Lexer {
     }
 
     fn next_input_el_template_tail(&mut self) -> Result<Token, LexingError> {
-        return if let Some(template_tail) = self.consume_template_sub_tail()? {
+        if let Some(template_tail) = self.consume_template_sub_tail()? {
             Ok(template_tail)
         } else if let Some(div) = self.consume_div_punctuator() {
             Ok(div)
@@ -1073,22 +1095,20 @@ impl Lexer {
             Ok(common)
         } else {
             Ok(Token::EOF)
-        };
+        }
     }
 
     fn next_from_context(&mut self) -> Result<Token, LexingError> {
         self.skip_whitespace_and_comments();
 
-        let result = match self.context {
+        match self.context {
             LexerContext::InputElementDiv => self.next_input_el_div(),
             LexerContext::InputElementRegExp => self.next_input_el_regex(),
             LexerContext::InputElementRegExpOrTemplateTail => {
                 self.next_input_el_regex_template_tail()
             }
             LexerContext::InputElementTemplateTail => self.next_input_el_template_tail(),
-        };
-
-        result
+        }
     }
 
     pub fn next(&mut self) -> Result<Token, LexingError> {
