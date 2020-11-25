@@ -2,7 +2,7 @@ use Petal::parser::lexer::{Lexer, LexingError};
 use Petal::parser::tokens::Token;
 
 #[test]
-fn lex_file_expected_output() {
+fn lex_js_expected_output() {
     let source = std::fs::read_to_string("./tests/lexer-fixture.js").unwrap();
     let mut lexer = Lexer::new(source);
 

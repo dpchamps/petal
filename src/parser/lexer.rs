@@ -4,7 +4,6 @@ use std::i64;
 use std::str::Chars;
 use unic_ucd_ident::{is_xid_continue, is_xid_start};
 
-
 #[derive(Debug, Clone, PartialOrd, PartialEq)]
 pub struct LexerState {
     row: usize,
@@ -17,7 +16,7 @@ pub struct LexerState {
 
 impl LexerState {
     pub fn new() -> Self {
-        LexerState{
+        LexerState {
             row: 0,
             col: 0,
             cols: vec![],
@@ -27,15 +26,15 @@ impl LexerState {
         }
     }
 
-    pub fn increment(&mut self, input: &char){
-        if string_utils::is_line_terminator(input){
+    pub fn increment(&mut self, input: &char) {
+        if string_utils::is_line_terminator(input) {
             self.newline()
-        }else{
+        } else {
             self.col += 1;
         }
     }
 
-    pub fn decrement(&mut self){
+    pub fn decrement(&mut self) {
         if self.col == 0 && self.row == 0 {
             return;
         }
@@ -47,32 +46,32 @@ impl LexerState {
         }
     }
 
-    pub fn capture(&mut self){
+    pub fn capture(&mut self) {
         self.last_row = Some(self.row);
     }
 
-    pub fn retrieve_next_token(&mut self) -> Option<Token>{
+    pub fn retrieve_next_token(&mut self) -> Option<Token> {
         let next = self.next_token.clone();
         self.next_token = None;
 
-        return next
+        return next;
     }
 
-    pub fn was_newline(&self) -> bool{
-        if let Some(last) = self.last_row{
-            return last != self.row
+    pub fn was_newline(&self) -> bool {
+        if let Some(last) = self.last_row {
+            return last != self.row;
         }
 
         false
     }
 
-    fn newline(&mut self){
+    fn newline(&mut self) {
         self.cols.push(self.col);
         self.row += 1;
         self.col = 0;
     }
 
-    fn retreat(&mut self){
+    fn retreat(&mut self) {
         self.col = self.cols.pop().unwrap_or(0);
         self.row -= 1;
     }
@@ -84,7 +83,7 @@ pub enum LexingError {
     ErrorWithMessage(&'static str),
     InvalidToken,
     UnexpectedToken(String),
-    EarlyError(usize, usize)
+    EarlyError(usize, usize),
 }
 
 #[derive(Debug, PartialOrd, PartialEq, Copy, Clone)]
@@ -337,15 +336,15 @@ impl Lexer {
         let mut result = String::new();
 
         if let Some(_) = self.consume('{') {
-            loop{
+            loop {
                 if self.eat('}') {
                     break;
                 }
 
-                if let Some(cp) = self.consume_code_point(){
+                if let Some(cp) = self.consume_code_point() {
                     result.push_str(&cp)
                 } else {
-                    return Err(LexingError::EarlyError(self.state.row, self.state.col))
+                    return Err(LexingError::EarlyError(self.state.row, self.state.col));
                 }
             }
 
@@ -374,19 +373,17 @@ impl Lexer {
         let mut result = String::new();
 
         if self.consume_push('\\', &mut result) && self.consume_push('u', &mut result) {
-            let unicode_result = if let Some(ues) = self.consume_hex_4_digits()?{
+            let unicode_result = if let Some(ues) = self.consume_hex_4_digits()? {
                 ues
-            } else if let Some(ues) = self.consume_unicode_code_point_stream()?{
+            } else if let Some(ues) = self.consume_unicode_code_point_stream()? {
                 ues
             } else {
-                return Ok(None)
+                return Ok(None);
             };
 
             return string_utils::parse_unicode_to_string(&unicode_result)
-                    .or(Err(LexingError::EarlyError(self.state.row, self.state.col)))
-                    .map(|result| {
-                        Some(result)
-                    });
+                .or(Err(LexingError::EarlyError(self.state.row, self.state.col)))
+                .map(|result| Some(result));
         }
 
         self.backtrack(result.len());
@@ -1140,7 +1137,10 @@ impl Lexer {
     }
 
     pub fn next(&mut self) -> Result<Token, LexingError> {
-        let token = self.state.retrieve_next_token().unwrap_or(self.next_from_context()?);
+        let token = self
+            .state
+            .retrieve_next_token()
+            .unwrap_or(self.next_from_context()?);
 
         self.set_context_from_token(&token);
 
@@ -1159,7 +1159,7 @@ impl Lexer {
     // Instead of making the parser maintain internal state of individual tokens, maintain it here.
     // This way, a parser just calls next(), followed by asi(), and doesn't have to do
     // any backtracking or branching, just continue iteration.
-    pub fn automatic_semicolon_insertion(&mut self) -> Token{
+    pub fn automatic_semicolon_insertion(&mut self) -> Token {
         let semicolon = Lexer::semicolon();
 
         self.state.next_token = self.state.last_token.clone();
@@ -1178,11 +1178,16 @@ impl Iterator for LexerIntoIterator {
     type Item = Token;
 
     fn next(&mut self) -> Option<Token> {
-        if let Some(next_token) = self.lexer.state.retrieve_next_token().or(self.lexer.next_from_context().ok()){
+        if let Some(next_token) = self
+            .lexer
+            .state
+            .retrieve_next_token()
+            .or(self.lexer.next_from_context().ok())
+        {
             self.lexer.set_context_from_token(&next_token);
 
             if next_token == Token::EOF {
-                return None
+                return None;
             }
 
             return Some(next_token);
@@ -1199,7 +1204,7 @@ impl IntoIterator for Lexer {
     fn into_iter(self) -> Self::IntoIter {
         LexerIntoIterator {
             lexer: self,
-            index: 0
+            index: 0,
         }
     }
 }
