@@ -3,7 +3,7 @@ use Petal::parser::tokens::Token;
 
 #[test]
 fn lex_js_expected_output() {
-    let source = std::fs::read_to_string("./tests/lexer-fixture.js").unwrap();
+    let source = std::fs::read_to_string("./tests/lexer-js-fixture.js").unwrap();
     let mut lexer = Lexer::new(source);
 
     let expectation = vec![
