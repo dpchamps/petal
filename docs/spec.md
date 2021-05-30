@@ -7,7 +7,9 @@ As an intersection of the ECMAScript Language, the Petal Grammar Omits valid ECM
 ## Keywords and Reserved Words
 
 ReservedWord :: one of
+
 &emsp;&emsp; await break case const continue debugger default do else enum export extends false finally
+
 &emsp;&emsp; for if import in return switch true typeof while yield
 
 ### Diff
@@ -35,14 +37,19 @@ Removed:
 ## Punctuators
 
 Punctuator :: one of
+
 &emsp;&emsp; { ( ) [ ] . ... ; , < > <= >= == != + - * % ** << >> >>> & | ^ ! ~ && || ?? ? : =
+
 &emsp;&emsp; += -= *= %= **= <<= >>= >>>= &= |= ^= =>
 
 DivPunctuator::
+
 &emsp;&emsp; /
+
 &emsp;&emsp; /=
 
 RightBracePunctuator::
+
 &emsp;&emsp; }
 
 ### Diff:
