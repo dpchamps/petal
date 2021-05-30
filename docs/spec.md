@@ -122,3 +122,17 @@ Removed:
 * this
 * Function Expression
 * Class Expression
+
+## Literals
+
+Literal:
+
+&emsp;&emsp; BooleanLiteral
+
+&emsp;&emsp; NumericLiteral
+
+&emsp;&emsp; StringLiteral
+
+Removed:
+
+* NullLiteral
