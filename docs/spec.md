@@ -78,7 +78,7 @@ Removed:
 
 ## Primary Expression
 
-PrimaryExpression[Yield, Await]:
+PrimaryExpression<sub>`[Yield, Await]`</sub>:
 
 &emsp;&emsp; IdentifierReference<sub>`[?Yield, ?Await]`</sub>
 
@@ -87,12 +87,6 @@ PrimaryExpression[Yield, Await]:
 &emsp;&emsp;  ArrayLiteral<sub>`[?Yield, ?Await]`</sub>
 
 &emsp;&emsp; ObjectLiteral<sub>`[?Yield, ?Await]`</sub>
-
-&emsp;&emsp; GeneratorExpression
-
-&emsp;&emsp; AsyncFunctionExpression
-
-&emsp;&emsp; AsyncGeneratorExpression
 
 &emsp;&emsp; RegularExpressionLiteral
 
@@ -120,8 +114,11 @@ CoverParenthesizedExpressionAndArrowParameterList<sub>`[?Yield, ?Await]`</sub>:
 Removed:
 
 * this
-* Function Expression
-* Class Expression
+* FunctionExpression
+* ClassExpression
+* GeneratorExpression
+* AsyncFunctionExpression
+* AsyncGeneratorExpression
 
 ## Literals
 
@@ -136,3 +133,83 @@ Literal:
 Removed:
 
 * NullLiteral
+
+# Left-Hand-Side Expressions
+
+Removed:
+
+* LeftHandSideExpression production
+    * MemberExpression production
+    * SuperProperty production
+    * MetaProperty production
+    * NewTarget production
+    * ImportMeta production
+    * CallExpression production
+    * ImportCallExpression production  
+    * NewExpression production
+    * SuperCall production
+    * OptionalExpression production  
+    * OptionalChain production  
+    
+# Update Expressions
+
+* UpdateExpression
+
+# Unary Operators
+
+UnaryExpression<sub>`[Yield, Await]`</sub>:
+
+&emsp;&emsp; typeof UnaryExpression<sub>`[?Yield, ?Await]`</sub>
+
+&emsp;&emsp; + UnaryExpression<sub>`[?Yield, ?Await]`</sub>
+
+&emsp;&emsp; - UnaryExpression<sub>`[?Yield, ?Await]`</sub>
+
+&emsp;&emsp; ~ UnaryExpression<sub>`[?Yield, ?Await]`</sub>
+
+&emsp;&emsp; ! UnaryExpression<sub>`[?Yield, ?Await]`</sub>
+
+&emsp;&emsp; `[+Await]` AwaitExpression <sub>`[?Yield]`</sub>
+
+Removed:
+
+* UpdateExpression
+* delete UnaryExpression
+* void UnaryExpression
+
+# RelationalOperators
+
+RelationalExpression<sub>`[In, Yield, Await]`</sub>:
+
+&emsp;&emsp; ShiftExpression<sub>`[?Yield, ?Await]`</sub>
+
+&emsp;&emsp; RelationalExpression<sub>`[?In, ?Yield, ?Await]`</sub> < ShiftExpression<sub>`[?Yield, ?Await]`</sub>
+
+&emsp;&emsp; RelationalExpression<sub>`[?In, ?Yield, ?Await]`</sub> > ShiftExpression<sub>`[?Yield, ?Await]`</sub>
+
+&emsp;&emsp; RelationalExpression<sub>`[?In, ?Yield, ?Await]`</sub> <= ShiftExpression<sub>`[?Yield, ?Await]`</sub>
+
+&emsp;&emsp; RelationalExpression<sub>`[?In, ?Yield, ?Await]`</sub> >= ShiftExpression<sub>`[?Yield, ?Await]`</sub>
+
+&emsp;&emsp; RelationalExpression<sub>`[?In, ?Yield, ?Await]`</sub>instanceofShiftExpression<sub>`[?Yield, ?Await]`</sub>
+
+&emsp;&emsp; `[+In]`RelationalExpression<sub>`[In, Yield, Await]`</sub>inShiftExpression<sub>`[?Yield, ?Await]`</sub>
+
+removed:
+
+* RelationalExpression<sub>`[?In, ?Yield, ?Await]`</sub>instanceofShiftExpression<sub>`[?Yield, ?Await]`</sub>
+
+# Equality Operators
+
+EqualityExpression<sub>`[In, Yield, Await]`</sub>:
+
+RelationalExpression<sub>`[?In, ?Yield, ?Await]`</sub>
+
+EqualityExpression<sub>`[?In, ?Yield, ?Await]`</sub> == RelationalExpression<sub>`[?In, ?Yield, ?Await]`</sub>
+
+EqualityExpression<sub>`[?In, ?Yield, ?Await]`</sub> != RelationalExpression<sub>`[?In, ?Yield, ?Await]`</sub>
+
+
+Removed:
+* EqualityExpression<sub>`[?In, ?Yield, ?Await]`</sub> === RelationalExpression<sub>`[?In, ?Yield, ?Await]`</sub>
+* EqualityExpression<sub>`[?In, ?Yield, ?Await]`</sub> !== RelationalExpression<sub>`[?In, ?Yield, ?Await]`</sub>
