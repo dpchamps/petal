@@ -751,8 +751,6 @@ PropertyDefinition<sub>[Yield, Await]</sub> :
 
 &nbsp;&nbsp;&nbsp;&nbsp;PropertyName<sub>[?Yield, ?Await]</sub> `:` AssignmentExpression<sub>[+In, ?Yield, ?Await]</sub>
 
-&nbsp;&nbsp;&nbsp;&nbsp;MethodDefinition<sub>[?Yield, ?Await]</sub>
-
 &nbsp;&nbsp;&nbsp;&nbsp;`...` AssignmentExpression<sub>[+In, ?Yield, ?Await]</sub>
 
 PropertyName<sub>[Yield, Await]</sub> :
