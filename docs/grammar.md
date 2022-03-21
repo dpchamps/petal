@@ -945,8 +945,6 @@ UnaryExpression<sub>[Yield, Await]</sub> :
 
 &nbsp;&nbsp;&nbsp;&nbsp;UpdateExpression<sub>[?Yield, ?Await]</sub>
 
-&nbsp;&nbsp;&nbsp;&nbsp;`delete` UnaryExpression<sub>[?Yield, ?Await]</sub>
-
 &nbsp;&nbsp;&nbsp;&nbsp;`void` UnaryExpression<sub>[?Yield, ?Await]</sub>
 
 &nbsp;&nbsp;&nbsp;&nbsp;`typeof` UnaryExpression<sub>[?Yield, ?Await]</sub>
