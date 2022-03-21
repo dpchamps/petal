@@ -1,0 +1,13 @@
+[package]
+authors = ["Dave Campion me@davecampion.com"]
+description = "Petal Testing Ground Crate"
+name = "testing-ground"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+swc = "0.158.0"
+swc_common = "0.17.18"
+swc_ecma_parser = "0.95.2"
