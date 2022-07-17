@@ -10,8 +10,8 @@ use enum_kind::Kind;
 use num_bigint::BigInt as BigIntValue;
 use swc_atoms::{js_word, JsWord};
 use swc_common::{Span, Spanned};
-pub(crate) use swc_ecma_ast::AssignOp as AssignOpToken;
-use swc_ecma_ast::BinaryOp;
+pub(crate) use swc_petal_ast::AssignOp as AssignOpToken;
+use swc_petal_ast::BinaryOp;
 
 pub(crate) use self::{AssignOpToken::*, BinOpToken::*, Keyword::*, Token::*};
 use crate::{error::Error, lexer::LexResult};

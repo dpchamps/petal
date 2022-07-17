@@ -6,7 +6,7 @@ use either::Either::{Left, Right};
 use smallvec::{smallvec, SmallVec};
 use swc_atoms::{js_word, JsWord};
 use swc_common::{comments::Comments, BytePos, Span};
-use swc_ecma_ast::{op, EsVersion};
+use swc_petal_ast::{op, EsVersion};
 
 use self::{comments_buffer::CommentsBuffer, state::State, util::*};
 pub use self::{

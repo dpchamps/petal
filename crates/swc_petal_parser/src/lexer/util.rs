@@ -8,7 +8,7 @@ use swc_common::{
     comments::{Comment, CommentKind},
     BytePos, Span, SyntaxContext,
 };
-use swc_ecma_ast::Ident;
+use swc_petal_ast::Ident;
 use tracing::warn;
 
 use super::{comments_buffer::BufferedComment, input::Input, Char, LexResult, Lexer};

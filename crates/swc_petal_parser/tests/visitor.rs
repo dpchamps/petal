@@ -1,5 +1,5 @@
 use swc_common::{input::StringInput, FileName};
-use swc_ecma_ast::*;
+use swc_petal_ast::*;
 use swc_petal_parser::{lexer::Lexer, Parser};
 use swc_ecma_visit::{All, VisitAll, VisitWith};
 

@@ -5,7 +5,7 @@ use std::ops::{Deref, DerefMut};
 
 use swc_atoms::JsWord;
 use swc_common::{collections::AHashMap, comments::Comments, input::Input, BytePos, Span};
-use swc_ecma_ast::*;
+use swc_petal_ast::*;
 
 pub use self::input::{Capturing, Tokens, TokensInput};
 use self::{input::Buffer, util::ParseObject};
@@ -36,7 +36,7 @@ mod stmt;
 mod tests;
 mod typescript;
 mod util;
-
+mod es_type_annotation;
 /// When error occurs, error is emitted and parser returns Err(()).
 pub type PResult<T> = Result<T, Error>;
 
