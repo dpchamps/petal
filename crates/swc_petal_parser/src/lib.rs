@@ -221,7 +221,7 @@ impl Syntax {
     /// Should we parse typescript?
     #[cfg(feature = "typescript")]
     pub const fn typescript(self) -> bool {
-        matches!(self, Syntax::Typescript(..))
+        matches!(self, Syntax::Typescript(..) | Syntax::EsTypeAnnotations(..))
     }
 
     pub fn export_default_from(self) -> bool {
