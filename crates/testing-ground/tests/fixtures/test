@@ -1,3 +1,6 @@
-// const x: T extends number where T > 0 = 1
-
-const x = 1;
+/**
+* goal:
+* type X = number satisfies GT(1);
+*/
+const x: CustomType extends T ? 1 : 0 = 1;
+const y: number = 1;
