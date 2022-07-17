@@ -1,1 +1,3 @@
-const x: T extends number where T > 0 = 1
+// const x: T extends number where T > 0 = 1
+
+const x = 1;

@@ -8,8 +8,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-swc = "0.198.0"
-swc_common = "0.20.1"
-swc_ecma_ast = "0.81.0"
-swc_ecma_parser = "0.108.1"
-swc_ecma_visit = "0.67.0"
+swc_common = { version = "0.24.0" }
+swc_ecma_ast = { version = "0.85.0" }
+swc_ecma_visit = { version = "0.71.0"}
+swc_petal_parser = { path = "../swc_petal_parser" }
+swc_macros_common = "0.3.6"
