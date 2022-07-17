@@ -8,7 +8,7 @@ use std::{
 
 use pretty_assertions::assert_eq;
 use swc_common::{comments::SingleThreadedComments, FileName};
-use swc_ecma_ast::*;
+use swc_petal_ast::*;
 use swc_petal_parser::{lexer::Lexer, PResult, Parser, StringInput, Syntax, TsConfig};
 use swc_ecma_visit::FoldWith;
 use testing::StdErr;

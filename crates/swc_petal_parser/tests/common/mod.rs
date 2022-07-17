@@ -1,5 +1,5 @@
 use swc_common::Span;
-use swc_ecma_ast::*;
+use swc_petal_ast::*;
 use swc_ecma_visit::{Fold, FoldWith};
 
 pub struct Normalizer {

@@ -128,7 +128,7 @@ use error::Error;
 use lexer::Lexer;
 use serde::{Deserialize, Serialize};
 use swc_common::{comments::Comments, input::SourceFileInput, SourceFile};
-use swc_ecma_ast::*;
+use swc_petal_ast::*;
 
 pub use self::{
     lexer::input::{Input, StringInput},

@@ -2813,7 +2813,7 @@ fn make_decl_declare(mut decl: Decl) -> Decl {
 #[cfg(test)]
 mod tests {
     use swc_common::DUMMY_SP;
-    use swc_ecma_ast::*;
+    use swc_petal_ast::*;
     use swc_ecma_visit::assert_eq_ignore_span;
 
     use crate::{

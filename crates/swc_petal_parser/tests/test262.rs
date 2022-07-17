@@ -10,7 +10,7 @@ use std::{
 };
 
 use common::Normalizer;
-use swc_ecma_ast::*;
+use swc_petal_ast::*;
 use swc_petal_parser::{lexer::Lexer, PResult, Parser, StringInput, Syntax};
 use swc_ecma_visit::FoldWith;
 use test::{
