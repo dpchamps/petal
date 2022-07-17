@@ -155,6 +155,9 @@ pub enum Syntax {
     #[cfg_attr(docsrs, doc(cfg(feature = "typescript")))]
     #[serde(rename = "typescript")]
     Typescript(TsConfig),
+
+    #[serde(rename = "ecmaTypeAnnotations")]
+    EsTypeAnnotations(EsTypeAnnotationsConfig)
 }
 
 impl Default for Syntax {
@@ -170,6 +173,7 @@ impl Syntax {
                 import_assertions, ..
             }) => import_assertions,
             Syntax::Typescript(_) => true,
+            Syntax::EsTypeAnnotations(_) => true
         }
     }
 
@@ -243,6 +247,7 @@ impl Syntax {
                 private_in_object, ..
             }) => private_in_object,
             Syntax::Typescript(_) => true,
+            Syntax::EsTypeAnnotations(_) => true
         }
     }
 
@@ -253,6 +258,7 @@ impl Syntax {
                 ..
             }) => allow_super_outside_method,
             Syntax::Typescript(_) => true,
+            Syntax::EsTypeAnnotations(_) => true
         }
     }
 
@@ -263,6 +269,7 @@ impl Syntax {
                 ..
             }) => allow_return_outside_function,
             Syntax::Typescript(_) => false,
+            Syntax::EsTypeAnnotations(_) => false,
         }
     }
 
@@ -270,6 +277,7 @@ impl Syntax {
         match self {
             Syntax::Typescript(t) => !t.no_early_errors,
             Syntax::Es(..) => true,
+            Syntax::EsTypeAnnotations(_) => true
         }
     }
 }
@@ -330,6 +338,11 @@ pub struct EsConfig {
     pub allow_return_outside_function: bool,
 }
 
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EsTypeAnnotationsConfig {
+
+}
 /// Syntactic context.
 #[derive(Debug, Clone, Copy, Default)]
 pub struct Context {
