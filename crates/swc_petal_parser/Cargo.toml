@@ -1,0 +1,65 @@
+[package]
+authors = ["강동윤 <kdy1997.dev@gmail.com>", "Dave Campion <me@davecampion.com>"]
+description = "Feature-complete es2019 parser."
+documentation = "https://rustdoc.swc.rs/swc_ecma_parser/"
+edition = "2021"
+include = ["Cargo.toml", "src/**/*.rs", "examples/**/*.rs"]
+license = "Apache-2.0"
+name = "swc_petal_parser"
+repository = "https://github.com/swc-project/swc.git"
+version = "0.112.2"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[lib]
+bench = false
+
+[features]
+# Used for debugging
+debug = []
+default = ["typescript"]
+typescript = []
+verify = ["swc_ecma_visit"]
+
+[dependencies]
+either = { version = "1.4" }
+enum_kind = { version = "0.2.1"}
+lexical = { version = "6.1.0", features = ["power-of-two"] }
+num-bigint = "0.4"
+serde = { version = "1", features = ["derive"] }
+smallvec = "1.8.0"
+swc_atoms = { version = "0.2.3"}
+swc_common = { version = "0.24.0" }
+swc_ecma_ast = { version = "0.85.0" }
+swc_ecma_visit = { version = "0.71.0", optional = true }
+tracing = "0.1.32"
+typed-arena = "2.0.1"
+
+[dev-dependencies]
+criterion = "0.3"
+pretty_assertions = "1.1"
+serde_json = "1"
+swc_ecma_visit = { version = "0.71.0" }
+swc_node_base = { version = "0.5.0" }
+testing = { version = "0.26.0"}
+walkdir = "2"
+
+[[example]]
+name = "lexer"
+
+[[example]]
+name = "typescript"
+
+[[bench]]
+harness = false
+name = "compare"
+
+[[bench]]
+harness = false
+name = "lexer"
+
+[[bench]]
+harness = false
+name = "parser"

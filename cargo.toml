@@ -1,4 +1,5 @@
 [workspace]
 members = [
-    "crates/testing-ground"
+    "crates/testing-ground",
+    "crates/swc_petal_parser"
 ]

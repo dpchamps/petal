@@ -15,15 +15,18 @@ use std::borrow::Borrow;
 use swc::ecmascript::ast::EsVersion;
 use swc_common::comments::Comments;
 use swc_common::input::SourceFileInput;
-
+use swc_ecma_ast::SourceMapperExt;
+use swc_ecma_parser::token::{Token, TokenAndSpan};
+use swc_ecma_parser::{Tokens};
 
 fn main() {
     let sm = Arc::new(SourceMap::new(FilePathMapping::empty()));
-    let source_file = sm.load_file(Path::new("/Users/d0c032y/Documents/Code/petal/crates/testing-ground/tests/fixtures/test")).expect("oopsie daisys");
+    println!("Current dir {}", env::current_dir().unwrap().display());
+    let source_file = sm.load_file(Path::new(&format!("{}{}", env::current_dir().unwrap().display(), "/tests/fixtures/test"))).expect("oopsie daisys");
 
     let comments = SingleThreadedComments::default();
     let lexer = Lexer::new(Syntax::Typescript(Default::default()), EsVersion::Es2022, SourceFileInput::from(source_file.borrow()), Some(&comments as &dyn Comments));
-    // println!("{:#?}", lexer);
+    println!("{:#?}", lexer.into_iter().collect::<Vec<TokenAndSpan>>());
 }
 
 
@@ -34,6 +37,6 @@ mod tests {
     #[test]
     fn it_works() {
         main();
-        // panic!();
+        panic!();
     }
 }
