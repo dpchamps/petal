@@ -16,7 +16,7 @@ The project is still in its infancy, but the general goals as of typing this rea
 ### Highly flexible most-certainly-will-change RoadMap
 
 - [ ]  Parse petal-specific grammar
-   - [x] fork necessary swc crates to start work on parsing
+   - [x] repurpose necessary swc crates to start work on parsing
    - [ ] implement the tentative grammar as outlined but the [type annotations proposal](https://tc39.es/proposal-type-annotations/grammar.html), 
          leveraging mostly existing Typescript parsing constructs in the swc crates
    - [ ] remove typescript syntax support from the swc crates, migrate to an ECMA type annotation proposal syntax
@@ -26,15 +26,15 @@ The project is still in its infancy, but the general goals as of typing this rea
    
 ### SWC
 
-This project currently forks two crates from the [swc project](https://swc.rs/):
+This project currently repurposes two crates from the [swc project](https://swc.rs/):
 
 - [swc_ecma_parser](https://github.com/swc-project/swc/tree/main/crates/swc_ecma_parser) -> [swc_petal_parser](./crates/swc_petal_parser)
 - [swc_ecma_ast](https://github.com/swc-project/swc/tree/main/crates/swc_ecma_ast) -> [swc_petal_asl](./crates/swc_petal_ast)
 
-SWC is a battle-tested general purpose ecmascript compiler written in Rust. This project
-forks these crates to build on top of great work.
+SWC is a battle-tested general purpose ecmascript compiler written in Rust and this project
+uses it as a starting point.
 
-Because this work is forked, Petal is licensed under Apache 2.0 to be in compliance of the SWC license.
+Because the work is repurposed, Petal is licensed under Apache 2.0 to be in compliance with the SWC license.
 
 The changes to the above crates are summarized below:
 
