@@ -2,5 +2,5 @@
 * goal:
 * type X = number satisfies GT(1);
 */
-const x: CustomType extends T ? 1 : 0 = 1;
+const x: CustomType;
 const y: number = 1;
