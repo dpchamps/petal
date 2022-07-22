@@ -80,6 +80,7 @@ pub use self::{
 mod macros;
 mod class;
 mod decl;
+mod es_type_annotation;
 mod expr;
 mod function;
 mod ident;
@@ -94,7 +95,6 @@ mod prop;
 mod source_map;
 mod stmt;
 mod typescript;
-mod es_type_annotation;
 /// Represents a invalid node.
 #[ast_node("Invalid")]
 #[derive(Eq, Hash, Copy, EqIgnoreSpan)]

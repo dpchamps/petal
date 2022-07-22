@@ -1,47 +1,64 @@
-use crate::{class::Decorator, expr::Expr, ident::Ident, lit::{Bool, Number, Str}, module::ModuleItem, pat::{ArrayPat, AssignPat, ObjectPat, Pat, RestPat}, BigInt, BindingIdent, TplElement, TsTypeRef, TsArrayType, Tpl, TsTypeQuery, TsImportType, TsTypePredicate, TsThisType, TsFnParam};
+use crate::{class::Decorator, expr::Expr, ident::Ident, lit::{Bool, Number, Str}, module::ModuleItem, pat::{ArrayPat, AssignPat, ObjectPat, Pat, RestPat}, BigInt, BindingIdent, Tpl, TplElement, TsArrayType, TsFnParam, TsImportType, TsThisType, TsTypePredicate, TsTypeQuery, TsTypeRef, Null};
+use is_macro::Is;
+use string_enum::StringEnum;
+use swc_common::{ast_node, EqIgnoreSpan, Span};
 
+#[ast_node("EsTypeAnnotation")]
+#[derive(Eq, Hash, EqIgnoreSpan)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
+pub struct EsTypeAnn {
+    pub span: Span,
+    #[serde(rename = "typeAnnotation")]
+    pub type_ann: Box<EsType>,
+}
 
 #[ast_node(no_clone)]
 #[derive(Eq, Hash, Is, EqIgnoreSpan)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum EsType {
+    #[tag("EsConditionalType")]
     EsConditionalType(EsConditionalType),
+    #[tag("EsUnionType")]
     EsUnionType(EsUnionType),
+    #[tag("EsFunctionType")]
     EsFunctionType(EsFunctionType),
+    #[tag("EsConstructorType")]
     EsConstructorType(EsConstructorType),
+    #[tag("EsIntersectionType")]
     EsIntersectionType(EsIntersectionType),
-
+    #[tag("EsTypeOperatorType")]
     EsTypeOperatorType(EsTypeOperatorType),
 
     /// Primary Types
     #[tag("EsParenthesizedType")]
-    EsParenthesizedType(EsBracketedType),
+    EsParenthesizedType(EsParenthesizedType),
 
     #[tag("EsSquareBracketedType")]
-    EsSquareBracketedType(EsBracketedType),
+    EsSquareBracketedType(EsSquareBracketedType),
 
     #[tag("EsCurlyBracketedType")]
-    EsCurlyBracketedType(EsBracketedType),
+    EsCurlyBracketedType(EsCurlyBracketedType),
 
     #[tag("EsTypeReference")]
-    EsTypeReference(TsTypeRef),
+    EsTypeReference(EsTypeRef),
 
     #[tag("EsArrayType")]
-    EsArrayType(TsArrayType),
+    EsArrayType(EsArrayType),
 
     #[tag("EsLiteralType")]
     EsLiteralType(EsLiteralType),
 
     #[tag("EsTypeQuery")]
-    EsTypeQuery(TsTypeQuery),
+    EsTypeQuery(EsTypeQuery),
 
     #[tag("EsImportType")]
-    EsImportType(TsImportType),
+    EsImportType(EsImportType),
 
     #[tag("EsTypePredicate")]
-    EsTypePredicate(TsTypePredicate),
+    EsTypePredicate(EsTypePredicate),
 
     #[tag("EsThisType")]
-    EsThisType(TsThisType),
+    EsThisType(EsThisType),
 
     #[tag("EsVoidType")]
     EsVoidType(EsVoidType),
@@ -60,6 +77,18 @@ pub struct EsFunctionType {
     pub type_ann: EsTypeAnn,
 }
 
+#[ast_node]
+#[derive(Eq, Hash, Is, EqIgnoreSpan)]
+#[allow(variant_size_differences)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
+pub enum EsThisTypeOrIdent {
+    #[tag("EsThisType")]
+    EsThisType(EsThisType),
+
+    #[tag("Identifier")]
+    Ident(Ident),
+}
+
 #[ast_node("EsConstructorType")]
 #[derive(Eq, Hash, EqIgnoreSpan)]
 #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
@@ -72,16 +101,6 @@ pub struct EsConstructorType {
     pub type_ann: EsTypeAnn,
     pub is_abstract: bool,
 }
-
-#[ast_node("EsTypeAnnotation")]
-#[derive(Eq, Hash, EqIgnoreSpan)]
-#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
-pub struct TsTypeAnn {
-    pub span: Span,
-    #[serde(rename = "typeAnnotation")]
-    pub type_ann: Box<EsType>,
-}
-
 
 #[ast_node("EsTypeParameterDeclaration")]
 #[derive(Eq, Hash, EqIgnoreSpan)]
@@ -103,7 +122,7 @@ pub struct EsConditionalType {
 }
 
 #[ast_node("EsUnionType")]
-#[derive(Eq, Hash, Is, EqIgnoreSpan)]
+#[derive(Eq, Hash, EqIgnoreSpan)]
 pub struct EsUnionType {
     pub span: Span,
     pub op: EsTypeOperatorOp,
@@ -111,7 +130,7 @@ pub struct EsUnionType {
 }
 
 #[ast_node("EsIntersectionType")]
-#[derive(Eq, Hash, Is, EqIgnoreSpan)]
+#[derive(Eq, Hash, EqIgnoreSpan)]
 pub struct EsIntersectionType {
     pub span: Span,
     pub op: EsTypeOperatorOp,
@@ -119,25 +138,67 @@ pub struct EsIntersectionType {
 }
 
 #[derive(StringEnum, Clone, Copy, PartialEq, Eq, Hash, EqIgnoreSpan)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
+#[cfg_attr(
+feature = "rkyv",
+derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
+)]
+#[cfg_attr(
+feature = "rkyv",
+archive_attr(repr(u32), derive(bytecheck::CheckBytes))
+)]
 pub enum EsTypeOperatorOp {
     ReadOnly,
     KeyOf,
     Unique,
     infer,
-    not
+    not,
 }
 
 #[ast_node("EsTypeOperatorType")]
-#[derive(Eq, Hash, Is, EqIgnoreSpan)]
+#[derive(Eq, Hash, EqIgnoreSpan)]
 pub struct EsTypeOperatorType {
     pub span: Span,
     pub op: EsTypeOperatorOp,
-    pub es_type: Box<EsType>
+    pub es_type: Box<EsType>,
+}
+
+/**
+EsParenthesizedType(EsParenthesizedType),
+
+#[tag("EsSquareBracketedType")]
+EsSquareBracketedType(EsSquareBracketedType),
+
+#[tag("EsCurlyBracketedType")]
+EsCurlyBracketedType(EsCurlyBracketedType),
+**/
+
+// pub enum
+
+#[ast_node("EsBracketedType")]
+#[derive(Eq, Hash, EqIgnoreSpan)]
+pub struct EsParenthesizedType {
+    pub span: Span,
+    pub body: Option<EsBracketBody>
 }
 
 #[ast_node("EsBracketedType")]
 #[derive(Eq, Hash, EqIgnoreSpan)]
-pub struct EsBracketedType {
+pub struct EsSquareBracketedType {
+    pub span: Span,
+    pub body: Option<EsBracketBody>
+}
+
+#[ast_node("EsBracketedType")]
+#[derive(Eq, Hash, EqIgnoreSpan)]
+pub struct EsCurlyBracketedType {
+    pub span: Span,
+    pub body: Option<EsBracketBody>
+}
+
+#[ast_node("EsBracketedType")]
+#[derive(Eq, Hash, EqIgnoreSpan)]
+pub struct EsBracketBody {
     pub span: Span,
     pub token_body: Vec<EsTokenBodyEl>,
 }
@@ -147,22 +208,96 @@ pub struct EsBracketedType {
 #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct EsTypeRef {
     pub span: Span,
-    pub type_name: TsEntityName,
+    pub type_name: EsEntityName,
     #[serde(default)]
-    pub type_arguments: Option<EsBracketedType>,
+    pub type_arguments: Option<EsBracketBody>,
 }
 
+#[ast_node("EsArrayType")]
+#[derive(Eq, Hash, EqIgnoreSpan)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
+pub struct EsArrayType {
+    pub span: Span,
+    pub elem_type: Box<EsType>,
+}
+
+/// `typeof` operator
+#[ast_node("EsTypeQuery")]
+#[derive(Eq, Hash, EqIgnoreSpan)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
+pub struct EsTypeQuery {
+    pub span: Span,
+    pub expr_name: EsTypeQueryExpr,
+    #[serde(default, rename = "typeArguments")]
+    pub type_args: Option<EsBracketBody>,
+}
 
 #[ast_node]
-#[ast_node(no_clone)]
 #[derive(Eq, Hash, Is, EqIgnoreSpan)]
-pub enum EsTokenBodyEl {
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
+pub enum EsTypeQueryExpr {
+    #[tag("EsQualifiedName")]
+    #[tag("Identifier")]
+    EsEntityName(EsEntityName),
+    #[tag("EsImportType")]
+    Import(EsImportType),
+}
+
+#[ast_node("EsQualifiedName")]
+#[derive(Eq, Hash, EqIgnoreSpan)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
+pub struct EsQualifiedName {
+    #[span(lo)]
+    pub left: EsEntityName,
+    #[span(hi)]
+    pub right: Ident,
+}
+
+#[ast_node]
+#[derive(Eq, Hash, Is, EqIgnoreSpan)]
+#[allow(variant_size_differences)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
+pub enum EsEntityName {
+    #[tag("EsQualifiedName")]
+    EsQualifiedName(Box<EsQualifiedName>),
+
     #[tag("Identifier")]
     Ident(Ident),
 }
 
+#[ast_node("EsImportType")]
+#[derive(Eq, Hash, EqIgnoreSpan)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
+pub struct EsImportType {
+    pub span: Span,
+    #[serde(rename = "argument")]
+    pub arg: Str,
+    pub qualifier: Option<EsEntityName>,
+    #[serde(rename = "typeArguments")]
+    pub type_args: Option<EsBracketBody>,
+}
+
+#[ast_node("EsTypePredicate")]
+#[derive(Eq, Hash, EqIgnoreSpan)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
+pub struct EsTypePredicate {
+    pub span: Span,
+    pub asserts: bool,
+    pub param_name: EsThisTypeOrIdent,
+    #[serde(rename = "typeAnnotation")]
+    pub type_ann: Option<EsTypeAnn>,
+}
+
 #[ast_node]
-#[ast_node(no_clone)]
+#[derive(Eq, Hash, Is, EqIgnoreSpan)]
+pub enum EsTokenBodyEl {
+    #[tag("Identifier")]
+    Ident(Ident),
+    #[tag("String")]
+    Str(Str),
+}
+
+#[ast_node]
 #[derive(Eq, Hash, Is, EqIgnoreSpan)]
 pub enum EsLiteralType {
     #[tag("NumbericLiteral")]
@@ -174,19 +309,25 @@ pub enum EsLiteralType {
     #[tag("TemplateLiteral")]
     Template(Tpl),
 
-    #[tag("TrueLiteral")]
-    True,
-
-    #[tag("FalseLiteral")]
-    False,
+    #[tag("BoolLiteral")]
+    Bool(Bool),
 
     #[tag("NullLiteral")]
-    Null
+    Null(Null),
 }
+
+
 
 #[ast_node("EsVoidType")]
 #[derive(Copy, Eq, Hash, EqIgnoreSpan)]
 #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct EsVoidType {
+    pub span: Span,
+}
+
+#[ast_node("EsThisType")]
+#[derive(Copy, Eq, Hash, EqIgnoreSpan)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
+pub struct EsThisType {
     pub span: Span,
 }
