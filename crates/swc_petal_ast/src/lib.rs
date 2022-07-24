@@ -80,7 +80,9 @@ pub use self::{
 mod macros;
 mod class;
 mod decl;
-mod es_type_annotation;
+// mod _es_type_annotation;
+// todo: remove pub once transformation is complete
+pub mod es_type_annotation;
 mod expr;
 mod function;
 mod ident;
