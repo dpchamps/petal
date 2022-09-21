@@ -74,6 +74,7 @@ pub use self::{
         TsTypeOperatorOp, TsTypeParam, TsTypeParamDecl, TsTypeParamInstantiation, TsTypePredicate,
         TsTypeQuery, TsTypeQueryExpr, TsTypeRef, TsUnionOrIntersectionType, TsUnionType,
     },
+    es_type_annotation::*
 };
 
 #[macro_use]
