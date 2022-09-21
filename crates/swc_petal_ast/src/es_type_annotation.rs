@@ -1,4 +1,8 @@
-use crate::{class::Decorator, expr::Expr, ident::Ident, lit::{Bool, Number, Str}, module::ModuleItem, pat::{ArrayPat, AssignPat, ObjectPat, Pat, RestPat}, BigInt, BindingIdent, Tpl, TplElement, TsArrayType, TsFnParam, TsImportType, TsThisType, TsTypePredicate, TsTypeQuery, TsTypeRef, Null};
+use crate::{
+    ident::Ident,
+    lit::{Bool, Number, Str},
+    Null, Tpl, TsFnParam,
+};
 use is_macro::Is;
 use string_enum::StringEnum;
 use swc_common::{ast_node, EqIgnoreSpan, Span};
@@ -70,7 +74,7 @@ impl Clone for EsType {
     fn clone(&self) -> Self {
         use EsType::*;
         match self {
-            EsConditionalType(t)  => EsConditionalType(t.clone()),
+            EsConditionalType(t) => EsConditionalType(t.clone()),
             EsUnionType(t) => EsUnionType(t.clone()),
             EsFunctionType(t) => EsFunctionType(t.clone()),
             EsConstructorType(t) => EsConstructorType(t.clone()),
@@ -167,12 +171,12 @@ pub struct EsIntersectionType {
 #[derive(StringEnum, Clone, Copy, PartialEq, Eq, Hash, EqIgnoreSpan)]
 #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 #[cfg_attr(
-feature = "rkyv",
-derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
+    feature = "rkyv",
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
 )]
 #[cfg_attr(
-feature = "rkyv",
-archive_attr(repr(u32), derive(bytecheck::CheckBytes))
+    feature = "rkyv",
+    archive_attr(repr(u32), derive(bytecheck::CheckBytes))
 )]
 pub enum EsTypeOperatorOp {
     /// `readonly`
@@ -211,21 +215,21 @@ EsCurlyBracketedType(EsCurlyBracketedType),
 #[derive(Eq, Hash, EqIgnoreSpan)]
 pub struct EsParenthesizedType {
     pub span: Span,
-    pub body: Option<EsBracketBody>
+    pub body: Option<EsBracketBody>,
 }
 
 #[ast_node("EsBracketedType")]
 #[derive(Eq, Hash, EqIgnoreSpan)]
 pub struct EsSquareBracketedType {
     pub span: Span,
-    pub body: Option<EsBracketBody>
+    pub body: Option<EsBracketBody>,
 }
 
 #[ast_node("EsBracketedType")]
 #[derive(Eq, Hash, EqIgnoreSpan)]
 pub struct EsCurlyBracketedType {
     pub span: Span,
-    pub body: Option<EsBracketBody>
+    pub body: Option<EsBracketBody>,
 }
 
 #[ast_node("EsBracketedType")]
@@ -347,8 +351,6 @@ pub enum EsLiteralType {
     #[tag("NullLiteral")]
     Null(Null),
 }
-
-
 
 #[ast_node("EsVoidType")]
 #[derive(Copy, Eq, Hash, EqIgnoreSpan)]
