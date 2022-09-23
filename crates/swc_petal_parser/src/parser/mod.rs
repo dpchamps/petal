@@ -25,6 +25,7 @@ use crate::error::Error;
 #[macro_use]
 mod macros;
 mod class_and_fn;
+mod es_type_annotation;
 mod expr;
 mod ident;
 pub mod input;
@@ -36,7 +37,6 @@ mod stmt;
 mod tests;
 mod typescript;
 mod util;
-mod es_type_annotation;
 /// When error occurs, error is emitted and parser returns Err(()).
 pub type PResult<T> = Result<T, Error>;
 

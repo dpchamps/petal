@@ -2,9 +2,9 @@ extern crate swc_node_base;
 
 use criterion::{black_box, criterion_group, criterion_main, Bencher, Criterion};
 use swc_common::{FileName, Span, SyntaxContext, DUMMY_SP};
+use swc_ecma_visit::{Fold, FoldWith, VisitMut, VisitMutWith};
 use swc_petal_ast::Module;
 use swc_petal_parser::{Parser, StringInput, Syntax};
-use swc_ecma_visit::{Fold, FoldWith, VisitMut, VisitMutWith};
 
 static SOURCE: &str = include_str!("files/angular-1.2.5.js");
 

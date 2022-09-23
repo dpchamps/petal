@@ -6,7 +6,6 @@ use crate::{
 use is_macro::Is;
 use string_enum::StringEnum;
 use swc_common::{ast_node, EqIgnoreSpan, Span};
-use swc_atoms::JsWord;
 
 #[ast_node("EsTypeAnnotation")]
 #[derive(Eq, Hash, EqIgnoreSpan)]
@@ -133,8 +132,6 @@ pub struct EsConstructorType {
     pub type_ann: EsTypeAnn,
     pub is_abstract: bool,
 }
-
-
 
 #[ast_node("EsConditionalType")]
 #[derive(Eq, Hash, EqIgnoreSpan)]
@@ -329,11 +326,11 @@ pub enum TokenOrBracketedTokens {
 
 #[ast_node("EsToken")]
 #[derive(Eq, Hash, EqIgnoreSpan)]
-pub struct EsToken{
+pub struct EsToken {
     pub span: Span,
     // TODO, for now this is a string.. but investigate making this token
     // for easier visiting by the typechecker
-    pub value: String
+    pub value: String,
 }
 
 #[ast_node]

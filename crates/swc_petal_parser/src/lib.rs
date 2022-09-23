@@ -157,7 +157,7 @@ pub enum Syntax {
     Typescript(TsConfig),
 
     #[serde(rename = "ecmaTypeAnnotations")]
-    EsTypeAnnotations(EsTypeAnnotationsConfig)
+    EsTypeAnnotations(EsTypeAnnotationsConfig),
 }
 
 impl Default for Syntax {
@@ -173,7 +173,7 @@ impl Syntax {
                 import_assertions, ..
             }) => import_assertions,
             Syntax::Typescript(_) => true,
-            Syntax::EsTypeAnnotations(_) => true
+            Syntax::EsTypeAnnotations(_) => true,
         }
     }
 
@@ -247,7 +247,7 @@ impl Syntax {
                 private_in_object, ..
             }) => private_in_object,
             Syntax::Typescript(_) => true,
-            Syntax::EsTypeAnnotations(_) => true
+            Syntax::EsTypeAnnotations(_) => true,
         }
     }
 
@@ -258,7 +258,7 @@ impl Syntax {
                 ..
             }) => allow_super_outside_method,
             Syntax::Typescript(_) => true,
-            Syntax::EsTypeAnnotations(_) => true
+            Syntax::EsTypeAnnotations(_) => true,
         }
     }
 
@@ -277,7 +277,7 @@ impl Syntax {
         match self {
             Syntax::Typescript(t) => !t.no_early_errors,
             Syntax::Es(..) => true,
-            Syntax::EsTypeAnnotations(_) => true
+            Syntax::EsTypeAnnotations(_) => true,
         }
     }
 }
@@ -340,9 +340,7 @@ pub struct EsConfig {
 
 #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct EsTypeAnnotationsConfig {
-
-}
+pub struct EsTypeAnnotationsConfig {}
 /// Syntactic context.
 #[derive(Debug, Clone, Copy, Default)]
 pub struct Context {

@@ -1024,7 +1024,7 @@ impl<'a, I: Input> Lexer<'a, I> {
                         l.bump();
 
                         return Ok(Token::Str {
-                            value: (&**out).into(),
+                            value: (**out).into(),
                             raw: raw.into(),
                         });
                     }
@@ -1058,7 +1058,7 @@ impl<'a, I: Input> Lexer<'a, I> {
             l.emit_error(start, SyntaxError::UnterminatedStrLit);
 
             Ok(Token::Str {
-                value: (&**out).into(),
+                value: (**out).into(),
                 raw: raw.into(),
             })
         })
@@ -1096,7 +1096,7 @@ impl<'a, I: Input> Lexer<'a, I> {
                 buf.push(c);
             }
 
-            Ok((&**buf).into())
+            Ok((**buf).into())
         })?;
         // let content_span = Span::new(content_start, self.cur_pos(),
         // Default::default());

@@ -7,9 +7,9 @@ use std::{
 
 use pretty_assertions::assert_eq;
 use swc_common::{errors::Handler, sync::Lrc, SourceMap};
+use swc_ecma_visit::{Fold, FoldWith};
 use swc_petal_ast::*;
 use swc_petal_parser::{lexer::Lexer, PResult, Parser, StringInput};
-use swc_ecma_visit::{Fold, FoldWith};
 use testing::{run_test, StdErr};
 
 fn parse_module(cm: Lrc<SourceMap>, handler: &Handler, file_name: &Path) -> Result<Module, ()> {

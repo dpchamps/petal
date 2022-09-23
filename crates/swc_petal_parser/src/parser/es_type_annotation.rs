@@ -11,13 +11,11 @@ enum _TokenBodyType {
     Paren,
     Square,
     Curly,
-    Angle
+    Angle,
 }
 
 impl<I: Tokens> Parser<I> {
-
     pub fn parse_token_body(&mut self) -> PResult<bool> {
-
         todo!()
     }
 
@@ -26,13 +24,13 @@ impl<I: Tokens> Parser<I> {
         let is_tpl_el = self.ts_look_ahead(|p| Ok(p.is_tpl_el()))?;
         let is_bracketed_token = is_bracket || is_tpl_el;
 
-        return Ok(!is_bracketed_token);
+        Ok(!is_bracketed_token)
     }
 
     pub fn is_tpl_el(&mut self) -> bool {
         match self.parse_tpl_element(false) {
             Ok(_) => true,
-            _ => false
+            _ => false,
         }
     }
 
@@ -49,14 +47,13 @@ impl<I: Tokens> Parser<I> {
     }
 
     pub fn parse_es_token_body_el(&mut self) -> PResult<TokenOrBracketedTokens> {
-
         let result = match self.is_bracket_body_start()? {
             true => TokenOrBracketedTokens::BracketBody(self.parse_es_bracket_body()?),
             false => {
                 let t = bump!(self);
-                TokenOrBracketedTokens::Token(EsToken{
+                TokenOrBracketedTokens::Token(EsToken {
                     span: span!(self, cur_pos!(self)),
-                    value: format!("{:?}", t)
+                    value: format!("{:?}", t),
                 })
             }
         };
@@ -70,13 +67,12 @@ impl<I: Tokens> Parser<I> {
         loop {
             trace_cur!(self, parse_es_token_body__element);
 
-            if(self.is_bracket_body_terminator())? {
+            if (self.is_bracket_body_terminator())? {
                 break;
             }
 
             let next = self.parse_es_token_body_el()?;
             buffer.push(next);
-
         }
 
         Ok(buffer)
@@ -89,7 +85,7 @@ impl<I: Tokens> Parser<I> {
 
         Ok(EsBracketBody {
             span: span!(self, start),
-            token_body
+            token_body,
         })
     }
 }
