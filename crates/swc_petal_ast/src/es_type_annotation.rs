@@ -6,6 +6,7 @@ use crate::{
 use is_macro::Is;
 use string_enum::StringEnum;
 use swc_common::{ast_node, EqIgnoreSpan, Span};
+use swc_atoms::JsWord;
 
 #[ast_node("EsTypeAnnotation")]
 #[derive(Eq, Hash, EqIgnoreSpan)]
@@ -103,7 +104,7 @@ pub struct EsFunctionType {
     pub params: Vec<TsFnParam>,
 
     #[serde(default)]
-    pub type_params: Option<EsTypeParamDecl>,
+    pub type_params: Option<EsBracketBody>,
     #[serde(rename = "typeAnnotation")]
     pub type_ann: EsTypeAnn,
 }
@@ -127,20 +128,13 @@ pub struct EsConstructorType {
     pub span: Span,
     pub params: Vec<TsFnParam>,
     #[serde(default)]
-    pub type_params: Option<EsTypeParamDecl>,
+    pub type_params: Option<EsBracketBody>,
     #[serde(rename = "typeAnnotation")]
     pub type_ann: EsTypeAnn,
     pub is_abstract: bool,
 }
 
-#[ast_node("EsTypeParameterDeclaration")]
-#[derive(Eq, Hash, EqIgnoreSpan)]
-#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
-pub struct EsTypeParamDecl {
-    pub span: Span,
-    #[serde(rename = "parameters")]
-    pub params: Vec<EsTokenBodyEl>,
-}
+
 
 #[ast_node("EsConditionalType")]
 #[derive(Eq, Hash, EqIgnoreSpan)]
@@ -236,7 +230,7 @@ pub struct EsCurlyBracketedType {
 #[derive(Eq, Hash, EqIgnoreSpan)]
 pub struct EsBracketBody {
     pub span: Span,
-    pub token_body: Vec<EsTokenBodyEl>,
+    pub token_body: Vec<TokenOrBracketedTokens>,
 }
 
 #[ast_node("EsTypeReference")]
@@ -326,11 +320,20 @@ pub struct EsTypePredicate {
 
 #[ast_node]
 #[derive(Eq, Hash, Is, EqIgnoreSpan)]
-pub enum EsTokenBodyEl {
+pub enum TokenOrBracketedTokens {
     #[tag("Identifier")]
-    Ident(Ident),
+    Token(EsToken),
     #[tag("String")]
-    Str(Str),
+    BracketBody(EsBracketBody),
+}
+
+#[ast_node("EsToken")]
+#[derive(Eq, Hash, EqIgnoreSpan)]
+pub struct EsToken{
+    pub span: Span,
+    // TODO, for now this is a string.. but investigate making this token
+    // for easier visiting by the typechecker
+    pub value: String
 }
 
 #[ast_node]

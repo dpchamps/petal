@@ -13,6 +13,7 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/swc_petal_parser/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/swc_petal_parser/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/crates/ast_extensions/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/swc_petal_ast/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/testing-ground/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/petal_parser/target" />

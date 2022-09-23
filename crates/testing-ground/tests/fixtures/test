@@ -4,3 +4,4 @@
 */
 const x: CustomType;
 const y: number = 1;
+const z: (anything at all can go in here) = {};
