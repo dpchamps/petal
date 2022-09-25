@@ -104,7 +104,7 @@ impl<I: Tokens> Parser<I> {
     pub fn parse_es_bracket_body(&mut self, token_type: &TokenBodyType) -> PResult<EsBracketBody> {
         let start = cur_pos!(self);
 
-        let token_body = self.parse_es_token_body(&token_type)?;
+        let token_body = self.parse_es_token_body(token_type)?;
 
         Ok(EsBracketBody {
             span: span!(self, start),
