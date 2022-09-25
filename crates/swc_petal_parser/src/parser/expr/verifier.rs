@@ -1,7 +1,7 @@
 #[cfg(feature = "verify")]
 use swc_common::{Span, Spanned};
 #[cfg(feature = "verify")]
-use swc_ecma_visit::{noop_visit_type, Visit, VisitWith};
+use swc_petal_ecma_visit::{noop_visit_type, Visit, VisitWith};
 
 use super::*;
 

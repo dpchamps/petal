@@ -94,7 +94,7 @@
 //!
 //! ### `verify`
 //!
-//! Verify more errors, using `swc_ecma_visit`.
+//! Verify more errors, using `swc_petal_ecma_visit`.
 //!
 //! ## Known issues
 //!

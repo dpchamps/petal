@@ -3,7 +3,7 @@ extern crate test;
 use std::hint::black_box;
 
 use swc_common::DUMMY_SP as span;
-use swc_ecma_visit::assert_eq_ignore_span;
+use swc_petal_ecma_visit::assert_eq_ignore_span;
 use test::Bencher;
 
 use super::*;

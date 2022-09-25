@@ -32,7 +32,7 @@ smallvec = "1.8.0"
 swc_atoms = { version = "0.2.3"}
 swc_common = { version = "0.24.0" }
 swc_petal_ast = { version = "0.85.0", path = "../swc_petal_ast" }
-swc_ecma_visit = { version = "0.71.0"}
+swc_petal_ecma_visit = { version = "0.71.1", path = "../swc_petal_ecma_visit"}
 tracing = "0.1.32"
 typed-arena = "2.0.1"
 
@@ -40,7 +40,7 @@ typed-arena = "2.0.1"
 criterion = "0.3"
 pretty_assertions = "1.1"
 serde_json = "1"
-swc_ecma_visit = { version = "0.71.0" }
+swc_petal_ecma_visit = { version = "0.71.1", path = "../swc_petal_ecma_visit" }
 swc_node_base = { version = "0.5.0" }
 testing = { version = "0.26.0"}
 walkdir = "2"

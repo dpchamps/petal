@@ -1639,7 +1639,7 @@ mod tests {
     #![allow(unused)]
 
     use swc_common::DUMMY_SP as span;
-    use swc_ecma_visit::assert_eq_ignore_span;
+    use swc_petal_ecma_visit::assert_eq_ignore_span;
 
     use super::*;
 
