@@ -4,10 +4,11 @@
 // use swc_atoms::js_word;
 // use swc_common::{Spanned, SyntaxContext};
 
+use crate::token::BinOpToken;
 use super::*;
 // use crate::{lexer::TokenContexts, parser::class_and_fn::IsSimpleParameterList, token::Keyword};
 
-enum _TokenBodyType {
+pub enum TokenBodyType {
     Paren,
     Square,
     Curly,
@@ -15,6 +16,38 @@ enum _TokenBodyType {
 }
 
 impl<I: Tokens> Parser<I> {
+    fn _is_bracket_body_start_token(&mut self, t: &TokenBodyType) -> bool {
+        match t {
+            TokenBodyType::Paren => is!(self, '('),
+            TokenBodyType::Square => is!(self, '['),
+            TokenBodyType::Curly => is!(self, '{'),
+            TokenBodyType::Angle => is!(self, '<'),
+        }
+    }
+
+    fn is_bracket_body_end_token(&mut self, t: &TokenBodyType) -> bool {
+        match t {
+            TokenBodyType::Paren => is!(self, ')'),
+            TokenBodyType::Square => is!(self, ']'),
+            TokenBodyType::Curly => is!(self, '}'),
+            TokenBodyType::Angle => is!(self, '>'),
+        }
+    }
+
+    fn get_token_body_type(&mut self) -> PResult<TokenBodyType> {
+
+        match cur!(self, false) {
+            Ok(Token::LParen) => Ok(TokenBodyType::Paren),
+            Ok(Token::LBrace) => Ok(TokenBodyType::Curly),
+            Ok(Token::LBracket) => Ok(TokenBodyType::Square),
+            Ok(Token::BinOp(BinOpToken::Lt)) => Ok(TokenBodyType::Angle),
+            _ => unreachable!("")
+        }
+
+    }
+
+
+
     pub fn parse_token_body(&mut self) -> PResult<bool> {
         todo!()
     }
@@ -34,10 +67,10 @@ impl<I: Tokens> Parser<I> {
         }
     }
 
-    pub fn is_bracket_body_start(&mut self) -> PResult<bool> {
+    pub fn is_bracket_body_start(&mut self) -> bool{
         debug_assert!(self.input.syntax().typescript());
 
-        Ok(is_one_of!(self, '(', '[', '{', '<'))
+        is_one_of!(self, '(', '[', '{', '<')
     }
 
     pub fn is_bracket_body_terminator(&mut self) -> PResult<bool> {
@@ -47,7 +80,7 @@ impl<I: Tokens> Parser<I> {
     }
 
     pub fn parse_es_token_body_el(&mut self) -> PResult<TokenOrBracketedTokens> {
-        let result = match self.is_bracket_body_start()? {
+        let result = match self.is_bracket_body_start() {
             true => TokenOrBracketedTokens::BracketBody(self.parse_es_bracket_body()?),
             false => {
                 let pos = cur_pos!(self);
@@ -63,13 +96,13 @@ impl<I: Tokens> Parser<I> {
         Ok(result)
     }
 
-    pub fn parse_es_token_body(&mut self) -> PResult<Vec<TokenOrBracketedTokens>> {
+    pub fn parse_es_token_body(&mut self, t: &TokenBodyType) -> PResult<Vec<TokenOrBracketedTokens>> {
         let mut buffer = vec![];
 
         loop {
             trace_cur!(self, parse_es_token_body__element);
 
-            if (self.is_bracket_body_terminator())? {
+            if self.is_bracket_body_end_token(t) {
                 break;
             }
 
@@ -83,7 +116,13 @@ impl<I: Tokens> Parser<I> {
     pub fn parse_es_bracket_body(&mut self) -> PResult<EsBracketBody> {
         let start = cur_pos!(self);
 
-        let token_body = self.parse_es_token_body()?;
+        if !self.is_bracket_body_start() {
+            unexpected!(self,  "One of: (,{,[,<")
+        }
+        let token_type = self.get_token_body_type()?;
+        bump!(self);
+
+        let token_body = self.parse_es_token_body(&token_type)?;
 
         Ok(EsBracketBody {
             span: span!(self, start),
@@ -108,9 +147,9 @@ mod tests {
     };
 
     #[test]
-    fn does_the_thing(){
+    fn single_bracket_body(){
         let result = test_parser(
-            "anything at all)",
+            "(anything at all)",
             Syntax::EsTypeAnnotations(Default::default()),
             |p| p.parse_es_bracket_body()
         );
