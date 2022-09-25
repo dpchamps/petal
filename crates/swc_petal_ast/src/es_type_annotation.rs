@@ -328,8 +328,9 @@ pub enum TokenOrBracketedTokens {
 #[derive(Eq, Hash, EqIgnoreSpan)]
 pub struct EsToken {
     pub span: Span,
-    // TODO, for now this is a string.. but investigate making this token
-    // for easier visiting by the typechecker
+    /// TODO: For ease making this a string,
+    /// however, the typesystem will define this. So either a second pass further decorates the ast,
+    /// Or the specification just lives here
     pub value: String,
 }
 
