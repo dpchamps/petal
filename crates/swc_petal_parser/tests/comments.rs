@@ -6,8 +6,8 @@ use swc_common::{
     input::SourceFileInput,
     BytePos, Span,
 };
-use swc_petal_ecma_visit::{Visit, VisitWith};
 use swc_petal_ast::*;
+use swc_petal_ecma_visit::{Visit, VisitWith};
 use swc_petal_parser::{lexer::Lexer, EsConfig, Parser, Syntax, TsConfig};
 use testing::{fixture, Tester};
 

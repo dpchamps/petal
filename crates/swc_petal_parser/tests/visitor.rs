@@ -1,6 +1,6 @@
 use swc_common::{input::StringInput, FileName};
-use swc_petal_ecma_visit::{All, VisitAll, VisitWith};
 use swc_petal_ast::*;
+use swc_petal_ecma_visit::{All, VisitAll, VisitWith};
 use swc_petal_parser::{lexer::Lexer, Parser};
 
 struct Issue1967;

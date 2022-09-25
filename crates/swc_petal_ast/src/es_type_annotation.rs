@@ -43,6 +43,9 @@ pub enum EsType {
     #[tag("EsCurlyBracketedType")]
     EsCurlyBracketedType(EsCurlyBracketedType),
 
+    #[tag("EsAngleBracketedType")]
+    EsAngleBracketedType(EsAngleBracketedType),
+
     #[tag("EsTypeReference")]
     EsTypeReference(EsTypeRef),
 
@@ -83,6 +86,7 @@ impl Clone for EsType {
             EsParenthesizedType(t) => EsParenthesizedType(t.clone()),
             EsSquareBracketedType(t) => EsSquareBracketedType(t.clone()),
             EsCurlyBracketedType(t) => EsCurlyBracketedType(t.clone()),
+            EsAngleBracketedType(t) => EsAngleBracketedType(t.clone()),
             EsTypeReference(t) => EsTypeReference(t.clone()),
             EsArrayType(t) => EsArrayType(t.clone()),
             EsLiteralType(t) => EsLiteralType(t.clone()),
@@ -190,37 +194,34 @@ pub struct EsTypeOperatorType {
     pub es_type: Box<EsType>,
 }
 
-/**
-EsParenthesizedType(EsParenthesizedType),
-
-#[tag("EsSquareBracketedType")]
-EsSquareBracketedType(EsSquareBracketedType),
-
-#[tag("EsCurlyBracketedType")]
-EsCurlyBracketedType(EsCurlyBracketedType),
-**/
-
 // pub enum
 
 #[ast_node("EsBracketedType")]
 #[derive(Eq, Hash, EqIgnoreSpan)]
 pub struct EsParenthesizedType {
     pub span: Span,
-    pub body: Option<EsBracketBody>,
+    pub body: EsBracketBody,
 }
 
 #[ast_node("EsBracketedType")]
 #[derive(Eq, Hash, EqIgnoreSpan)]
 pub struct EsSquareBracketedType {
     pub span: Span,
-    pub body: Option<EsBracketBody>,
+    pub body: EsBracketBody,
 }
 
 #[ast_node("EsBracketedType")]
 #[derive(Eq, Hash, EqIgnoreSpan)]
 pub struct EsCurlyBracketedType {
     pub span: Span,
-    pub body: Option<EsBracketBody>,
+    pub body: EsBracketBody,
+}
+
+#[ast_node("EsBracketedType")]
+#[derive(Eq, Hash, EqIgnoreSpan)]
+pub struct EsAngleBracketedType {
+    pub span: Span,
+    pub body: EsBracketBody,
 }
 
 #[ast_node("EsBracketedType")]
@@ -321,7 +322,7 @@ pub enum TokenOrBracketedTokens {
     #[tag("Identifier")]
     Token(EsToken),
     #[tag("String")]
-    BracketBody(EsBracketBody),
+    BracketBody(EsType),
 }
 
 #[ast_node("EsToken")]

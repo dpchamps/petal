@@ -361,7 +361,6 @@ macro_rules! noop_fold_type {
             TsUnionOrIntersectionType
         );
         noop_fold_type!(fold_ts_union_type, TsUnionType);
-
     };
 }
 
@@ -1829,6 +1828,8 @@ define!({
 
         EsCurlyBracketedType(EsCurlyBracketedType),
 
+        EsAngleBracketedType(EsAngleBracketedType),
+
         EsTypeReference(EsTypeRef),
 
         EsArrayType(EsArrayType),
@@ -1904,17 +1905,22 @@ define!({
 
     pub struct EsParenthesizedType {
         pub span: Span,
-        pub body: Option<EsBracketBody>,
+        pub body: EsBracketBody,
     }
 
     pub struct EsSquareBracketedType {
         pub span: Span,
-        pub body: Option<EsBracketBody>,
+        pub body: EsBracketBody,
     }
 
     pub struct EsCurlyBracketedType {
         pub span: Span,
-        pub body: Option<EsBracketBody>,
+        pub body: EsBracketBody,
+    }
+
+    pub struct EsAngleBracketedType {
+        pub span: Span,
+        pub body: EsBracketBody,
     }
 
     pub struct EsBracketBody {
@@ -1971,7 +1977,7 @@ define!({
 
     pub enum TokenOrBracketedTokens {
         Token(EsToken),
-        BracketBody(EsBracketBody),
+        BracketBody(EsType),
     }
 
     pub struct EsToken {

@@ -1,8 +1,8 @@
 use std::path::PathBuf;
 
 use swc_common::{comments::SingleThreadedComments, errors::Handler, Spanned};
-use swc_petal_ecma_visit::{Visit, VisitWith};
 use swc_petal_ast::*;
+use swc_petal_ecma_visit::{Visit, VisitWith};
 use swc_petal_parser::{lexer::Lexer, EsConfig, Parser, StringInput, Syntax, TsConfig};
 
 #[testing::fixture("tests/span/**/*.js")]
