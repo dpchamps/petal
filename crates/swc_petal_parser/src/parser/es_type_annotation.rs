@@ -50,9 +50,11 @@ impl<I: Tokens> Parser<I> {
         let result = match self.is_bracket_body_start()? {
             true => TokenOrBracketedTokens::BracketBody(self.parse_es_bracket_body()?),
             false => {
-                let t = bump!(self);
+                let pos = cur_pos!(self);
+                let t = cur!(self, false)?.clone();
+                bump!(self);
                 TokenOrBracketedTokens::Token(EsToken {
-                    span: span!(self, cur_pos!(self)),
+                    span: span!(self, pos),
                     value: format!("{:?}", t),
                 })
             }
@@ -87,5 +89,40 @@ impl<I: Tokens> Parser<I> {
             span: span!(self, start),
             token_body,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    // use swc_common::DUMMY_SP;
+    // use swc_ecma_visit::assert_eq_ignore_span;
+    // use swc_petal_ast::*;
+
+    use swc_common::DUMMY_SP;
+    use swc_petal_ecma_visit::assert_eq_ignore_span;
+
+    use swc_petal_ast::{EsBracketBody, EsToken, TokenOrBracketedTokens};
+    use crate::{
+        test_parser,
+        Syntax,
+    };
+
+    #[test]
+    fn does_the_thing(){
+        let result = test_parser(
+            "anything at all)",
+            Syntax::EsTypeAnnotations(Default::default()),
+            |p| p.parse_es_bracket_body()
+        );
+        let expected = EsBracketBody {
+            span: DUMMY_SP,
+            token_body: vec![
+                TokenOrBracketedTokens::Token(EsToken { span: DUMMY_SP, value: "anything".into()}),
+                TokenOrBracketedTokens::Token(EsToken { span: DUMMY_SP, value: "at".into()}),
+                TokenOrBracketedTokens::Token(EsToken { span: DUMMY_SP, value: "all".into()}),
+            ]
+        };
+
+        assert_eq_ignore_span!(result, expected);
     }
 }

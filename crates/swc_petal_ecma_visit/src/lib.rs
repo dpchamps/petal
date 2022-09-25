@@ -361,6 +361,7 @@ macro_rules! noop_fold_type {
             TsUnionOrIntersectionType
         );
         noop_fold_type!(fold_ts_union_type, TsUnionType);
+
     };
 }
 
@@ -1807,6 +1808,195 @@ define!({
         pub span: Span,
         pub expr: Box<Expr>,
         pub type_args: TsTypeParamInstantiation,
+    }
+
+    pub struct EsTypeAnn {
+        pub span: Span,
+        pub type_ann: Box<EsType>,
+    }
+
+    pub enum EsType {
+        EsConditionalType(EsConditionalType),
+        EsUnionType(EsUnionType),
+        EsFunctionType(EsFunctionType),
+        EsConstructorType(EsConstructorType),
+        EsIntersectionType(EsIntersectionType),
+        EsTypeOperatorType(EsTypeOperatorType),
+
+        EsParenthesizedType(EsParenthesizedType),
+
+        EsSquareBracketedType(EsSquareBracketedType),
+
+        EsCurlyBracketedType(EsCurlyBracketedType),
+
+        EsTypeReference(EsTypeRef),
+
+        EsArrayType(EsArrayType),
+
+        EsLiteralType(EsLiteralType),
+
+        EsTypeQuery(EsTypeQuery),
+
+        EsImportType(EsImportType),
+
+        EsTypePredicate(EsTypePredicate),
+
+        EsThisType(EsThisType),
+
+        EsVoidType(EsVoidType),
+    }
+
+    pub struct EsFunctionType {
+        pub span: Span,
+        pub params: Vec<TsFnParam>,
+
+        pub type_params: Option<EsBracketBody>,
+        pub type_ann: EsTypeAnn,
+    }
+
+    pub enum EsThisTypeOrIdent {
+        EsThisType(EsThisType),
+
+        Ident(Ident),
+    }
+
+    pub struct EsConstructorType {
+        pub span: Span,
+        pub params: Vec<TsFnParam>,
+        pub type_params: Option<EsBracketBody>,
+        pub type_ann: EsTypeAnn,
+        pub is_abstract: bool,
+    }
+
+    pub struct EsConditionalType {
+        pub span: Span,
+        pub check_type: Box<EsType>,
+        pub extends_type: Box<EsType>,
+        pub true_type: Box<EsType>,
+        pub false_type: Box<EsType>,
+    }
+
+    pub struct EsUnionType {
+        pub span: Span,
+        pub op: EsTypeOperatorOp,
+        pub types: Vec<Box<EsType>>,
+    }
+
+    pub struct EsIntersectionType {
+        pub span: Span,
+        pub op: EsTypeOperatorOp,
+        pub types: Vec<Box<EsType>>,
+    }
+
+    pub enum EsTypeOperatorOp {
+        ReadOnly,
+        KeyOf,
+        Unique,
+        Infer,
+        Not,
+    }
+
+    pub struct EsTypeOperatorType {
+        pub span: Span,
+        pub op: EsTypeOperatorOp,
+        pub es_type: Box<EsType>,
+    }
+
+    pub struct EsParenthesizedType {
+        pub span: Span,
+        pub body: Option<EsBracketBody>,
+    }
+
+    pub struct EsSquareBracketedType {
+        pub span: Span,
+        pub body: Option<EsBracketBody>,
+    }
+
+    pub struct EsCurlyBracketedType {
+        pub span: Span,
+        pub body: Option<EsBracketBody>,
+    }
+
+    pub struct EsBracketBody {
+        pub span: Span,
+        pub token_body: Vec<TokenOrBracketedTokens>,
+    }
+
+    pub struct EsTypeRef {
+        pub span: Span,
+        pub type_name: EsEntityName,
+        pub type_arguments: Option<EsBracketBody>,
+    }
+
+    pub struct EsArrayType {
+        pub span: Span,
+        pub elem_type: Box<EsType>,
+    }
+
+    pub struct EsTypeQuery {
+        pub span: Span,
+        pub expr_name: EsTypeQueryExpr,
+        pub type_args: Option<EsBracketBody>,
+    }
+
+    pub enum EsTypeQueryExpr {
+        EsEntityName(EsEntityName),
+        Import(EsImportType),
+    }
+
+    pub struct EsQualifiedName {
+        pub left: EsEntityName,
+        pub right: Ident,
+    }
+
+    pub enum EsEntityName {
+        EsQualifiedName(Box<EsQualifiedName>),
+
+        Ident(Ident),
+    }
+
+    pub struct EsImportType {
+        pub span: Span,
+        pub arg: Str,
+        pub qualifier: Option<EsEntityName>,
+        pub type_args: Option<EsBracketBody>,
+    }
+
+    pub struct EsTypePredicate {
+        pub span: Span,
+        pub asserts: bool,
+        pub param_name: EsThisTypeOrIdent,
+        pub type_ann: Option<EsTypeAnn>,
+    }
+
+    pub enum TokenOrBracketedTokens {
+        Token(EsToken),
+        BracketBody(EsBracketBody),
+    }
+
+    pub struct EsToken {
+        pub span: Span,
+        pub value: String,
+    }
+
+    pub enum EsLiteralType {
+        Number(Number),
+
+        Str(Str),
+
+        Template(Tpl),
+
+        Bool(Bool),
+
+        Null(Null),
+    }
+
+    pub struct EsVoidType {
+        pub span: Span,
+    }
+
+    pub struct EsThisType {
+        pub span: Span,
     }
 });
 
