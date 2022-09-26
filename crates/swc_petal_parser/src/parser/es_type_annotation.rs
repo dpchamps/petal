@@ -370,4 +370,48 @@ mod tests {
 
         assert_eq_ignore_span!(result, expected);
     }
+
+    #[test]
+    fn bracket_body_template_nested() {
+        let result = test_parser(
+            "`(anything)${(hello)}atall`",
+            Syntax::EsTypeAnnotations(Default::default()),
+            |p| p.parse_es_bracketed_type(),
+        );
+
+        let expected = EsType::EsTemplateBracketedType(EsTemplateBracketedType {
+            span: DUMMY_SP,
+            body: EsBracketBody::EsTemplateBracketBody(EsTemplateBracketBody {
+                span: DUMMY_SP,
+                exprs: vec![TokenOrBracketedTokens::BracketBody(
+                    EsType::EsParenthesizedType(EsParenthesizedType {
+                        span: DUMMY_SP,
+                        body: EsBracketBody::EsNormalBracketBody(EsNormalBracketBody {
+                            span: DUMMY_SP,
+                            token_body: vec![TokenOrBracketedTokens::Token(EsToken {
+                                span: DUMMY_SP,
+                                value: "hello".into(),
+                            })],
+                        }),
+                    }),
+                )],
+                token_body: vec![
+                    TplElement {
+                        span: DUMMY_SP,
+                        cooked: Some("(anything)".into()),
+                        raw: "(anything)".into(),
+                        tail: false,
+                    },
+                    TplElement {
+                        span: DUMMY_SP,
+                        cooked: Some("atall".into()),
+                        raw: "atall".into(),
+                        tail: true,
+                    },
+                ],
+            }),
+        });
+
+        assert_eq_ignore_span!(result, expected);
+    }
 }
