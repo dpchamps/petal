@@ -1,19 +1,13 @@
-// use std::fmt::Write;
-
-// use either::Either;
-// use swc_atoms::js_word;
-// use swc_common::{Spanned, SyntaxContext};
-
 use super::*;
 use crate::token::BinOpToken;
-// use crate::{lexer::TokenContexts, parser::class_and_fn::IsSimpleParameterList, token::Keyword};
 
+#[derive(Eq, PartialEq)]
 pub enum TokenBodyType {
     Paren,
     Square,
     Curly,
     Angle,
-    // TODO: template bracketed tokens
+    Template
 }
 
 impl<I: Tokens> Parser<I> {
@@ -23,6 +17,57 @@ impl<I: Tokens> Parser<I> {
             TokenBodyType::Square => is!(self, ']'),
             TokenBodyType::Curly => is!(self, '}'),
             TokenBodyType::Angle => is!(self, '>'),
+            TokenBodyType::Template => is!(self, '}')
+        }
+    }
+
+    fn expect_bracket_start_token(&mut self, t: &TokenBodyType) -> PResult<()>{
+        match t {
+            TokenBodyType::Paren => {
+                expect!(self, '(');
+                Ok(())
+            },
+            TokenBodyType::Square => {
+                expect!(self, '[');
+                Ok(())
+            },
+            TokenBodyType::Curly => {
+                expect!(self, '{');
+                Ok(())
+            },
+            TokenBodyType::Angle => {
+                expect!(self, '<');
+                Ok(())
+            },
+            TokenBodyType::Template => {
+                expect!(self, '`');
+                Ok(())
+            }
+        }
+    }
+
+    fn expect_bracket_end_token(&mut self, t: &TokenBodyType) -> PResult<()>{
+        match t {
+            TokenBodyType::Paren => {
+                expect!(self, ')');
+                Ok(())
+            },
+            TokenBodyType::Square => {
+                expect!(self, ']');
+                Ok(())
+            },
+            TokenBodyType::Curly => {
+                expect!(self, '}');
+                Ok(())
+            },
+            TokenBodyType::Angle => {
+                expect!(self, '>');
+                Ok(())
+            },
+            TokenBodyType::Template => {
+                expect!(self, '`');
+                Ok(())
+            }
         }
     }
 
@@ -32,11 +77,12 @@ impl<I: Tokens> Parser<I> {
             Ok(Token::LBrace) => Ok(TokenBodyType::Curly),
             Ok(Token::LBracket) => Ok(TokenBodyType::Square),
             Ok(Token::BinOp(BinOpToken::Lt)) => Ok(TokenBodyType::Angle),
+            Ok(Token::BackQuote) => Ok(TokenBodyType::Template),
             _ => unreachable!(""),
         }
     }
 
-    pub fn is_non_bracked_token(&mut self) -> PResult<bool> {
+    pub fn is_non_bracketed_token(&mut self) -> PResult<bool> {
         let is_bracket = is_one_of!(self, '(', ')', '[', ']', '{', '}', '<', '>');
         let is_tpl_el = self.ts_look_ahead(|p| Ok(p.is_tpl_el()))?;
         let is_bracketed_token = is_bracket || is_tpl_el;
@@ -54,13 +100,7 @@ impl<I: Tokens> Parser<I> {
     pub fn is_bracket_body_start(&mut self) -> bool {
         debug_assert!(self.input.syntax().typescript());
 
-        is_one_of!(self, '(', '[', '{', '<')
-    }
-
-    pub fn is_bracket_body_terminator(&mut self) -> PResult<bool> {
-        debug_assert!(self.input.syntax().typescript());
-
-        Ok(is_one_of!(self, ')', ']', '}', '>'))
+        is_one_of!(self, '(', '[', '{', '<', '`')
     }
 
     pub fn parse_es_token_body_el(&mut self) -> PResult<TokenOrBracketedTokens> {
@@ -90,7 +130,6 @@ impl<I: Tokens> Parser<I> {
             trace_cur!(self, parse_es_token_body__element);
 
             if self.is_bracket_body_end_token(t) {
-                bump!(self);
                 break;
             }
 
@@ -101,27 +140,57 @@ impl<I: Tokens> Parser<I> {
         Ok(buffer)
     }
 
+    pub fn parse_es_template_bracket_body(&mut self) -> PResult<(Vec<TokenOrBracketedTokens>, Vec<TplElement>)> {
+        let mut exprs = vec![];
+        let first_el = self.parse_tpl_element(false)?;
+        let mut is_tail = first_el.tail;
+        let mut token_body = vec![first_el];
+
+        while !is_tail {
+            expect!(self, "${");
+            let template_middle = self.parse_es_token_body(&TokenBodyType::Template)?;
+            exprs.extend(template_middle);
+            expect!(self, '}');
+            let next_el = self.parse_tpl_element(false)?;
+            is_tail = next_el.tail;
+            token_body.push(next_el);
+        }
+
+        Ok((exprs, token_body))
+    }
+
     pub fn parse_es_bracket_body(&mut self, token_type: &TokenBodyType) -> PResult<EsBracketBody> {
         let start = cur_pos!(self);
 
+        if token_type == &TokenBodyType::Template {
+            let (exprs, token_body) = self.parse_es_template_bracket_body()?;
+
+            return Ok(EsBracketBody::EsTemplateBracketBody(EsTemplateBracketBody {
+                span: span!(self, start),
+                exprs,
+                token_body
+            }))
+        }
+
         let token_body = self.parse_es_token_body(token_type)?;
 
-        Ok(EsBracketBody {
+        Ok(EsBracketBody::EsNormalBracketBody( EsNormalBracketBody {
             span: span!(self, start),
             token_body,
-        })
+        }))
     }
 
     pub fn parse_es_bracketed_type(&mut self) -> PResult<EsType> {
         if !self.is_bracket_body_start() {
-            unexpected!(self, "One of: (,{,[,<")
+            unexpected!(self, "One of: (,{,[,<,`")
         }
 
         let token_type = self.get_token_body_type()?;
         let start = cur_pos!(self);
-        bump!(self);
-
+        self.expect_bracket_start_token(&token_type)?;
         let body = self.parse_es_bracket_body(&token_type)?;
+
+
         let result = match token_type {
             TokenBodyType::Paren => EsType::EsParenthesizedType(EsParenthesizedType {
                 span: span!(self, start),
@@ -139,7 +208,13 @@ impl<I: Tokens> Parser<I> {
                 span: span!(self, start),
                 body,
             }),
+            TokenBodyType::Template => EsType::EsTemplateBracketedType(EsTemplateBracketedType{
+                span: span!(self, start),
+                body
+            })
         };
+
+        self.expect_bracket_end_token(&token_type)?;
 
         Ok(result)
     }
@@ -147,18 +222,11 @@ impl<I: Tokens> Parser<I> {
 
 #[cfg(test)]
 mod tests {
-    // use swc_common::DUMMY_SP;
-    // use swc_ecma_visit::assert_eq_ignore_span;
-    // use swc_petal_ast::*;
-
     use swc_common::DUMMY_SP;
     use swc_petal_ecma_visit::assert_eq_ignore_span;
 
     use crate::{test_parser, Syntax};
-    use swc_petal_ast::{
-        EsBracketBody, EsCurlyBracketedType, EsParenthesizedType, EsSquareBracketedType, EsToken,
-        EsType, TokenOrBracketedTokens,
-    };
+    use swc_petal_ast::{EsBracketBody, EsCurlyBracketedType, EsNormalBracketBody, EsParenthesizedType, EsSquareBracketedType, EsTemplateBracketBody, EsTemplateBracketedType, EsToken, EsType, TokenOrBracketedTokens, TplElement};
 
     #[test]
     fn bracket_body_single() {
@@ -169,7 +237,7 @@ mod tests {
         );
         let expected = EsType::EsParenthesizedType(EsParenthesizedType {
             span: DUMMY_SP,
-            body: EsBracketBody {
+            body: EsBracketBody::EsNormalBracketBody( EsNormalBracketBody {
                 span: DUMMY_SP,
                 token_body: vec![
                     TokenOrBracketedTokens::Token(EsToken {
@@ -185,7 +253,7 @@ mod tests {
                         value: "all".into(),
                     }),
                 ],
-            },
+            }),
         });
 
         assert_eq_ignore_span!(result, expected);
@@ -198,10 +266,10 @@ mod tests {
         });
         let expected = EsType::EsParenthesizedType(EsParenthesizedType {
             span: DUMMY_SP,
-            body: EsBracketBody {
+            body: EsBracketBody::EsNormalBracketBody(EsNormalBracketBody {
                 span: DUMMY_SP,
                 token_body: vec![],
-            },
+            }),
         });
 
         assert_eq_ignore_span!(result, expected);
@@ -216,7 +284,7 @@ mod tests {
         );
         let expected = EsType::EsParenthesizedType(EsParenthesizedType {
             span: DUMMY_SP,
-            body: EsBracketBody {
+            body: EsBracketBody::EsNormalBracketBody(EsNormalBracketBody {
                 span: DUMMY_SP,
                 token_body: vec![
                     TokenOrBracketedTokens::Token(EsToken {
@@ -226,7 +294,7 @@ mod tests {
                     TokenOrBracketedTokens::BracketBody(EsType::EsSquareBracketedType(
                         EsSquareBracketedType {
                             span: DUMMY_SP,
-                            body: EsBracketBody {
+                            body: EsBracketBody::EsNormalBracketBody(EsNormalBracketBody {
                                 span: DUMMY_SP,
                                 token_body: vec![
                                     TokenOrBracketedTokens::Token(EsToken {
@@ -236,7 +304,7 @@ mod tests {
                                     TokenOrBracketedTokens::BracketBody(
                                         EsType::EsCurlyBracketedType(EsCurlyBracketedType {
                                             span: DUMMY_SP,
-                                            body: EsBracketBody {
+                                            body: EsBracketBody::EsNormalBracketBody(EsNormalBracketBody {
                                                 span: DUMMY_SP,
                                                 token_body: vec![TokenOrBracketedTokens::Token(
                                                     EsToken {
@@ -244,15 +312,53 @@ mod tests {
                                                         value: "all".into(),
                                                     },
                                                 )],
-                                            },
+                                            }),
                                         }),
                                     ),
                                 ],
-                            },
+                            }),
                         },
                     )),
                 ],
-            },
+            }),
+        });
+
+        assert_eq_ignore_span!(result, expected);
+    }
+
+    #[test]
+    fn bracket_body_template(){
+        let result = test_parser(
+            "`anything${number}atall`",
+            Syntax::EsTypeAnnotations(Default::default()),
+            |p| p.parse_es_bracketed_type()
+        );
+
+        let expected = EsType::EsTemplateBracketedType(EsTemplateBracketedType {
+            span: DUMMY_SP,
+            body: EsBracketBody::EsTemplateBracketBody(EsTemplateBracketBody {
+                span: DUMMY_SP,
+                exprs: vec![
+                    TokenOrBracketedTokens::Token(EsToken{
+                        span: DUMMY_SP,
+                        value: "number".into()
+                    })
+                ],
+                token_body: vec![
+                    TplElement{
+                        span: DUMMY_SP,
+                        cooked: Some("anything".into()),
+                        raw: "anything".into(),
+                        tail: false
+                    },
+                    TplElement{
+                        span: DUMMY_SP,
+                        cooked: Some("atall".into()),
+                        raw: "atall".into(),
+                        tail: true
+                    }
+                ]
+            })
         });
 
         assert_eq_ignore_span!(result, expected);

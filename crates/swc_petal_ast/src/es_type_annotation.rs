@@ -1,8 +1,4 @@
-use crate::{
-    ident::Ident,
-    lit::{Bool, Number, Str},
-    Null, Tpl, TsFnParam,
-};
+use crate::{ident::Ident, lit::{Bool, Number, Str}, Null, Tpl, TplElement, TsFnParam};
 use is_macro::Is;
 use string_enum::StringEnum;
 use swc_common::{ast_node, EqIgnoreSpan, Span};
@@ -46,6 +42,9 @@ pub enum EsType {
     #[tag("EsAngleBracketedType")]
     EsAngleBracketedType(EsAngleBracketedType),
 
+    #[tag("EsTemplateBracketedType")]
+    EsTemplateBracketedType(EsTemplateBracketedType),
+
     #[tag("EsTypeReference")]
     EsTypeReference(EsTypeRef),
 
@@ -87,6 +86,7 @@ impl Clone for EsType {
             EsSquareBracketedType(t) => EsSquareBracketedType(t.clone()),
             EsCurlyBracketedType(t) => EsCurlyBracketedType(t.clone()),
             EsAngleBracketedType(t) => EsAngleBracketedType(t.clone()),
+            EsTemplateBracketedType(t) => EsTemplateBracketedType(t.clone()),
             EsTypeReference(t) => EsTypeReference(t.clone()),
             EsArrayType(t) => EsArrayType(t.clone()),
             EsLiteralType(t) => EsLiteralType(t.clone()),
@@ -226,9 +226,33 @@ pub struct EsAngleBracketedType {
 
 #[ast_node("EsBracketedType")]
 #[derive(Eq, Hash, EqIgnoreSpan)]
-pub struct EsBracketBody {
+pub struct EsTemplateBracketedType {
+    pub span: Span,
+    pub body: EsBracketBody,
+}
+
+#[ast_node]
+#[derive(Eq, Hash, EqIgnoreSpan)]
+pub enum EsBracketBody {
+    #[tag("EsNormalBracketBody")]
+    EsNormalBracketBody(EsNormalBracketBody),
+    #[tag("EsNormalTemplateBody")]
+    EsTemplateBracketBody(EsTemplateBracketBody)
+}
+
+#[ast_node("EsNormalBracketBody")]
+#[derive(Eq, Hash, EqIgnoreSpan)]
+pub struct EsNormalBracketBody {
     pub span: Span,
     pub token_body: Vec<TokenOrBracketedTokens>,
+}
+
+#[ast_node("EsTemplateBracketBody")]
+#[derive(Eq, Hash, EqIgnoreSpan)]
+pub struct EsTemplateBracketBody {
+    pub span: Span,
+    pub exprs: Vec<TokenOrBracketedTokens>,
+    pub token_body: Vec<TplElement>,
 }
 
 #[ast_node("EsTypeReference")]

@@ -1830,6 +1830,8 @@ define!({
 
         EsAngleBracketedType(EsAngleBracketedType),
 
+        EsTemplateBracketedType(EsTemplateBracketedType),
+
         EsTypeReference(EsTypeRef),
 
         EsArrayType(EsArrayType),
@@ -1923,9 +1925,25 @@ define!({
         pub body: EsBracketBody,
     }
 
-    pub struct EsBracketBody {
+    pub struct EsTemplateBracketedType {
+        pub span: Span,
+        pub body: EsBracketBody,
+    }
+
+    pub enum EsBracketBody {
+        EsNormalBracketBody(EsNormalBracketBody),
+        EsTemplateBracketBody(EsTemplateBracketBody),
+    }
+
+    pub struct EsNormalBracketBody {
         pub span: Span,
         pub token_body: Vec<TokenOrBracketedTokens>,
+    }
+
+    pub struct EsTemplateBracketBody {
+        pub span: Span,
+        pub exprs: Vec<TokenOrBracketedTokens>,
+        pub token_body: Vec<TplElement>,
     }
 
     pub struct EsTypeRef {
