@@ -143,7 +143,6 @@ pub mod error;
 pub mod lexer;
 mod parser;
 pub mod token;
-
 #[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 #[serde(deny_unknown_fields, tag = "syntax")]
 pub enum Syntax {

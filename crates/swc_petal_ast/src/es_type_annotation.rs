@@ -1,4 +1,4 @@
-use crate::{ident::Ident, lit::{Bool, Number, Str}, Null, Tpl, TplElement, TsFnParam};
+use crate::{BindingIdent, ident::Ident, lit::{Bool, Number, Str}, Null, Tpl, TplElement, TsFnParam, TsTypeAnn};
 use is_macro::Is;
 use string_enum::StringEnum;
 use swc_common::{ast_node, EqIgnoreSpan, Span};
@@ -362,7 +362,7 @@ pub struct EsToken {
 #[ast_node]
 #[derive(Eq, Hash, Is, EqIgnoreSpan)]
 pub enum EsLiteralType {
-    #[tag("NumbericLiteral")]
+    #[tag("NumericLiteral")]
     Number(Number),
 
     #[tag("StringLiteral")]
@@ -389,5 +389,19 @@ pub struct EsVoidType {
 #[derive(Copy, Eq, Hash, EqIgnoreSpan)]
 #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct EsThisType {
+    pub span: Span,
+}
+
+#[ast_node("EsIndexSignature")]
+#[derive(Eq, Hash, EqIgnoreSpan)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
+pub struct EsIndexSignature {
+    pub binding_id: BindingIdent,
+    #[serde(default, rename = "typeAnnotation")]
+    pub type_ann: Option<EsTypeAnn>,
+
+    pub readonly: bool,
+    #[serde(rename = "static")]
+    pub is_static: bool,
     pub span: Span,
 }

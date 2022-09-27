@@ -85,6 +85,7 @@ mod decl;
 // todo: remove pub once transformation is complete
 pub mod es_type_annotation;
 mod expr;
+mod es_ts_ast_interop;
 mod function;
 mod ident;
 mod jsx;

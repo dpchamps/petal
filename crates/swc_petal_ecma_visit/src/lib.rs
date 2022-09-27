@@ -2022,6 +2022,17 @@ define!({
     pub struct EsThisType {
         pub span: Span,
     }
+
+    pub struct EsIndexSignature {
+        pub binding_id: BindingIdent,
+        #[serde(default, rename = "typeAnnotation")]
+        pub type_ann: Option<EsTypeAnn>,
+
+        pub readonly: bool,
+        #[serde(rename = "static")]
+        pub is_static: bool,
+        pub span: Span,
+    }
 });
 
 #[macro_export]

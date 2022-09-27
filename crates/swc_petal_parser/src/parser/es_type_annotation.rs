@@ -221,6 +221,24 @@ impl<I: Tokens> Parser<I> {
 
         Ok(result)
     }
+
+    pub fn try_parse_es_idx_sig(&mut self, start: BytePos, is_readonly: bool, is_static: bool) -> PResult<Option<EsIndexSignature>> {
+        if let Some(ts_idx_sig) = self.try_parse_ts_index_signature(start, is_readonly, is_static)? {
+            let binding_id = match ts_idx_sig.params.get(0) {
+                Ok(TsFnParam::Ident(b)) => b,
+                _ => unreachable!()
+            };
+            return Ok(Some(EsIndexSignature {
+                span: ts_idx_sig.span,
+                binding_id,
+                type_ann: ts_idx_sig.type_ann.map(|t| t.into()),
+                readonly: ts_idx_sig.readonly,
+                is_static: ts_idx_sig.is_static
+            }))
+        }
+
+        Ok(None)
+    }
 }
 
 #[cfg(test)]
