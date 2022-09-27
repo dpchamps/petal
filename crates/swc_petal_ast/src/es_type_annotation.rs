@@ -1,4 +1,8 @@
-use crate::{BindingIdent, ident::Ident, lit::{Bool, Number, Str}, Null, Tpl, TplElement, TsFnParam, TsTypeAnn};
+use crate::{
+    ident::Ident,
+    lit::{Bool, Number, Str},
+    BindingIdent, Null, Tpl, TplElement, TsFnParam, TsTypeAnn,
+};
 use is_macro::Is;
 use string_enum::StringEnum;
 use swc_common::{ast_node, EqIgnoreSpan, Span};
@@ -237,7 +241,7 @@ pub enum EsBracketBody {
     #[tag("EsNormalBracketBody")]
     EsNormalBracketBody(EsNormalBracketBody),
     #[tag("EsNormalTemplateBody")]
-    EsTemplateBracketBody(EsTemplateBracketBody)
+    EsTemplateBracketBody(EsTemplateBracketBody),
 }
 
 #[ast_node("EsNormalBracketBody")]
@@ -343,6 +347,7 @@ pub struct EsTypePredicate {
 #[ast_node]
 #[derive(Eq, Hash, Is, EqIgnoreSpan)]
 pub enum TokenOrBracketedTokens {
+
     #[tag("Identifier")]
     Token(EsToken),
     #[tag("String")]
@@ -396,7 +401,7 @@ pub struct EsThisType {
 #[derive(Eq, Hash, EqIgnoreSpan)]
 #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct EsIndexSignature {
-    pub binding_id: BindingIdent,
+    pub binding_id: EsBindingIdent,
     #[serde(default, rename = "typeAnnotation")]
     pub type_ann: Option<EsTypeAnn>,
 
@@ -404,4 +409,16 @@ pub struct EsIndexSignature {
     #[serde(rename = "static")]
     pub is_static: bool,
     pub span: Span,
+}
+
+#[ast_node("EsBindingIdent")]
+#[derive(Eq, Hash, EqIgnoreSpan)]
+pub struct EsBindingIdent {
+    pub span: Span,
+    #[serde(flatten)]
+    #[cfg_attr(feature = "rkyv", omit_bounds)]
+    pub id: Ident,
+    #[serde(default, rename = "typeAnnotation")]
+    #[cfg_attr(feature = "rkyv", omit_bounds)]
+    pub type_ann: Option<EsTypeAnn>,
 }

@@ -83,9 +83,9 @@ mod class;
 mod decl;
 // mod _es_type_annotation;
 // todo: remove pub once transformation is complete
+mod es_ts_ast_interop;
 pub mod es_type_annotation;
 mod expr;
-mod es_ts_ast_interop;
 mod function;
 mod ident;
 mod jsx;

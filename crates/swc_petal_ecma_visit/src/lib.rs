@@ -2024,14 +2024,18 @@ define!({
     }
 
     pub struct EsIndexSignature {
-        pub binding_id: BindingIdent,
-        #[serde(default, rename = "typeAnnotation")]
+        pub binding_id: EsBindingIdent,
         pub type_ann: Option<EsTypeAnn>,
 
         pub readonly: bool,
-        #[serde(rename = "static")]
         pub is_static: bool,
         pub span: Span,
+    }
+
+    pub struct EsBindingIdent {
+        pub span: Span,
+        pub id: Ident,
+        pub type_ann: Option<EsTypeAnn>,
     }
 });
 

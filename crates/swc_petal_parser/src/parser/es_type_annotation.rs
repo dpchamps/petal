@@ -1,6 +1,5 @@
 use super::*;
 use crate::token::BinOpToken;
-
 #[derive(Eq, PartialEq)]
 pub enum TokenBodyType {
     Paren,
@@ -224,17 +223,7 @@ impl<I: Tokens> Parser<I> {
 
     pub fn try_parse_es_idx_sig(&mut self, start: BytePos, is_readonly: bool, is_static: bool) -> PResult<Option<EsIndexSignature>> {
         if let Some(ts_idx_sig) = self.try_parse_ts_index_signature(start, is_readonly, is_static)? {
-            let binding_id = match ts_idx_sig.params.get(0) {
-                Ok(TsFnParam::Ident(b)) => b,
-                _ => unreachable!()
-            };
-            return Ok(Some(EsIndexSignature {
-                span: ts_idx_sig.span,
-                binding_id,
-                type_ann: ts_idx_sig.type_ann.map(|t| t.into()),
-                readonly: ts_idx_sig.readonly,
-                is_static: ts_idx_sig.is_static
-            }))
+            return Ok(Some(ts_idx_sig.try_into().expect("Failed to transpose Typescript Index Signature into ES Index Signature. This is an internal error.")));
         }
 
         Ok(None)
@@ -243,15 +232,11 @@ impl<I: Tokens> Parser<I> {
 
 #[cfg(test)]
 mod tests {
-    use swc_common::DUMMY_SP;
+    use swc_common::{BytePos, DUMMY_SP};
     use swc_petal_ecma_visit::assert_eq_ignore_span;
 
     use crate::{test_parser, Syntax};
-    use swc_petal_ast::{
-        EsBracketBody, EsCurlyBracketedType, EsNormalBracketBody, EsParenthesizedType,
-        EsSquareBracketedType, EsTemplateBracketBody, EsTemplateBracketedType, EsToken, EsType,
-        TokenOrBracketedTokens, TplElement,
-    };
+    use swc_petal_ast::{ EsBindingIdent, EsBracketBody, EsCurlyBracketedType, EsEntityName, EsIndexSignature, EsNormalBracketBody, EsParenthesizedType, EsSquareBracketedType, EsTemplateBracketBody, EsTemplateBracketedType, EsToken, EsType, EsTypeAnn, EsTypeRef, Ident, TokenOrBracketedTokens, TplElement};
 
     #[test]
     fn bracket_body_single() {
@@ -429,6 +414,132 @@ mod tests {
                 ],
             }),
         });
+
+        assert_eq_ignore_span!(result, expected);
+    }
+
+    #[test]
+    fn parse_es_idx_signature(){
+        let result = test_parser(
+            "[idx: number]: string",
+            Syntax::EsTypeAnnotations(Default::default()),
+            |p| p.try_parse_es_idx_sig(BytePos::DUMMY, false, false)
+        ).expect("Did not succesfully parse something like an index signature");
+
+        let expected = EsIndexSignature {
+            binding_id: EsBindingIdent {
+                span: DUMMY_SP,
+                id: Ident {
+                    span: DUMMY_SP,
+                    sym: "idx".into(),
+                    optional: false
+                },
+                type_ann: Some(EsTypeAnn {
+                    span: DUMMY_SP,
+                    type_ann: Box::new(EsType::EsTypeReference(EsTypeRef {
+                        span: DUMMY_SP,
+                        type_name: EsEntityName::Ident(Ident {
+                            span: DUMMY_SP,
+                            sym: "number".into(),
+                            optional: false
+                        }),
+                        type_arguments: None
+                    }))
+                })
+            },
+            type_ann: Some(EsTypeAnn{
+                span: DUMMY_SP,
+                type_ann: Box::new(EsType::EsTypeReference(EsTypeRef {
+                    span: DUMMY_SP,
+                    type_name: EsEntityName::Ident(Ident{
+                        span: DUMMY_SP,
+                        sym: "string".into(),
+                        optional: false
+                    }),
+                    type_arguments: None
+                }))
+            }),
+            readonly: false,
+            is_static: false,
+            span: DUMMY_SP,
+
+        };
+
+        assert_eq_ignore_span!(result, expected);
+    }
+
+    #[test]
+    fn parse_es_idx_signature_args(){
+        let result = test_parser(
+            "[idx: T<A, B>]: U<C, D>",
+            Syntax::EsTypeAnnotations(Default::default()),
+            |p| p.try_parse_es_idx_sig(BytePos::DUMMY, false, false)
+        ).expect("Did not succesfully parse something like an index signature");
+
+        let expected = EsIndexSignature {
+            binding_id: EsBindingIdent {
+                span: DUMMY_SP,
+                id: Ident {
+                    span: DUMMY_SP,
+                    sym: "idx".into(),
+                    optional: false
+                },
+                type_ann: Some(EsTypeAnn {
+                    span: DUMMY_SP,
+                    type_ann: Box::new(EsType::EsTypeReference(EsTypeRef {
+                        span: DUMMY_SP,
+                        type_name: EsEntityName::Ident(Ident {
+                            span: DUMMY_SP,
+                            sym: "T".into(),
+                            optional: false
+                        }),
+                        type_arguments: Some(EsBracketBody::EsNormalBracketBody(EsNormalBracketBody{
+                            span: DUMMY_SP,
+                            token_body: vec![
+                                TokenOrBracketedTokens::Token(EsToken {
+                                    span: DUMMY_SP,
+                                    value: "A".into()
+                                }),
+                                TokenOrBracketedTokens::Token(EsToken {
+                                    span: DUMMY_SP,
+                                    value: "B".into()
+                                })
+                            ]
+                        }))
+                    }))
+                })
+            },
+            type_ann: Some(EsTypeAnn{
+                span: DUMMY_SP,
+                type_ann: Box::new(EsType::EsTypeReference(EsTypeRef {
+                    span: DUMMY_SP,
+                    type_name: EsEntityName::Ident(Ident{
+                        span: DUMMY_SP,
+                        sym: "U".into(),
+                        optional: false
+                    }),
+                    type_arguments: Some(
+                        EsBracketBody::EsNormalBracketBody(EsNormalBracketBody {
+                            span: DUMMY_SP,
+                            token_body: vec![
+                                TokenOrBracketedTokens::Token(EsToken{
+                                    span: DUMMY_SP,
+                                    value: "C".into()
+                                }),
+                                TokenOrBracketedTokens::Token(EsToken{
+                                    span: DUMMY_SP,
+                                    value: "D".into()
+                                })
+                            ]
+                        })
+                    )
+                }))
+            }),
+            readonly: false,
+            is_static: false,
+            span: DUMMY_SP,
+
+        };
 
         assert_eq_ignore_span!(result, expected);
     }
