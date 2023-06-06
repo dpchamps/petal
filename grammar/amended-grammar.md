@@ -614,15 +614,11 @@
 
 &ensp;&ensp;[+Return] ReturnStatement[?Yield, ?Await]
 
-&ensp;&ensp;ThrowStatement[?Yield, ?Await]
-
 &ensp;&ensp;DebuggerStatement
 <br><br>
 **Declaration[Yield, Await] :**
 
 &ensp;&ensp;HoistableDeclaration[?Yield, ?Await, ~Default]
-
-&ensp;&ensp;ClassDeclaration[?Yield, ?Await, ~Default]
 
 &ensp;&ensp;LexicalDeclaration[+In, ?Yield, ?Await]
 <br><br>
@@ -808,21 +804,7 @@
 <br><br>
 **ForInOfStatement[Yield, Await, Return] :**
 
-&ensp;&ensp;for ( [lookahead ≠ let [] LeftHandSideExpression[?Yield, ?Await] in Expression[+In, ?Yield, ?Await] ) Statement[?Yield, ?Await, ?Return]
-
-&ensp;&ensp;for ( var ForBinding[?Yield, ?Await] in Expression[+In, ?Yield, ?Await] ) Statement[?Yield, ?Await, ?Return]
-
-&ensp;&ensp;for ( ForDeclaration[?Yield, ?Await] in Expression[+In, ?Yield, ?Await] ) Statement[?Yield, ?Await, ?Return]
-
-&ensp;&ensp;for ( [lookahead ∉ { let, async of }] LeftHandSideExpression[?Yield, ?Await] of AssignmentExpression[+In, ?Yield, ?Await] ) Statement[?Yield, ?Await, ?Return]
-
-&ensp;&ensp;for ( var ForBinding[?Yield, ?Await] of AssignmentExpression[+In, ?Yield, ?Await] ) Statement[?Yield, ?Await, ?Return]
-
 &ensp;&ensp;for ( ForDeclaration[?Yield, ?Await] of AssignmentExpression[+In, ?Yield, ?Await] ) Statement[?Yield, ?Await, ?Return]
-
-&ensp;&ensp;[+Await] for await ( [lookahead ≠ let] LeftHandSideExpression[?Yield, ?Await] of AssignmentExpression[+In, ?Yield, ?Await] ) Statement[?Yield, ?Await, ?Return]
-
-&ensp;&ensp;[+Await] for await ( var ForBinding[?Yield, ?Await] of AssignmentExpression[+In, ?Yield, ?Await] ) Statement[?Yield, ?Await, ?Return]
 
 &ensp;&ensp;[+Await] for await ( ForDeclaration[?Yield, ?Await] of AssignmentExpression[+In, ?Yield, ?Await] ) Statement[?Yield, ?Await, ?Return]
 <br><br>
@@ -854,10 +836,6 @@
 
 &ensp;&ensp;return [no LineTerminator here] Expression[+In, ?Yield, ?Await] ;
 <br><br>
-**WithStatement[Yield, Await, Return] :**
-
-&ensp;&ensp;with ( Expression[+In, ?Yield, ?Await] ) Statement[?Yield, ?Await, ?Return]
-<br><br>
 **SwitchStatement[Yield, Await, Return] :**
 
 &ensp;&ensp;switch ( Expression[+In, ?Yield, ?Await] ) CaseBlock[?Yield, ?Await, ?Return]
@@ -881,44 +859,6 @@
 **DefaultClause[Yield, Await, Return] :**
 
 &ensp;&ensp;default : StatementList[?Yield, ?Await, ?Return]opt
-<br><br>
-**LabelledStatement[Yield, Await, Return] :**
-
-&ensp;&ensp;LabelIdentifier[?Yield, ?Await] : LabelledItem[?Yield, ?Await, ?Return]
-<br><br>
-**LabelledItem[Yield, Await, Return] :**
-
-&ensp;&ensp;Statement[?Yield, ?Await, ?Return]
-
-&ensp;&ensp;FunctionDeclaration[?Yield, ?Await, ~Default]
-<br><br>
-**ThrowStatement[Yield, Await] :**
-
-&ensp;&ensp;throw [no LineTerminator here] Expression[+In, ?Yield, ?Await] ;
-<br><br>
-**TryStatement[Yield, Await, Return] :**
-
-&ensp;&ensp;try Block[?Yield, ?Await, ?Return] Catch[?Yield, ?Await, ?Return]
-
-&ensp;&ensp;try Block[?Yield, ?Await, ?Return] Finally[?Yield, ?Await, ?Return]
-
-&ensp;&ensp;try Block[?Yield, ?Await, ?Return] Catch[?Yield, ?Await, ?Return] Finally[?Yield, ?Await, ?Return]
-<br><br>
-**Catch[Yield, Await, Return] :**
-
-&ensp;&ensp;catch ( CatchParameter[?Yield, ?Await] ) Block[?Yield, ?Await, ?Return]
-
-&ensp;&ensp;catch Block[?Yield, ?Await, ?Return]
-<br><br>
-**Finally[Yield, Await, Return] :**
-
-&ensp;&ensp;finally Block[?Yield, ?Await, ?Return]
-<br><br>
-**CatchParameter[Yield, Await] :**
-
-&ensp;&ensp;BindingIdentifier[?Yield, ?Await]
-
-&ensp;&ensp;BindingPattern[?Yield, ?Await]
 <br><br>
 **DebuggerStatement :**
 
