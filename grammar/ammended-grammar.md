@@ -1,6 +1,7 @@
 ## Expressions
 
-<br><br>**IdentifierReference[Yield, Await] :**
+<br><br>
+**IdentifierReference[Yield, Await] :**
 
 &ensp;&ensp;Identifier
 
@@ -9,7 +10,8 @@
 &ensp;&ensp;[~Await] await
 
 
-<br><br>**BindingIdentifier[Yield, Await] :**
+<br><br>
+**BindingIdentifier[Yield, Await] :**
 
 &ensp;&ensp;Identifier
 
@@ -18,7 +20,8 @@
 &ensp;&ensp;await
 
 
-<br><br>**LabelIdentifier[Yield, Await] :**
+<br><br>
+**LabelIdentifier[Yield, Await] :**
 
 &ensp;&ensp;Identifier
 
@@ -27,12 +30,14 @@
 &ensp;&ensp;[~Await] await
 
 
-<br><br>**Identifier :**
+<br><br>
+**Identifier :**
 
 &ensp;&ensp;IdentifierName but not ReservedWord
 
 
-<br><br>**PrimaryExpression[Yield, Await] :**
+<br><br>
+**PrimaryExpression[Yield, Await] :**
 
 &ensp;&ensp;this
 
@@ -61,7 +66,8 @@
 &ensp;&ensp;CoverParenthesizedExpressionAndArrowParameterList[?Yield, ?Await]
 
 
-<br><br>**CoverParenthesizedExpressionAndArrowParameterList[Yield, Await] :**
+<br><br>
+**CoverParenthesizedExpressionAndArrowParameterList[Yield, Await] :**
 
 &ensp;&ensp;( Expression[+In, ?Yield, ?Await] )
 
@@ -82,12 +88,14 @@
 &ensp;&ensp;PrimaryExpression[Yield, Await] : CoverParenthesizedExpressionAndArrowParameterList[?Yield, ?Await]
 
 
-<br><br>**the interpretation of CoverParenthesizedExpressionAndArrowParameterList is refined using the following grammar:**
+<br><br>
+**the interpretation of CoverParenthesizedExpressionAndArrowParameterList is refined using the following grammar:**
 
 &ensp;&ensp;
 
 
-<br><br>**ParenthesizedExpression[Yield, Await] :**
+<br><br>
+**ParenthesizedExpression[Yield, Await] :**
 
 &ensp;&ensp;( Expression[+In, ?Yield, ?Await] )
 
@@ -96,7 +104,8 @@
 &ensp;&ensp;
 
 
-<br><br>**Literal :**
+<br><br>
+**Literal :**
 
 &ensp;&ensp;NullLiteral
 
@@ -107,7 +116,8 @@
 &ensp;&ensp;StringLiteral
 
 
-<br><br>**ArrayLiteral[Yield, Await] :**
+<br><br>
+**ArrayLiteral[Yield, Await] :**
 
 &ensp;&ensp;[ Elisionopt ]
 
@@ -116,7 +126,8 @@
 &ensp;&ensp;[ ElementList[?Yield, ?Await] , Elisionopt ]
 
 
-<br><br>**ElementList[Yield, Await] :**
+<br><br>
+**ElementList[Yield, Await] :**
 
 &ensp;&ensp;Elisionopt AssignmentExpression[+In, ?Yield, ?Await]
 
@@ -127,19 +138,22 @@
 &ensp;&ensp;ElementList[?Yield, ?Await] , Elisionopt SpreadElement[?Yield, ?Await]
 
 
-<br><br>**Elision :**
+<br><br>
+**Elision :**
 
 &ensp;&ensp;,
 
 &ensp;&ensp;Elision ,
 
 
-<br><br>**SpreadElement[Yield, Await] :**
+<br><br>
+**SpreadElement[Yield, Await] :**
 
 &ensp;&ensp;... AssignmentExpression[+In, ?Yield, ?Await]
 
 
-<br><br>**ObjectLiteral[Yield, Await] :**
+<br><br>
+**ObjectLiteral[Yield, Await] :**
 
 &ensp;&ensp;{ }
 
@@ -148,14 +162,16 @@
 &ensp;&ensp;{ PropertyDefinitionList[?Yield, ?Await] , }
 
 
-<br><br>**PropertyDefinitionList[Yield, Await] :**
+<br><br>
+**PropertyDefinitionList[Yield, Await] :**
 
 &ensp;&ensp;PropertyDefinition[?Yield, ?Await]
 
 &ensp;&ensp;PropertyDefinitionList[?Yield, ?Await] , PropertyDefinition[?Yield, ?Await]
 
 
-<br><br>**PropertyDefinition[Yield, Await] :**
+<br><br>
+**PropertyDefinition[Yield, Await] :**
 
 &ensp;&ensp;IdentifierReference[?Yield, ?Await]
 
@@ -168,14 +184,16 @@
 &ensp;&ensp;... AssignmentExpression[+In, ?Yield, ?Await]
 
 
-<br><br>**PropertyName[Yield, Await] :**
+<br><br>
+**PropertyName[Yield, Await] :**
 
 &ensp;&ensp;LiteralPropertyName
 
 &ensp;&ensp;ComputedPropertyName[?Yield, ?Await]
 
 
-<br><br>**LiteralPropertyName :**
+<br><br>
+**LiteralPropertyName :**
 
 &ensp;&ensp;IdentifierName
 
@@ -184,48 +202,56 @@
 &ensp;&ensp;NumericLiteral
 
 
-<br><br>**ComputedPropertyName[Yield, Await] :**
+<br><br>
+**ComputedPropertyName[Yield, Await] :**
 
 &ensp;&ensp;[ AssignmentExpression[+In, ?Yield, ?Await] ]
 
 
-<br><br>**CoverInitializedName[Yield, Await] :**
+<br><br>
+**CoverInitializedName[Yield, Await] :**
 
 &ensp;&ensp;IdentifierReference[?Yield, ?Await] Initializer[+In, ?Yield, ?Await]
 
 
-<br><br>**Initializer[In, Yield, Await] :**
+<br><br>
+**Initializer[In, Yield, Await] :**
 
 &ensp;&ensp;= AssignmentExpression[?In, ?Yield, ?Await]
 
 
-<br><br>**TemplateLiteral[Yield, Await, Tagged] :**
+<br><br>
+**TemplateLiteral[Yield, Await, Tagged] :**
 
 &ensp;&ensp;NoSubstitutionTemplate
 
 &ensp;&ensp;SubstitutionTemplate[?Yield, ?Await, ?Tagged]
 
 
-<br><br>**SubstitutionTemplate[Yield, Await, Tagged] :**
+<br><br>
+**SubstitutionTemplate[Yield, Await, Tagged] :**
 
 &ensp;&ensp;TemplateHead Expression[+In, ?Yield, ?Await] TemplateSpans[?Yield, ?Await, ?Tagged]
 
 
-<br><br>**TemplateSpans[Yield, Await, Tagged] :**
+<br><br>
+**TemplateSpans[Yield, Await, Tagged] :**
 
 &ensp;&ensp;TemplateTail
 
 &ensp;&ensp;TemplateMiddleList[?Yield, ?Await, ?Tagged] TemplateTail
 
 
-<br><br>**TemplateMiddleList[Yield, Await, Tagged] :**
+<br><br>
+**TemplateMiddleList[Yield, Await, Tagged] :**
 
 &ensp;&ensp;TemplateMiddle Expression[+In, ?Yield, ?Await]
 
 &ensp;&ensp;TemplateMiddleList[?Yield, ?Await, ?Tagged] TemplateMiddle Expression[+In, ?Yield, ?Await]
 
 
-<br><br>**MemberExpression[Yield, Await] :**
+<br><br>
+**MemberExpression[Yield, Await] :**
 
 &ensp;&ensp;PrimaryExpression[?Yield, ?Await]
 
@@ -244,38 +270,44 @@
 &ensp;&ensp;MemberExpression[?Yield, ?Await] . PrivateIdentifier
 
 
-<br><br>**SuperProperty[Yield, Await] :**
+<br><br>
+**SuperProperty[Yield, Await] :**
 
 &ensp;&ensp;super [ Expression[+In, ?Yield, ?Await] ]
 
 &ensp;&ensp;super . IdentifierName
 
 
-<br><br>**MetaProperty :**
+<br><br>
+**MetaProperty :**
 
 &ensp;&ensp;NewTarget
 
 &ensp;&ensp;ImportMeta
 
 
-<br><br>**NewTarget :**
+<br><br>
+**NewTarget :**
 
 &ensp;&ensp;new . target
 
 
-<br><br>**ImportMeta :**
+<br><br>
+**ImportMeta :**
 
 &ensp;&ensp;import . meta
 
 
-<br><br>**NewExpression[Yield, Await] :**
+<br><br>
+**NewExpression[Yield, Await] :**
 
 &ensp;&ensp;MemberExpression[?Yield, ?Await]
 
 &ensp;&ensp;new NewExpression[?Yield, ?Await]
 
 
-<br><br>**CallExpression[Yield, Await] :**
+<br><br>
+**CallExpression[Yield, Await] :**
 
 &ensp;&ensp;CoverCallExpressionAndAsyncArrowHead[?Yield, ?Await]
 
@@ -298,12 +330,14 @@
 &ensp;&ensp;CallExpression[Yield, Await] : CoverCallExpressionAndAsyncArrowHead[?Yield, ?Await]
 
 
-<br><br>**the interpretation of CoverCallExpressionAndAsyncArrowHead is refined using the following grammar:**
+<br><br>
+**the interpretation of CoverCallExpressionAndAsyncArrowHead is refined using the following grammar:**
 
 &ensp;&ensp;
 
 
-<br><br>**CallMemberExpression[Yield, Await] :**
+<br><br>
+**CallMemberExpression[Yield, Await] :**
 
 &ensp;&ensp;MemberExpression[?Yield, ?Await] Arguments[?Yield, ?Await]
 
@@ -312,17 +346,20 @@
 &ensp;&ensp;
 
 
-<br><br>**SuperCall[Yield, Await] :**
+<br><br>
+**SuperCall[Yield, Await] :**
 
 &ensp;&ensp;super Arguments[?Yield, ?Await]
 
 
-<br><br>**ImportCall[Yield, Await] :**
+<br><br>
+**ImportCall[Yield, Await] :**
 
 &ensp;&ensp;import ( AssignmentExpression[+In, ?Yield, ?Await] )
 
 
-<br><br>**Arguments[Yield, Await] :**
+<br><br>
+**Arguments[Yield, Await] :**
 
 &ensp;&ensp;( )
 
@@ -331,7 +368,8 @@
 &ensp;&ensp;( ArgumentList[?Yield, ?Await] , )
 
 
-<br><br>**ArgumentList[Yield, Await] :**
+<br><br>
+**ArgumentList[Yield, Await] :**
 
 &ensp;&ensp;AssignmentExpression[+In, ?Yield, ?Await]
 
@@ -342,7 +380,8 @@
 &ensp;&ensp;ArgumentList[?Yield, ?Await] , ... AssignmentExpression[+In, ?Yield, ?Await]
 
 
-<br><br>**OptionalExpression[Yield, Await] :**
+<br><br>
+**OptionalExpression[Yield, Await] :**
 
 &ensp;&ensp;MemberExpression[?Yield, ?Await] OptionalChain[?Yield, ?Await]
 
@@ -351,7 +390,8 @@
 &ensp;&ensp;OptionalExpression[?Yield, ?Await] OptionalChain[?Yield, ?Await]
 
 
-<br><br>**OptionalChain[Yield, Await] :**
+<br><br>
+**OptionalChain[Yield, Await] :**
 
 &ensp;&ensp;?. Arguments[?Yield, ?Await]
 
@@ -374,7 +414,8 @@
 &ensp;&ensp;OptionalChain[?Yield, ?Await] . PrivateIdentifier
 
 
-<br><br>**LeftHandSideExpression[Yield, Await] :**
+<br><br>
+**LeftHandSideExpression[Yield, Await] :**
 
 &ensp;&ensp;NewExpression[?Yield, ?Await]
 
@@ -383,7 +424,8 @@
 &ensp;&ensp;OptionalExpression[?Yield, ?Await]
 
 
-<br><br>**UpdateExpression[Yield, Await] :**
+<br><br>
+**UpdateExpression[Yield, Await] :**
 
 &ensp;&ensp;LeftHandSideExpression[?Yield, ?Await]
 
@@ -396,7 +438,8 @@
 &ensp;&ensp;-- UnaryExpression[?Yield, ?Await]
 
 
-<br><br>**UnaryExpression[Yield, Await] :**
+<br><br>
+**UnaryExpression[Yield, Await] :**
 
 &ensp;&ensp;UpdateExpression[?Yield, ?Await]
 
@@ -417,14 +460,16 @@
 &ensp;&ensp;  [+Await] AwaitExpression[?Yield]
 
 
-<br><br>**  ExponentiationExpression[Yield, Await] :**
+<br><br>
+**ExponentiationExpression[Yield, Await] :**
 
 &ensp;&ensp;  UnaryExpression[?Yield, ?Await]
 
 &ensp;&ensp;  UpdateExpression[?Yield, ?Await] ** ExponentiationExpression[?Yield, ?Await]
 
 
-<br><br>**  MultiplicativeExpression[Yield, Await] :**
+<br><br>
+**MultiplicativeExpression[Yield, Await] :**
 
 &ensp;&ensp;  ExponentiationExpression[?Yield, ?Await]
 
@@ -435,7 +480,8 @@
 * / %
 
 
-<br><br>**  AdditiveExpression[Yield, Await] :**
+<br><br>
+**AdditiveExpression[Yield, Await] :**
 
 &ensp;&ensp;  MultiplicativeExpression[?Yield, ?Await]
 
@@ -444,7 +490,8 @@
 &ensp;&ensp;  AdditiveExpression[?Yield, ?Await] - MultiplicativeExpression[?Yield, ?Await]
 
 
-<br><br>**  ShiftExpression[Yield, Await] :**
+<br><br>
+**ShiftExpression[Yield, Await] :**
 
 &ensp;&ensp;  AdditiveExpression[?Yield, ?Await]
 
@@ -455,7 +502,8 @@
 &ensp;&ensp;  ShiftExpression[?Yield, ?Await] >>> AdditiveExpression[?Yield, ?Await]
 
 
-<br><br>**  RelationalExpression[In, Yield, Await] :**
+<br><br>
+**RelationalExpression[In, Yield, Await] :**
 
 &ensp;&ensp;  ShiftExpression[?Yield, ?Await]
 
@@ -474,7 +522,8 @@
 &ensp;&ensp;  [+In] PrivateIdentifier in ShiftExpression[?Yield, ?Await]
 
 
-<br><br>**  EqualityExpression[In, Yield, Await] :**
+<br><br>
+**EqualityExpression[In, Yield, Await] :**
 
 &ensp;&ensp;  RelationalExpression[?In, ?Yield, ?Await]
 
@@ -487,68 +536,78 @@
 &ensp;&ensp;  EqualityExpression[?In, ?Yield, ?Await] !== RelationalExpression[?In, ?Yield, ?Await]
 
 
-<br><br>**  BitwiseANDExpression[In, Yield, Await] :**
+<br><br>
+**BitwiseANDExpression[In, Yield, Await] :**
 
 &ensp;&ensp;  EqualityExpression[?In, ?Yield, ?Await]
 
 &ensp;&ensp;  BitwiseANDExpression[?In, ?Yield, ?Await] & EqualityExpression[?In, ?Yield, ?Await]
 
 
-<br><br>**  BitwiseXORExpression[In, Yield, Await] :**
+<br><br>
+**BitwiseXORExpression[In, Yield, Await] :**
 
 &ensp;&ensp;  BitwiseANDExpression[?In, ?Yield, ?Await]
 
 &ensp;&ensp;  BitwiseXORExpression[?In, ?Yield, ?Await] ^ BitwiseANDExpression[?In, ?Yield, ?Await]
 
 
-<br><br>**  BitwiseORExpression[In, Yield, Await] :**
+<br><br>
+**BitwiseORExpression[In, Yield, Await] :**
 
 &ensp;&ensp;  BitwiseXORExpression[?In, ?Yield, ?Await]
 
 &ensp;&ensp;  BitwiseORExpression[?In, ?Yield, ?Await] | BitwiseXORExpression[?In, ?Yield, ?Await]
 
 
-<br><br>**  LogicalANDExpression[In, Yield, Await] :**
+<br><br>
+**LogicalANDExpression[In, Yield, Await] :**
 
 &ensp;&ensp;  BitwiseORExpression[?In, ?Yield, ?Await]
 
 &ensp;&ensp;  LogicalANDExpression[?In, ?Yield, ?Await] && BitwiseORExpression[?In, ?Yield, ?Await]
 
 
-<br><br>**  LogicalORExpression[In, Yield, Await] :**
+<br><br>
+**LogicalORExpression[In, Yield, Await] :**
 
 &ensp;&ensp;  LogicalANDExpression[?In, ?Yield, ?Await]
 
 &ensp;&ensp;  LogicalORExpression[?In, ?Yield, ?Await] || LogicalANDExpression[?In, ?Yield, ?Await]
 
 
-<br><br>**  CoalesceExpression[In, Yield, Await] :**
+<br><br>
+**CoalesceExpression[In, Yield, Await] :**
 
 &ensp;&ensp;  CoalesceExpressionHead[?In, ?Yield, ?Await] ?? BitwiseORExpression[?In, ?Yield, ?Await]
 
 
-<br><br>**  CoalesceExpressionHead[In, Yield, Await] :**
+<br><br>
+**CoalesceExpressionHead[In, Yield, Await] :**
 
 &ensp;&ensp;  CoalesceExpression[?In, ?Yield, ?Await]
 
 &ensp;&ensp;  BitwiseORExpression[?In, ?Yield, ?Await]
 
 
-<br><br>**  ShortCircuitExpression[In, Yield, Await] :**
+<br><br>
+**ShortCircuitExpression[In, Yield, Await] :**
 
 &ensp;&ensp;  LogicalORExpression[?In, ?Yield, ?Await]
 
 &ensp;&ensp;  CoalesceExpression[?In, ?Yield, ?Await]
 
 
-<br><br>**  ConditionalExpression[In, Yield, Await] :**
+<br><br>
+**ConditionalExpression[In, Yield, Await] :**
 
 &ensp;&ensp;  ShortCircuitExpression[?In, ?Yield, ?Await]
 
 &ensp;&ensp;  ShortCircuitExpression[?In, ?Yield, ?Await] ? AssignmentExpression[+In, ?Yield, ?Await] : AssignmentExpression[?In, ?Yield, ?Await]
 
 
-<br><br>**  AssignmentExpression[In, Yield, Await] :**
+<br><br>
+**AssignmentExpression[In, Yield, Await] :**
 
 &ensp;&ensp;  ConditionalExpression[?In, ?Yield, ?Await]
 
@@ -577,19 +636,22 @@
 &ensp;&ensp;  AssignmentExpression[In, Yield, Await] : LeftHandSideExpression[?Yield, ?Await] = AssignmentExpression[?In, ?Yield, ?Await]
 
 
-<br><br>**  the interpretation of LeftHandSideExpression is refined using the following grammar:**
+<br><br>
+**the interpretation of LeftHandSideExpression is refined using the following grammar:**
 
 &ensp;&ensp;
 
 
-<br><br>**AssignmentPattern[Yield, Await] :**
+<br><br>
+**AssignmentPattern[Yield, Await] :**
 
 &ensp;&ensp;ObjectAssignmentPattern[?Yield, ?Await]
 
 &ensp;&ensp;ArrayAssignmentPattern[?Yield, ?Await]
 
 
-<br><br>**ObjectAssignmentPattern[Yield, Await] :**
+<br><br>
+**ObjectAssignmentPattern[Yield, Await] :**
 
 &ensp;&ensp;{ }
 
@@ -600,7 +662,8 @@
 &ensp;&ensp;{ AssignmentPropertyList[?Yield, ?Await] , AssignmentRestProperty[?Yield, ?Await]opt }
 
 
-<br><br>**ArrayAssignmentPattern[Yield, Await] :**
+<br><br>
+**ArrayAssignmentPattern[Yield, Await] :**
 
 &ensp;&ensp;[ Elisionopt AssignmentRestElement[?Yield, ?Await]opt ]
 
@@ -609,48 +672,56 @@
 &ensp;&ensp;[ AssignmentElementList[?Yield, ?Await] , Elisionopt AssignmentRestElement[?Yield, ?Await]opt ]
 
 
-<br><br>**AssignmentRestProperty[Yield, Await] :**
+<br><br>
+**AssignmentRestProperty[Yield, Await] :**
 
 &ensp;&ensp;... DestructuringAssignmentTarget[?Yield, ?Await]
 
 
-<br><br>**AssignmentPropertyList[Yield, Await] :**
+<br><br>
+**AssignmentPropertyList[Yield, Await] :**
 
 &ensp;&ensp;AssignmentProperty[?Yield, ?Await]
 
 &ensp;&ensp;AssignmentPropertyList[?Yield, ?Await] , AssignmentProperty[?Yield, ?Await]
 
 
-<br><br>**AssignmentElementList[Yield, Await] :**
+<br><br>
+**AssignmentElementList[Yield, Await] :**
 
 &ensp;&ensp;AssignmentElisionElement[?Yield, ?Await]
 
 &ensp;&ensp;AssignmentElementList[?Yield, ?Await] , AssignmentElisionElement[?Yield, ?Await]
 
 
-<br><br>**AssignmentElisionElement[Yield, Await] :**
+<br><br>
+**AssignmentElisionElement[Yield, Await] :**
 
 &ensp;&ensp;Elisionopt AssignmentElement[?Yield, ?Await]
 
 
-<br><br>**AssignmentProperty[Yield, Await] :**
+<br><br>
+**AssignmentProperty[Yield, Await] :**
 
 &ensp;&ensp;IdentifierReference[?Yield, ?Await] Initializer[+In, ?Yield, ?Await]opt
 
 &ensp;&ensp;PropertyName[?Yield, ?Await] : AssignmentElement[?Yield, ?Await]
 
 
-<br><br>**AssignmentElement[Yield, Await] :**
+<br><br>
+**AssignmentElement[Yield, Await] :**
 
 &ensp;&ensp;DestructuringAssignmentTarget[?Yield, ?Await] Initializer[+In, ?Yield, ?Await]opt
 
 
-<br><br>**AssignmentRestElement[Yield, Await] :**
+<br><br>
+**AssignmentRestElement[Yield, Await] :**
 
 &ensp;&ensp;... DestructuringAssignmentTarget[?Yield, ?Await]
 
 
-<br><br>**DestructuringAssignmentTarget[Yield, Await] :**
+<br><br>
+**DestructuringAssignmentTarget[Yield, Await] :**
 
 &ensp;&ensp;LeftHandSideExpression[?Yield, ?Await]
 
@@ -659,7 +730,8 @@
 &ensp;&ensp;
 
 
-<br><br>**Expression[In, Yield, Await] :**
+<br><br>
+**Expression[In, Yield, Await] :**
 
 &ensp;&ensp;AssignmentExpression[?In, ?Yield, ?Await]
 
