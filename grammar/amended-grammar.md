@@ -672,25 +672,8 @@
 
 &ensp;&ensp;LexicalBinding[?In, ?Yield, ?Await]
 
-&ensp;&ensp;BindingList[?In, ?Yield, ?Await] , LexicalBinding[?In, ?Yield, ?Await]
 <br><br>
 **LexicalBinding[In, Yield, Await] :**
-
-&ensp;&ensp;BindingIdentifier[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]opt
-
-&ensp;&ensp;BindingPattern[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]
-<br><br>
-**VariableStatement[Yield, Await] :**
-
-&ensp;&ensp;var VariableDeclarationList[+In, ?Yield, ?Await] ;
-<br><br>
-**VariableDeclarationList[In, Yield, Await] :**
-
-&ensp;&ensp;VariableDeclaration[?In, ?Yield, ?Await]
-
-&ensp;&ensp;VariableDeclarationList[?In, ?Yield, ?Await] , VariableDeclaration[?In, ?Yield, ?Await]
-<br><br>
-**VariableDeclaration[In, Yield, Await] :**
 
 &ensp;&ensp;BindingIdentifier[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]opt
 
@@ -762,10 +745,6 @@
 
 &ensp;&ensp;... BindingPattern[?Yield, ?Await]
 <br><br>
-**EmptyStatement :**
-
-&ensp;&ensp;;
-<br><br>
 **ExpressionStatement[Yield, Await] :**
 
 &ensp;&ensp;[lookahead ∉ { {, function, async [no LineTerminator here] function, class, let [ }] Expression[+In, ?Yield, ?Await] ;
@@ -778,27 +757,17 @@
 <br><br>
 **IterationStatement[Yield, Await, Return] :**
 
-&ensp;&ensp;DoWhileStatement[?Yield, ?Await, ?Return]
-
 &ensp;&ensp;WhileStatement[?Yield, ?Await, ?Return]
 
 &ensp;&ensp;ForStatement[?Yield, ?Await, ?Return]
 
 &ensp;&ensp;ForInOfStatement[?Yield, ?Await, ?Return]
 <br><br>
-**DoWhileStatement[Yield, Await, Return] :**
-
-&ensp;&ensp;do Statement[?Yield, ?Await, ?Return] while ( Expression[+In, ?Yield, ?Await] ) ;
-<br><br>
 **WhileStatement[Yield, Await, Return] :**
 
 &ensp;&ensp;while ( Expression[+In, ?Yield, ?Await] ) Statement[?Yield, ?Await, ?Return]
 <br><br>
 **ForStatement[Yield, Await, Return] :**
-
-&ensp;&ensp;for ( [lookahead ≠ let [] Expression[~In, ?Yield, ?Await]opt ; Expression[+In, ?Yield, ?Await]opt ; Expression[+In, ?Yield, ?Await]opt ) Statement[?Yield, ?Await, ?Return]
-
-&ensp;&ensp;for ( var VariableDeclarationList[~In, ?Yield, ?Await] ; Expression[+In, ?Yield, ?Await]opt ; Expression[+In, ?Yield, ?Await]opt ) Statement[?Yield, ?Await, ?Return]
 
 &ensp;&ensp;for ( LexicalDeclaration[~In, ?Yield, ?Await] Expression[+In, ?Yield, ?Await]opt ; Expression[+In, ?Yield, ?Await]opt ) Statement[?Yield, ?Await, ?Return]
 <br><br>

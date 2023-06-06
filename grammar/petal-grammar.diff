@@ -1,5 +1,5 @@
 *** ./grammar/complete-grammar.md	Mon Jun  5 18:20:49 2023
---- ./grammar/amended-grammar.md	Mon Jun  5 19:00:10 2023
+--- ./grammar/amended-grammar.md	Mon Jun  5 20:03:46 2023
 ***************
 *** 602,609 ****
   
@@ -37,7 +37,81 @@
   **HoistableDeclaration[Yield, Await, Default] :**
 --- 614,625 ----
 ***************
-*** 816,837 ****
+*** 684,690 ****
+  
+  &ensp;&ensp;LexicalBinding[?In, ?Yield, ?Await]
+  
+- &ensp;&ensp;BindingList[?In, ?Yield, ?Await] , LexicalBinding[?In, ?Yield, ?Await]
+  <br><br>
+  **LexicalBinding[In, Yield, Await] :**
+  
+--- 672,677 ----
+***************
+*** 692,713 ****
+  
+  &ensp;&ensp;BindingPattern[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]
+  <br><br>
+- **VariableStatement[Yield, Await] :**
+- 
+- &ensp;&ensp;var VariableDeclarationList[+In, ?Yield, ?Await] ;
+- <br><br>
+- **VariableDeclarationList[In, Yield, Await] :**
+- 
+- &ensp;&ensp;VariableDeclaration[?In, ?Yield, ?Await]
+- 
+- &ensp;&ensp;VariableDeclarationList[?In, ?Yield, ?Await] , VariableDeclaration[?In, ?Yield, ?Await]
+- <br><br>
+- **VariableDeclaration[In, Yield, Await] :**
+- 
+- &ensp;&ensp;BindingIdentifier[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]opt
+- 
+- &ensp;&ensp;BindingPattern[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]
+- <br><br>
+  **BindingPattern[Yield, Await] :**
+  
+  &ensp;&ensp;ObjectBindingPattern[?Yield, ?Await]
+--- 679,684 ----
+***************
+*** 774,783 ****
+  
+  &ensp;&ensp;... BindingPattern[?Yield, ?Await]
+  <br><br>
+- **EmptyStatement :**
+- 
+- &ensp;&ensp;;
+- <br><br>
+  **ExpressionStatement[Yield, Await] :**
+  
+  &ensp;&ensp;[lookahead ∉ { {, function, async [no LineTerminator here] function, class, let [ }] Expression[+In, ?Yield, ?Await] ;
+--- 745,750 ----
+***************
+*** 790,837 ****
+  <br><br>
+  **IterationStatement[Yield, Await, Return] :**
+  
+- &ensp;&ensp;DoWhileStatement[?Yield, ?Await, ?Return]
+- 
+  &ensp;&ensp;WhileStatement[?Yield, ?Await, ?Return]
+  
+  &ensp;&ensp;ForStatement[?Yield, ?Await, ?Return]
+  
+  &ensp;&ensp;ForInOfStatement[?Yield, ?Await, ?Return]
+  <br><br>
+- **DoWhileStatement[Yield, Await, Return] :**
+- 
+- &ensp;&ensp;do Statement[?Yield, ?Await, ?Return] while ( Expression[+In, ?Yield, ?Await] ) ;
+- <br><br>
+  **WhileStatement[Yield, Await, Return] :**
+  
+  &ensp;&ensp;while ( Expression[+In, ?Yield, ?Await] ) Statement[?Yield, ?Await, ?Return]
+  <br><br>
+  **ForStatement[Yield, Await, Return] :**
+  
+- &ensp;&ensp;for ( [lookahead ≠ let [] Expression[~In, ?Yield, ?Await]opt ; Expression[+In, ?Yield, ?Await]opt ; Expression[+In, ?Yield, ?Await]opt ) Statement[?Yield, ?Await, ?Return]
+- 
+- &ensp;&ensp;for ( var VariableDeclarationList[~In, ?Yield, ?Await] ; Expression[+In, ?Yield, ?Await]opt ; Expression[+In, ?Yield, ?Await]opt ) Statement[?Yield, ?Await, ?Return]
+- 
+  &ensp;&ensp;for ( LexicalDeclaration[~In, ?Yield, ?Await] Expression[+In, ?Yield, ?Await]opt ; Expression[+In, ?Yield, ?Await]opt ) Statement[?Yield, ?Await, ?Return]
   <br><br>
   **ForInOfStatement[Yield, Await, Return] :**
   
@@ -60,7 +134,7 @@
   &ensp;&ensp;[+Await] for await ( ForDeclaration[?Yield, ?Await] of AssignmentExpression[+In, ?Yield, ?Await] ) Statement[?Yield, ?Await, ?Return]
   <br><br>
   **ForDeclaration[Yield, Await] :**
---- 804,811 ----
+--- 757,780 ----
 ***************
 *** 862,871 ****
   
@@ -73,7 +147,7 @@
   **SwitchStatement[Yield, Await, Return] :**
   
   &ensp;&ensp;switch ( Expression[+In, ?Yield, ?Await] ) CaseBlock[?Yield, ?Await, ?Return]
---- 836,841 ----
+--- 805,810 ----
 ***************
 *** 889,932 ****
   **DefaultClause[Yield, Await, Return] :**
@@ -120,4 +194,4 @@
   <br><br>
   **DebuggerStatement :**
   
---- 859,864 ----
+--- 828,833 ----
