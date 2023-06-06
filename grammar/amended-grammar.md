@@ -39,16 +39,6 @@
 
 &ensp;&ensp;ObjectLiteral[?Yield, ?Await]
 
-&ensp;&ensp;FunctionExpression
-
-&ensp;&ensp;ClassExpression[?Yield, ?Await]
-
-&ensp;&ensp;GeneratorExpression
-
-&ensp;&ensp;AsyncFunctionExpression
-
-&ensp;&ensp;AsyncGeneratorExpression
-
 &ensp;&ensp;RegularExpressionLiteral
 
 &ensp;&ensp;TemplateLiteral[?Yield, ?Await, ~Tagged]
@@ -209,29 +199,12 @@
 
 &ensp;&ensp;MemberExpression[?Yield, ?Await] TemplateLiteral[?Yield, ?Await, +Tagged]
 
-&ensp;&ensp;SuperProperty[?Yield, ?Await]
-
 &ensp;&ensp;MetaProperty
 
-&ensp;&ensp;new MemberExpression[?Yield, ?Await] Arguments[?Yield, ?Await]
-
-&ensp;&ensp;MemberExpression[?Yield, ?Await] . PrivateIdentifier
-<br><br>
-**SuperProperty[Yield, Await] :**
-
-&ensp;&ensp;super [ Expression[+In, ?Yield, ?Await] ]
-
-&ensp;&ensp;super . IdentifierName
 <br><br>
 **MetaProperty :**
 
-&ensp;&ensp;NewTarget
-
 &ensp;&ensp;ImportMeta
-<br><br>
-**NewTarget :**
-
-&ensp;&ensp;new . target
 <br><br>
 **ImportMeta :**
 
@@ -241,13 +214,8 @@
 
 &ensp;&ensp;MemberExpression[?Yield, ?Await]
 
-&ensp;&ensp;new NewExpression[?Yield, ?Await]
 <br><br>
 **CallExpression[Yield, Await] :**
-
-&ensp;&ensp;CoverCallExpressionAndAsyncArrowHead[?Yield, ?Await]
-
-&ensp;&ensp;SuperCall[?Yield, ?Await]
 
 &ensp;&ensp;ImportCall[?Yield, ?Await]
 
@@ -258,28 +226,6 @@
 &ensp;&ensp;CallExpression[?Yield, ?Await] . IdentifierName
 
 &ensp;&ensp;CallExpression[?Yield, ?Await] TemplateLiteral[?Yield, ?Await, +Tagged]
-
-&ensp;&ensp;CallExpression[?Yield, ?Await] . PrivateIdentifier
-
-&ensp;&ensp;When processing an instance of the production
-
-&ensp;&ensp;CallExpression[Yield, Await] : CoverCallExpressionAndAsyncArrowHead[?Yield, ?Await]
-<br><br>
-**the interpretation of CoverCallExpressionAndAsyncArrowHead is refined using the following grammar:**
-
-&ensp;&ensp;
-<br><br>
-**CallMemberExpression[Yield, Await] :**
-
-&ensp;&ensp;MemberExpression[?Yield, ?Await] Arguments[?Yield, ?Await]
-
-&ensp;&ensp;
-
-&ensp;&ensp;
-<br><br>
-**SuperCall[Yield, Await] :**
-
-&ensp;&ensp;super Arguments[?Yield, ?Await]
 <br><br>
 **ImportCall[Yield, Await] :**
 
@@ -321,8 +267,6 @@
 
 &ensp;&ensp;?. TemplateLiteral[?Yield, ?Await, +Tagged]
 
-&ensp;&ensp;?. PrivateIdentifier
-
 &ensp;&ensp;OptionalChain[?Yield, ?Await] Arguments[?Yield, ?Await]
 
 &ensp;&ensp;OptionalChain[?Yield, ?Await] [ Expression[+In, ?Yield, ?Await] ]
@@ -344,22 +288,12 @@
 **UpdateExpression[Yield, Await] :**
 
 &ensp;&ensp;LeftHandSideExpression[?Yield, ?Await]
-
-&ensp;&ensp;LeftHandSideExpression[?Yield, ?Await] [no LineTerminator here] ++
-
-&ensp;&ensp;LeftHandSideExpression[?Yield, ?Await] [no LineTerminator here] --
-
-&ensp;&ensp;++ UnaryExpression[?Yield, ?Await]
-
-&ensp;&ensp;-- UnaryExpression[?Yield, ?Await]
 <br><br>
 **UnaryExpression[Yield, Await] :**
 
 &ensp;&ensp;UpdateExpression[?Yield, ?Await]
 
 &ensp;&ensp;delete UnaryExpression[?Yield, ?Await]
-
-&ensp;&ensp;void UnaryExpression[?Yield, ?Await]
 
 &ensp;&ensp;typeof UnaryExpression[?Yield, ?Await]
 
@@ -422,8 +356,6 @@
 &ensp;&ensp;  RelationalExpression[?In, ?Yield, ?Await] instanceof ShiftExpression[?Yield, ?Await]
 
 &ensp;&ensp;  [+In] RelationalExpression[+In, ?Yield, ?Await] in ShiftExpression[?Yield, ?Await]
-
-&ensp;&ensp;  [+In] PrivateIdentifier in ShiftExpression[?Yield, ?Await]
 <br><br>
 **EqualityExpression[In, Yield, Await] :**
 
@@ -433,9 +365,6 @@
 
 &ensp;&ensp;  EqualityExpression[?In, ?Yield, ?Await] != RelationalExpression[?In, ?Yield, ?Await]
 
-&ensp;&ensp;  EqualityExpression[?In, ?Yield, ?Await] === RelationalExpression[?In, ?Yield, ?Await]
-
-&ensp;&ensp;  EqualityExpression[?In, ?Yield, ?Await] !== RelationalExpression[?In, ?Yield, ?Await]
 <br><br>
 **BitwiseANDExpression[In, Yield, Await] :**
 
@@ -496,8 +425,6 @@
 &ensp;&ensp;  [+Yield] YieldExpression[?In, ?Await]
 
 &ensp;&ensp;  ArrowFunction[?In, ?Yield, ?Await]
-
-&ensp;&ensp;  AsyncArrowFunction[?In, ?Yield, ?Await]
 
 &ensp;&ensp;  LeftHandSideExpression[?Yield, ?Await] = AssignmentExpression[?In, ?Yield, ?Await]
 
