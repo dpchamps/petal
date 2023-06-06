@@ -602,8 +602,6 @@
 
 &ensp;&ensp;VariableStatement[?Yield, ?Await]
 
-&ensp;&ensp;EmptyStatement
-
 &ensp;&ensp;ExpressionStatement[?Yield, ?Await]
 
 &ensp;&ensp;IfStatement[?Yield, ?Await, ?Return]
@@ -616,13 +614,7 @@
 
 &ensp;&ensp;[+Return] ReturnStatement[?Yield, ?Await]
 
-&ensp;&ensp;WithStatement[?Yield, ?Await, ?Return]
-
-&ensp;&ensp;LabelledStatement[?Yield, ?Await, ?Return]
-
 &ensp;&ensp;ThrowStatement[?Yield, ?Await]
-
-&ensp;&ensp;TryStatement[?Yield, ?Await, ?Return]
 
 &ensp;&ensp;DebuggerStatement
 <br><br>
