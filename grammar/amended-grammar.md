@@ -913,7 +913,6 @@ the interpretation of CoverParenthesizedExpressionAndArrowParameterList is refin
 &ensp;&ensp; yield [no LineTerminator here] AssignmentExpression[?In, +Yield, ?Await]
 
 &ensp;&ensp; yield [no LineTerminator here] * AssignmentExpression[?In, +Yield, ?Await]
-
 <br><br>
 **AwaitExpression[Yield] :**
 
