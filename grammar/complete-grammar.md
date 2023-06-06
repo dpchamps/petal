@@ -388,8 +388,8 @@
 &ensp;&ensp;  MultiplicativeOperator : one of
 
 * / %
-  <br><br>
-  **AdditiveExpression[Yield, Await] :**
+<br><br>
+**AdditiveExpression[Yield, Await] :**
 
 &ensp;&ensp;  MultiplicativeExpression[?Yield, ?Await]
 
