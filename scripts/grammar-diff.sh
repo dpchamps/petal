@@ -1,1 +1,1 @@
-diff -y ./grammar/complete-grammar.md ./grammar/amended-grammar.md > ./grammar/petal-grammar.diff
+diff -c 3 ./grammar/complete-grammar.md ./grammar/amended-grammar.md > ./grammar/petal-grammar.diff
