@@ -1,5 +1,5 @@
-*** ./grammar/complete-grammar.md	Mon Jun  5 18:20:49 2023
---- ./grammar/amended-grammar.md	Mon Jun  5 20:33:57 2023
+*** ./grammar/complete-grammar.md	Mon Jun  5 20:34:51 2023
+--- ./grammar/amended-grammar.md	Mon Jun  5 20:34:51 2023
 ***************
 *** 602,609 ****
   
@@ -394,32 +394,17 @@
   
   &ensp;&ensp; PropertyName[?Yield, ?Await]
   
-! &ensp;&ensp; PrivateIdentifier
-! <br><br>
-! **ClassStaticBlock :**
-! 
-! &ensp;&ensp; static { ClassStaticBlockBody }
-! <br><br>
-! **ClassStaticBlockBody :**
-! 
-! &ensp;&ensp; ClassStaticBlockStatementList
-! <br><br>
-! **ClassStaticBlockStatementList :**
-! 
-! &ensp;&ensp; StatementList[~Yield, +Await, ~Return]opt
-\ No newline at end of file
+  &ensp;&ensp; PrivateIdentifier
+- <br><br>
+- **ClassStaticBlock :**
+- 
+- &ensp;&ensp; static { ClassStaticBlockBody }
+- <br><br>
+- **ClassStaticBlockBody :**
+- 
+- &ensp;&ensp; ClassStaticBlockStatementList
+- <br><br>
+- **ClassStaticBlockStatementList :**
+- 
+- &ensp;&ensp; StatementList[~Yield, +Await, ~Return]opt
 --- 914,926 ----
-  
-  &ensp;&ensp; yield [no LineTerminator here] * AssignmentExpression[?In, +Yield, ?Await]
-  
-  <br><br>
-  **AwaitExpression[Yield] :**
-  
-  &ensp;&ensp; await UnaryExpression[?Yield, +Await]
-  <br><br>
-  **ClassElementName[Yield, Await] :**
-  
-  &ensp;&ensp; PropertyName[?Yield, ?Await]
-  
-! &ensp;&ensp; PrivateIdentifier
-\ No newline at end of file
