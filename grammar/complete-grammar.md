@@ -1,6 +1,4 @@
 ## Expressions
-
-<br><br>
 **IdentifierReference[Yield, Await] :**
 
 &ensp;&ensp;Identifier
@@ -8,8 +6,6 @@
 &ensp;&ensp;[~Yield] yield
 
 &ensp;&ensp;[~Await] await
-
-
 <br><br>
 **BindingIdentifier[Yield, Await] :**
 
@@ -18,8 +14,6 @@
 &ensp;&ensp;yield
 
 &ensp;&ensp;await
-
-
 <br><br>
 **LabelIdentifier[Yield, Await] :**
 
@@ -28,14 +22,10 @@
 &ensp;&ensp;[~Yield] yield
 
 &ensp;&ensp;[~Await] await
-
-
 <br><br>
 **Identifier :**
 
 &ensp;&ensp;IdentifierName but not ReservedWord
-
-
 <br><br>
 **PrimaryExpression[Yield, Await] :**
 
@@ -64,8 +54,6 @@
 &ensp;&ensp;TemplateLiteral[?Yield, ?Await, ~Tagged]
 
 &ensp;&ensp;CoverParenthesizedExpressionAndArrowParameterList[?Yield, ?Await]
-
-
 <br><br>
 **CoverParenthesizedExpressionAndArrowParameterList[Yield, Await] :**
 
@@ -86,14 +74,10 @@
 &ensp;&ensp;When processing an instance of the production
 
 &ensp;&ensp;PrimaryExpression[Yield, Await] : CoverParenthesizedExpressionAndArrowParameterList[?Yield, ?Await]
-
-
 <br><br>
 **the interpretation of CoverParenthesizedExpressionAndArrowParameterList is refined using the following grammar:**
 
 &ensp;&ensp;
-
-
 <br><br>
 **ParenthesizedExpression[Yield, Await] :**
 
@@ -102,8 +86,6 @@
 &ensp;&ensp;
 
 &ensp;&ensp;
-
-
 <br><br>
 **Literal :**
 
@@ -114,8 +96,6 @@
 &ensp;&ensp;NumericLiteral
 
 &ensp;&ensp;StringLiteral
-
-
 <br><br>
 **ArrayLiteral[Yield, Await] :**
 
@@ -124,8 +104,6 @@
 &ensp;&ensp;[ ElementList[?Yield, ?Await] ]
 
 &ensp;&ensp;[ ElementList[?Yield, ?Await] , Elisionopt ]
-
-
 <br><br>
 **ElementList[Yield, Await] :**
 
@@ -136,22 +114,16 @@
 &ensp;&ensp;ElementList[?Yield, ?Await] , Elisionopt AssignmentExpression[+In, ?Yield, ?Await]
 
 &ensp;&ensp;ElementList[?Yield, ?Await] , Elisionopt SpreadElement[?Yield, ?Await]
-
-
 <br><br>
 **Elision :**
 
 &ensp;&ensp;,
 
 &ensp;&ensp;Elision ,
-
-
 <br><br>
 **SpreadElement[Yield, Await] :**
 
 &ensp;&ensp;... AssignmentExpression[+In, ?Yield, ?Await]
-
-
 <br><br>
 **ObjectLiteral[Yield, Await] :**
 
@@ -160,16 +132,12 @@
 &ensp;&ensp;{ PropertyDefinitionList[?Yield, ?Await] }
 
 &ensp;&ensp;{ PropertyDefinitionList[?Yield, ?Await] , }
-
-
 <br><br>
 **PropertyDefinitionList[Yield, Await] :**
 
 &ensp;&ensp;PropertyDefinition[?Yield, ?Await]
 
 &ensp;&ensp;PropertyDefinitionList[?Yield, ?Await] , PropertyDefinition[?Yield, ?Await]
-
-
 <br><br>
 **PropertyDefinition[Yield, Await] :**
 
@@ -182,16 +150,12 @@
 &ensp;&ensp;MethodDefinition[?Yield, ?Await]
 
 &ensp;&ensp;... AssignmentExpression[+In, ?Yield, ?Await]
-
-
 <br><br>
 **PropertyName[Yield, Await] :**
 
 &ensp;&ensp;LiteralPropertyName
 
 &ensp;&ensp;ComputedPropertyName[?Yield, ?Await]
-
-
 <br><br>
 **LiteralPropertyName :**
 
@@ -200,56 +164,40 @@
 &ensp;&ensp;StringLiteral
 
 &ensp;&ensp;NumericLiteral
-
-
 <br><br>
 **ComputedPropertyName[Yield, Await] :**
 
 &ensp;&ensp;[ AssignmentExpression[+In, ?Yield, ?Await] ]
-
-
 <br><br>
 **CoverInitializedName[Yield, Await] :**
 
 &ensp;&ensp;IdentifierReference[?Yield, ?Await] Initializer[+In, ?Yield, ?Await]
-
-
 <br><br>
 **Initializer[In, Yield, Await] :**
 
 &ensp;&ensp;= AssignmentExpression[?In, ?Yield, ?Await]
-
-
 <br><br>
 **TemplateLiteral[Yield, Await, Tagged] :**
 
 &ensp;&ensp;NoSubstitutionTemplate
 
 &ensp;&ensp;SubstitutionTemplate[?Yield, ?Await, ?Tagged]
-
-
 <br><br>
 **SubstitutionTemplate[Yield, Await, Tagged] :**
 
 &ensp;&ensp;TemplateHead Expression[+In, ?Yield, ?Await] TemplateSpans[?Yield, ?Await, ?Tagged]
-
-
 <br><br>
 **TemplateSpans[Yield, Await, Tagged] :**
 
 &ensp;&ensp;TemplateTail
 
 &ensp;&ensp;TemplateMiddleList[?Yield, ?Await, ?Tagged] TemplateTail
-
-
 <br><br>
 **TemplateMiddleList[Yield, Await, Tagged] :**
 
 &ensp;&ensp;TemplateMiddle Expression[+In, ?Yield, ?Await]
 
 &ensp;&ensp;TemplateMiddleList[?Yield, ?Await, ?Tagged] TemplateMiddle Expression[+In, ?Yield, ?Await]
-
-
 <br><br>
 **MemberExpression[Yield, Await] :**
 
@@ -268,44 +216,32 @@
 &ensp;&ensp;new MemberExpression[?Yield, ?Await] Arguments[?Yield, ?Await]
 
 &ensp;&ensp;MemberExpression[?Yield, ?Await] . PrivateIdentifier
-
-
 <br><br>
 **SuperProperty[Yield, Await] :**
 
 &ensp;&ensp;super [ Expression[+In, ?Yield, ?Await] ]
 
 &ensp;&ensp;super . IdentifierName
-
-
 <br><br>
 **MetaProperty :**
 
 &ensp;&ensp;NewTarget
 
 &ensp;&ensp;ImportMeta
-
-
 <br><br>
 **NewTarget :**
 
 &ensp;&ensp;new . target
-
-
 <br><br>
 **ImportMeta :**
 
 &ensp;&ensp;import . meta
-
-
 <br><br>
 **NewExpression[Yield, Await] :**
 
 &ensp;&ensp;MemberExpression[?Yield, ?Await]
 
 &ensp;&ensp;new NewExpression[?Yield, ?Await]
-
-
 <br><br>
 **CallExpression[Yield, Await] :**
 
@@ -328,14 +264,10 @@
 &ensp;&ensp;When processing an instance of the production
 
 &ensp;&ensp;CallExpression[Yield, Await] : CoverCallExpressionAndAsyncArrowHead[?Yield, ?Await]
-
-
 <br><br>
 **the interpretation of CoverCallExpressionAndAsyncArrowHead is refined using the following grammar:**
 
 &ensp;&ensp;
-
-
 <br><br>
 **CallMemberExpression[Yield, Await] :**
 
@@ -344,20 +276,14 @@
 &ensp;&ensp;
 
 &ensp;&ensp;
-
-
 <br><br>
 **SuperCall[Yield, Await] :**
 
 &ensp;&ensp;super Arguments[?Yield, ?Await]
-
-
 <br><br>
 **ImportCall[Yield, Await] :**
 
 &ensp;&ensp;import ( AssignmentExpression[+In, ?Yield, ?Await] )
-
-
 <br><br>
 **Arguments[Yield, Await] :**
 
@@ -366,8 +292,6 @@
 &ensp;&ensp;( ArgumentList[?Yield, ?Await] )
 
 &ensp;&ensp;( ArgumentList[?Yield, ?Await] , )
-
-
 <br><br>
 **ArgumentList[Yield, Await] :**
 
@@ -378,8 +302,6 @@
 &ensp;&ensp;ArgumentList[?Yield, ?Await] , AssignmentExpression[+In, ?Yield, ?Await]
 
 &ensp;&ensp;ArgumentList[?Yield, ?Await] , ... AssignmentExpression[+In, ?Yield, ?Await]
-
-
 <br><br>
 **OptionalExpression[Yield, Await] :**
 
@@ -388,8 +310,6 @@
 &ensp;&ensp;CallExpression[?Yield, ?Await] OptionalChain[?Yield, ?Await]
 
 &ensp;&ensp;OptionalExpression[?Yield, ?Await] OptionalChain[?Yield, ?Await]
-
-
 <br><br>
 **OptionalChain[Yield, Await] :**
 
@@ -412,8 +332,6 @@
 &ensp;&ensp;OptionalChain[?Yield, ?Await] TemplateLiteral[?Yield, ?Await, +Tagged]
 
 &ensp;&ensp;OptionalChain[?Yield, ?Await] . PrivateIdentifier
-
-
 <br><br>
 **LeftHandSideExpression[Yield, Await] :**
 
@@ -422,8 +340,6 @@
 &ensp;&ensp;CallExpression[?Yield, ?Await]
 
 &ensp;&ensp;OptionalExpression[?Yield, ?Await]
-
-
 <br><br>
 **UpdateExpression[Yield, Await] :**
 
@@ -436,8 +352,6 @@
 &ensp;&ensp;++ UnaryExpression[?Yield, ?Await]
 
 &ensp;&ensp;-- UnaryExpression[?Yield, ?Await]
-
-
 <br><br>
 **UnaryExpression[Yield, Await] :**
 
@@ -458,16 +372,12 @@
 &ensp;&ensp;  ! UnaryExpression[?Yield, ?Await]
 
 &ensp;&ensp;  [+Await] AwaitExpression[?Yield]
-
-
 <br><br>
 **ExponentiationExpression[Yield, Await] :**
 
 &ensp;&ensp;  UnaryExpression[?Yield, ?Await]
 
 &ensp;&ensp;  UpdateExpression[?Yield, ?Await] ** ExponentiationExpression[?Yield, ?Await]
-
-
 <br><br>
 **MultiplicativeExpression[Yield, Await] :**
 
@@ -478,18 +388,14 @@
 &ensp;&ensp;  MultiplicativeOperator : one of
 
 * / %
-
-
-<br><br>
-**AdditiveExpression[Yield, Await] :**
+  <br><br>
+  **AdditiveExpression[Yield, Await] :**
 
 &ensp;&ensp;  MultiplicativeExpression[?Yield, ?Await]
 
 &ensp;&ensp;  AdditiveExpression[?Yield, ?Await] + MultiplicativeExpression[?Yield, ?Await]
 
 &ensp;&ensp;  AdditiveExpression[?Yield, ?Await] - MultiplicativeExpression[?Yield, ?Await]
-
-
 <br><br>
 **ShiftExpression[Yield, Await] :**
 
@@ -500,8 +406,6 @@
 &ensp;&ensp;  ShiftExpression[?Yield, ?Await] >> AdditiveExpression[?Yield, ?Await]
 
 &ensp;&ensp;  ShiftExpression[?Yield, ?Await] >>> AdditiveExpression[?Yield, ?Await]
-
-
 <br><br>
 **RelationalExpression[In, Yield, Await] :**
 
@@ -520,8 +424,6 @@
 &ensp;&ensp;  [+In] RelationalExpression[+In, ?Yield, ?Await] in ShiftExpression[?Yield, ?Await]
 
 &ensp;&ensp;  [+In] PrivateIdentifier in ShiftExpression[?Yield, ?Await]
-
-
 <br><br>
 **EqualityExpression[In, Yield, Await] :**
 
@@ -534,78 +436,58 @@
 &ensp;&ensp;  EqualityExpression[?In, ?Yield, ?Await] === RelationalExpression[?In, ?Yield, ?Await]
 
 &ensp;&ensp;  EqualityExpression[?In, ?Yield, ?Await] !== RelationalExpression[?In, ?Yield, ?Await]
-
-
 <br><br>
 **BitwiseANDExpression[In, Yield, Await] :**
 
 &ensp;&ensp;  EqualityExpression[?In, ?Yield, ?Await]
 
 &ensp;&ensp;  BitwiseANDExpression[?In, ?Yield, ?Await] & EqualityExpression[?In, ?Yield, ?Await]
-
-
 <br><br>
 **BitwiseXORExpression[In, Yield, Await] :**
 
 &ensp;&ensp;  BitwiseANDExpression[?In, ?Yield, ?Await]
 
 &ensp;&ensp;  BitwiseXORExpression[?In, ?Yield, ?Await] ^ BitwiseANDExpression[?In, ?Yield, ?Await]
-
-
 <br><br>
 **BitwiseORExpression[In, Yield, Await] :**
 
 &ensp;&ensp;  BitwiseXORExpression[?In, ?Yield, ?Await]
 
 &ensp;&ensp;  BitwiseORExpression[?In, ?Yield, ?Await] | BitwiseXORExpression[?In, ?Yield, ?Await]
-
-
 <br><br>
 **LogicalANDExpression[In, Yield, Await] :**
 
 &ensp;&ensp;  BitwiseORExpression[?In, ?Yield, ?Await]
 
 &ensp;&ensp;  LogicalANDExpression[?In, ?Yield, ?Await] && BitwiseORExpression[?In, ?Yield, ?Await]
-
-
 <br><br>
 **LogicalORExpression[In, Yield, Await] :**
 
 &ensp;&ensp;  LogicalANDExpression[?In, ?Yield, ?Await]
 
 &ensp;&ensp;  LogicalORExpression[?In, ?Yield, ?Await] || LogicalANDExpression[?In, ?Yield, ?Await]
-
-
 <br><br>
 **CoalesceExpression[In, Yield, Await] :**
 
 &ensp;&ensp;  CoalesceExpressionHead[?In, ?Yield, ?Await] ?? BitwiseORExpression[?In, ?Yield, ?Await]
-
-
 <br><br>
 **CoalesceExpressionHead[In, Yield, Await] :**
 
 &ensp;&ensp;  CoalesceExpression[?In, ?Yield, ?Await]
 
 &ensp;&ensp;  BitwiseORExpression[?In, ?Yield, ?Await]
-
-
 <br><br>
 **ShortCircuitExpression[In, Yield, Await] :**
 
 &ensp;&ensp;  LogicalORExpression[?In, ?Yield, ?Await]
 
 &ensp;&ensp;  CoalesceExpression[?In, ?Yield, ?Await]
-
-
 <br><br>
 **ConditionalExpression[In, Yield, Await] :**
 
 &ensp;&ensp;  ShortCircuitExpression[?In, ?Yield, ?Await]
 
 &ensp;&ensp;  ShortCircuitExpression[?In, ?Yield, ?Await] ? AssignmentExpression[+In, ?Yield, ?Await] : AssignmentExpression[?In, ?Yield, ?Await]
-
-
 <br><br>
 **AssignmentExpression[In, Yield, Await] :**
 
@@ -634,22 +516,16 @@
 &ensp;&ensp;  In certain circumstances when processing an instance of the production
 
 &ensp;&ensp;  AssignmentExpression[In, Yield, Await] : LeftHandSideExpression[?Yield, ?Await] = AssignmentExpression[?In, ?Yield, ?Await]
-
-
 <br><br>
 **the interpretation of LeftHandSideExpression is refined using the following grammar:**
 
 &ensp;&ensp;
-
-
 <br><br>
 **AssignmentPattern[Yield, Await] :**
 
 &ensp;&ensp;ObjectAssignmentPattern[?Yield, ?Await]
 
 &ensp;&ensp;ArrayAssignmentPattern[?Yield, ?Await]
-
-
 <br><br>
 **ObjectAssignmentPattern[Yield, Await] :**
 
@@ -660,8 +536,6 @@
 &ensp;&ensp;{ AssignmentPropertyList[?Yield, ?Await] }
 
 &ensp;&ensp;{ AssignmentPropertyList[?Yield, ?Await] , AssignmentRestProperty[?Yield, ?Await]opt }
-
-
 <br><br>
 **ArrayAssignmentPattern[Yield, Await] :**
 
@@ -670,56 +544,40 @@
 &ensp;&ensp;[ AssignmentElementList[?Yield, ?Await] ]
 
 &ensp;&ensp;[ AssignmentElementList[?Yield, ?Await] , Elisionopt AssignmentRestElement[?Yield, ?Await]opt ]
-
-
 <br><br>
 **AssignmentRestProperty[Yield, Await] :**
 
 &ensp;&ensp;... DestructuringAssignmentTarget[?Yield, ?Await]
-
-
 <br><br>
 **AssignmentPropertyList[Yield, Await] :**
 
 &ensp;&ensp;AssignmentProperty[?Yield, ?Await]
 
 &ensp;&ensp;AssignmentPropertyList[?Yield, ?Await] , AssignmentProperty[?Yield, ?Await]
-
-
 <br><br>
 **AssignmentElementList[Yield, Await] :**
 
 &ensp;&ensp;AssignmentElisionElement[?Yield, ?Await]
 
 &ensp;&ensp;AssignmentElementList[?Yield, ?Await] , AssignmentElisionElement[?Yield, ?Await]
-
-
 <br><br>
 **AssignmentElisionElement[Yield, Await] :**
 
 &ensp;&ensp;Elisionopt AssignmentElement[?Yield, ?Await]
-
-
 <br><br>
 **AssignmentProperty[Yield, Await] :**
 
 &ensp;&ensp;IdentifierReference[?Yield, ?Await] Initializer[+In, ?Yield, ?Await]opt
 
 &ensp;&ensp;PropertyName[?Yield, ?Await] : AssignmentElement[?Yield, ?Await]
-
-
 <br><br>
 **AssignmentElement[Yield, Await] :**
 
 &ensp;&ensp;DestructuringAssignmentTarget[?Yield, ?Await] Initializer[+In, ?Yield, ?Await]opt
-
-
 <br><br>
 **AssignmentRestElement[Yield, Await] :**
 
 &ensp;&ensp;... DestructuringAssignmentTarget[?Yield, ?Await]
-
-
 <br><br>
 **DestructuringAssignmentTarget[Yield, Await] :**
 
@@ -728,8 +586,6 @@
 &ensp;&ensp;
 
 &ensp;&ensp;
-
-
 <br><br>
 **Expression[In, Yield, Await] :**
 
@@ -769,9 +625,7 @@
 &ensp;&ensp;TryStatement[?Yield, ?Await, ?Return]
 
 &ensp;&ensp;DebuggerStatement
-
-<br>    
-
+<br><br>
 **Declaration[Yield, Await] :**
 
 &ensp;&ensp;HoistableDeclaration[?Yield, ?Await, ~Default]
@@ -779,9 +633,7 @@
 &ensp;&ensp;ClassDeclaration[?Yield, ?Await, ~Default]
 
 &ensp;&ensp;LexicalDeclaration[+In, ?Yield, ?Await]
-
-<br>    
-
+<br><br>
 **HoistableDeclaration[Yield, Await, Default] :**
 
 &ensp;&ensp;FunctionDeclaration[?Yield, ?Await, ?Default]
@@ -791,135 +643,77 @@
 &ensp;&ensp;AsyncFunctionDeclaration[?Yield, ?Await, ?Default]
 
 &ensp;&ensp;AsyncGeneratorDeclaration[?Yield, ?Await, ?Default]
-
-<br>    
-
+<br><br>
 **BreakableStatement[Yield, Await, Return] :**
 
 &ensp;&ensp;IterationStatement[?Yield, ?Await, ?Return]
 
 &ensp;&ensp;SwitchStatement[?Yield, ?Await, ?Return]
-
-<br>    
-
+<br><br>
 **BlockStatement[Yield, Await, Return] :**
 
 &ensp;&ensp;Block[?Yield, ?Await, ?Return]
-
-<br>    
-
+<br><br>
 **Block[Yield, Await, Return] :**
 
 &ensp;&ensp;{ StatementList[?Yield, ?Await, ?Return]opt }
-
-<br>    
-
+<br><br>
 **StatementList[Yield, Await, Return] :**
 
 &ensp;&ensp;StatementListItem[?Yield, ?Await, ?Return]
 
 &ensp;&ensp;StatementList[?Yield, ?Await, ?Return] StatementListItem[?Yield, ?Await, ?Return]
-
-
-
-
-<br>    
-
+<br><br>
 **StatementListItem[Yield, Await, Return] :**
 
 &ensp;&ensp;Statement[?Yield, ?Await, ?Return]
 
 &ensp;&ensp;Declaration[?Yield, ?Await]
-
-
-
-
-<br>    
-
+<br><br>
 **LexicalDeclaration[In, Yield, Await] :**
 
 &ensp;&ensp;LetOrConst BindingList[?In, ?Yield, ?Await] ;
-
-
-
-
-<br>    
-
+<br><br>
 **LetOrConst :**
 
 &ensp;&ensp;let
 
 &ensp;&ensp;const
-
-
-
-
-<br>    
-
+<br><br>
 **BindingList[In, Yield, Await] :**
 
 &ensp;&ensp;LexicalBinding[?In, ?Yield, ?Await]
 
 &ensp;&ensp;BindingList[?In, ?Yield, ?Await] , LexicalBinding[?In, ?Yield, ?Await]
-
-
-
-
-<br>    
-
+<br><br>
 **LexicalBinding[In, Yield, Await] :**
 
 &ensp;&ensp;BindingIdentifier[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]opt
 
 &ensp;&ensp;BindingPattern[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]
-
-
-
-
-<br>    
-
+<br><br>
 **VariableStatement[Yield, Await] :**
 
 &ensp;&ensp;var VariableDeclarationList[+In, ?Yield, ?Await] ;
-
-
-
-
-<br>    
-
+<br><br>
 **VariableDeclarationList[In, Yield, Await] :**
 
 &ensp;&ensp;VariableDeclaration[?In, ?Yield, ?Await]
 
 &ensp;&ensp;VariableDeclarationList[?In, ?Yield, ?Await] , VariableDeclaration[?In, ?Yield, ?Await]
-
-
-
-
-<br>    
-
+<br><br>
 **VariableDeclaration[In, Yield, Await] :**
 
 &ensp;&ensp;BindingIdentifier[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]opt
 
 &ensp;&ensp;BindingPattern[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]
-
-
-
-
-<br>    
-
+<br><br>
 **BindingPattern[Yield, Await] :**
 
 &ensp;&ensp;ObjectBindingPattern[?Yield, ?Await]
 
 &ensp;&ensp;ArrayBindingPattern[?Yield, ?Await]
-
-
-
-
-<br>    
-
+<br><br>
 **ObjectBindingPattern[Yield, Await] :**
 
 &ensp;&ensp;{ }
@@ -929,12 +723,7 @@
 &ensp;&ensp;{ BindingPropertyList[?Yield, ?Await] }
 
 &ensp;&ensp;{ BindingPropertyList[?Yield, ?Await] , BindingRestProperty[?Yield, ?Await]opt }
-
-
-
-
-<br>    
-
+<br><br>
 **ArrayBindingPattern[Yield, Await] :**
 
 &ensp;&ensp;[ Elisionopt BindingRestElement[?Yield, ?Await]opt ]
@@ -942,123 +731,63 @@
 &ensp;&ensp;[ BindingElementList[?Yield, ?Await] ]
 
 &ensp;&ensp;[ BindingElementList[?Yield, ?Await] , Elisionopt BindingRestElement[?Yield, ?Await]opt ]
-
-
-
-
-<br>    
-
+<br><br>
 **BindingRestProperty[Yield, Await] :**
 
 &ensp;&ensp;... BindingIdentifier[?Yield, ?Await]
-
-
-
-
-<br>    
-
+<br><br>
 **BindingPropertyList[Yield, Await] :**
 
 &ensp;&ensp;BindingProperty[?Yield, ?Await]
 
 &ensp;&ensp;BindingPropertyList[?Yield, ?Await] , BindingProperty[?Yield, ?Await]
-
-
-
-
-<br>    
-
+<br><br>
 **BindingElementList[Yield, Await] :**
 
 &ensp;&ensp;BindingElisionElement[?Yield, ?Await]
 
 &ensp;&ensp;BindingElementList[?Yield, ?Await] , BindingElisionElement[?Yield, ?Await]
-
-
-
-
-<br>    
-
+<br><br>
 **BindingElisionElement[Yield, Await] :**
 
 &ensp;&ensp;Elisionopt BindingElement[?Yield, ?Await]
-
-
-
-
-<br>    
-
+<br><br>
 **BindingProperty[Yield, Await] :**
 
 &ensp;&ensp;SingleNameBinding[?Yield, ?Await]
 
 &ensp;&ensp;PropertyName[?Yield, ?Await] : BindingElement[?Yield, ?Await]
-
-
-
-
-<br>    
-
+<br><br>
 **BindingElement[Yield, Await] :**
 
 &ensp;&ensp;SingleNameBinding[?Yield, ?Await]
 
 &ensp;&ensp;BindingPattern[?Yield, ?Await] Initializer[+In, ?Yield, ?Await]opt
-
-
-
-
-<br>    
-
+<br><br>
 **SingleNameBinding[Yield, Await] :**
 
 &ensp;&ensp;BindingIdentifier[?Yield, ?Await] Initializer[+In, ?Yield, ?Await]opt
-
-
-
-
-<br>    
-
+<br><br>
 **BindingRestElement[Yield, Await] :**
 
 &ensp;&ensp;... BindingIdentifier[?Yield, ?Await]
 
 &ensp;&ensp;... BindingPattern[?Yield, ?Await]
-
-
-
-
-<br>    
-
+<br><br>
 **EmptyStatement :**
 
 &ensp;&ensp;;
-
-
-
-
-<br>    
-
+<br><br>
 **ExpressionStatement[Yield, Await] :**
 
 &ensp;&ensp;[lookahead ∉ { {, function, async [no LineTerminator here] function, class, let [ }] Expression[+In, ?Yield, ?Await] ;
-
-
-
-
-<br>    
-
+<br><br>
 **IfStatement[Yield, Await, Return] :**
 
 &ensp;&ensp;if ( Expression[+In, ?Yield, ?Await] ) Statement[?Yield, ?Await, ?Return] else Statement[?Yield, ?Await, ?Return]
 
 &ensp;&ensp;if ( Expression[+In, ?Yield, ?Await] ) Statement[?Yield, ?Await, ?Return] [lookahead ≠ else]
-
-
-
-
-<br>    
-
+<br><br>
 **IterationStatement[Yield, Await, Return] :**
 
 &ensp;&ensp;DoWhileStatement[?Yield, ?Await, ?Return]
@@ -1068,30 +797,15 @@
 &ensp;&ensp;ForStatement[?Yield, ?Await, ?Return]
 
 &ensp;&ensp;ForInOfStatement[?Yield, ?Await, ?Return]
-
-
-
-
-<br>    
-
+<br><br>
 **DoWhileStatement[Yield, Await, Return] :**
 
 &ensp;&ensp;do Statement[?Yield, ?Await, ?Return] while ( Expression[+In, ?Yield, ?Await] ) ;
-
-
-
-
-<br>    
-
+<br><br>
 **WhileStatement[Yield, Await, Return] :**
 
 &ensp;&ensp;while ( Expression[+In, ?Yield, ?Await] ) Statement[?Yield, ?Await, ?Return]
-
-
-
-
-<br>    
-
+<br><br>
 **ForStatement[Yield, Await, Return] :**
 
 &ensp;&ensp;for ( [lookahead ≠ let [] Expression[~In, ?Yield, ?Await]opt ; Expression[+In, ?Yield, ?Await]opt ; Expression[+In, ?Yield, ?Await]opt ) Statement[?Yield, ?Await, ?Return]
@@ -1099,12 +813,7 @@
 &ensp;&ensp;for ( var VariableDeclarationList[~In, ?Yield, ?Await] ; Expression[+In, ?Yield, ?Await]opt ; Expression[+In, ?Yield, ?Await]opt ) Statement[?Yield, ?Await, ?Return]
 
 &ensp;&ensp;for ( LexicalDeclaration[~In, ?Yield, ?Await] Expression[+In, ?Yield, ?Await]opt ; Expression[+In, ?Yield, ?Await]opt ) Statement[?Yield, ?Await, ?Return]
-
-
-
-
-<br>    
-
+<br><br>
 **ForInOfStatement[Yield, Await, Return] :**
 
 &ensp;&ensp;for ( [lookahead ≠ let [] LeftHandSideExpression[?Yield, ?Await] in Expression[+In, ?Yield, ?Await] ) Statement[?Yield, ?Await, ?Return]
@@ -1124,83 +833,43 @@
 &ensp;&ensp;[+Await] for await ( var ForBinding[?Yield, ?Await] of AssignmentExpression[+In, ?Yield, ?Await] ) Statement[?Yield, ?Await, ?Return]
 
 &ensp;&ensp;[+Await] for await ( ForDeclaration[?Yield, ?Await] of AssignmentExpression[+In, ?Yield, ?Await] ) Statement[?Yield, ?Await, ?Return]
-
-
-
-
-<br>    
-
+<br><br>
 **ForDeclaration[Yield, Await] :**
 
 &ensp;&ensp;LetOrConst ForBinding[?Yield, ?Await]
-
-
-
-
-<br>    
-
+<br><br>
 **ForBinding[Yield, Await] :**
 
 &ensp;&ensp;BindingIdentifier[?Yield, ?Await]
 
 &ensp;&ensp;BindingPattern[?Yield, ?Await]
-
-
-
-
-<br>    
-
+<br><br>
 **ContinueStatement[Yield, Await] :**
 
 &ensp;&ensp;continue ;
 
 &ensp;&ensp;continue [no LineTerminator here] LabelIdentifier[?Yield, ?Await] ;
-
-
-
-
-<br>    
-
+<br><br>
 **BreakStatement[Yield, Await] :**
 
 &ensp;&ensp;break ;
 
 &ensp;&ensp;break [no LineTerminator here] LabelIdentifier[?Yield, ?Await] ;
-
-
-
-
-<br>    
-
+<br><br>
 **ReturnStatement[Yield, Await] :**
 
 &ensp;&ensp;return ;
 
 &ensp;&ensp;return [no LineTerminator here] Expression[+In, ?Yield, ?Await] ;
-
-
-
-
-<br>    
-
+<br><br>
 **WithStatement[Yield, Await, Return] :**
 
 &ensp;&ensp;with ( Expression[+In, ?Yield, ?Await] ) Statement[?Yield, ?Await, ?Return]
-
-
-
-
-<br>    
-
+<br><br>
 **SwitchStatement[Yield, Await, Return] :**
 
 &ensp;&ensp;switch ( Expression[+In, ?Yield, ?Await] ) CaseBlock[?Yield, ?Await, ?Return]
-
-
-
-
-<br>    
-
+<br><br>
 **CaseBlock[Yield, Await, Return] :**
 
 &ensp;&ensp;{ CaseClauses[?Yield, ?Await, ?Return]opt }
@@ -1208,68 +877,33 @@
 &ensp;&ensp;{ CaseClauses[?Yield, ?Await, ?Return]opt DefaultClause[?Yield, ?Await, ?Return] CaseClauses[?Yield, ?Await, ?Return]opt }
 
 &ensp;&ensp;CaseClauses[Yield, Await, Return] :
-
-
-
-
-<br>    
-
+<br><br>
 **CaseClause[?Yield, ?Await, ?Return]**
 
 &ensp;&ensp;CaseClauses[?Yield, ?Await, ?Return] CaseClause[?Yield, ?Await, ?Return]
-
-
-
-
-<br>    
-
+<br><br>
 **CaseClause[Yield, Await, Return] :**
 
 &ensp;&ensp;case Expression[+In, ?Yield, ?Await] : StatementList[?Yield, ?Await, ?Return]opt
-
-
-
-
-<br>    
-
+<br><br>
 **DefaultClause[Yield, Await, Return] :**
 
 &ensp;&ensp;default : StatementList[?Yield, ?Await, ?Return]opt
-
-
-
-
-<br>    
-
+<br><br>
 **LabelledStatement[Yield, Await, Return] :**
 
 &ensp;&ensp;LabelIdentifier[?Yield, ?Await] : LabelledItem[?Yield, ?Await, ?Return]
-
-
-
-
-<br>    
-
+<br><br>
 **LabelledItem[Yield, Await, Return] :**
 
 &ensp;&ensp;Statement[?Yield, ?Await, ?Return]
 
 &ensp;&ensp;FunctionDeclaration[?Yield, ?Await, ~Default]
-
-
-
-
-<br>    
-
+<br><br>
 **ThrowStatement[Yield, Await] :**
 
 &ensp;&ensp;throw [no LineTerminator here] Expression[+In, ?Yield, ?Await] ;
-
-
-
-
-<br>    
-
+<br><br>
 **TryStatement[Yield, Await, Return] :**
 
 &ensp;&ensp;try Block[?Yield, ?Await, ?Return] Catch[?Yield, ?Await, ?Return]
@@ -1277,43 +911,23 @@
 &ensp;&ensp;try Block[?Yield, ?Await, ?Return] Finally[?Yield, ?Await, ?Return]
 
 &ensp;&ensp;try Block[?Yield, ?Await, ?Return] Catch[?Yield, ?Await, ?Return] Finally[?Yield, ?Await, ?Return]
-
-
-
-
-<br>    
-
+<br><br>
 **Catch[Yield, Await, Return] :**
 
 &ensp;&ensp;catch ( CatchParameter[?Yield, ?Await] ) Block[?Yield, ?Await, ?Return]
 
 &ensp;&ensp;catch Block[?Yield, ?Await, ?Return]
-
-
-
-
-<br>    
-
+<br><br>
 **Finally[Yield, Await, Return] :**
 
 &ensp;&ensp;finally Block[?Yield, ?Await, ?Return]
-
-
-
-
-<br>    
-
+<br><br>
 **CatchParameter[Yield, Await] :**
 
 &ensp;&ensp;BindingIdentifier[?Yield, ?Await]
 
 &ensp;&ensp;BindingPattern[?Yield, ?Await]
-
-
-
-
-<br>    
-
+<br><br>
 **DebuggerStatement :**
 
 &ensp;&ensp; debugger ;
@@ -1321,16 +935,10 @@
 
 ## Functions and Classes
 
-
-<br>    
-
 **UniqueFormalParameters[Yield, Await] :**
 
 &ensp;&ensp;FormalParameters[?Yield, ?Await]
-
-
-<br>    
-
+<br><br>
 **FormalParameters[Yield, Await] :**
 
 &ensp;&ensp; [empty]
@@ -1346,81 +954,51 @@
 &ensp;&ensp; FormalParameterList[Yield, Await] :
 
 &ensp;&ensp; FormalParameter[?Yield, ?Await]
-
-
-<br>    
-
+<br><br>
 **FormalParameterList[?Yield, ?Await] , FormalParameter[?Yield, ?Await]**
 
 &ensp;&ensp; FunctionRestParameter[Yield, Await] :
 
 &ensp;&ensp; BindingRestElement[?Yield, ?Await]
-
-
-<br>    
-
+<br><br>
 **FormalParameter[Yield, Await] :**
 
 &ensp;&ensp; BindingElement[?Yield, ?Await]
-
-
-<br>    
-
+<br><br>
 **FunctionDeclaration[Yield, Await, Default] :**
 
 &ensp;&ensp; function BindingIdentifier[?Yield, ?Await] ( FormalParameters[~Yield, ~Await] ) { FunctionBody[~Yield, ~Await] }
 
 &ensp;&ensp; [+Default] function ( FormalParameters[~Yield, ~Await] ) { FunctionBody[~Yield, ~Await] }
-
-
-<br>    
-
+<br><br>
 **FunctionExpression :**
 
 &ensp;&ensp; function BindingIdentifier[~Yield, ~Await]opt ( FormalParameters[~Yield, ~Await] ) { FunctionBody[~Yield, ~Await] }
-
-
-<br>    
-
+<br><br>
 **FunctionBody[Yield, Await] :**
 
 &ensp;&ensp; FunctionStatementList[?Yield, ?Await]
-
-
-<br>    
-
+<br><br>
 **FunctionStatementList[Yield, Await] :**
 
 &ensp;&ensp; StatementList[?Yield, ?Await, +Return]opt
-
-
-<br>    
-
+<br><br>
 **ArrowFunction[In, Yield, Await] :**
 
 &ensp;&ensp; ArrowParameters[?Yield, ?Await] [no LineTerminator here] => ConciseBody[?In]
-
-
-<br>    
-
+<br><br>
 **ArrowParameters[Yield, Await] :**
 
 &ensp;&ensp; BindingIdentifier[?Yield, ?Await]
 
 &ensp;&ensp; CoverParenthesizedExpressionAndArrowParameterList[?Yield, ?Await]
-
-
-<br>    
-
+<br><br>
 **ConciseBody[In] :**
 
 &ensp;&ensp; [lookahead ≠ {] ExpressionBody[?In, ~Await]
 
 &ensp;&ensp; { FunctionBody[~Yield, ~Await] }
-
-
-<br>    
-
+<br><br>
 **ExpressionBody[In, Await] :**
 
 &ensp;&ensp; AssignmentExpression[?In, ~Yield, ?Await]
@@ -1432,48 +1010,27 @@ When processing an instance of the production
 ArrowParameters[Yield, Await] : CoverParenthesizedExpressionAndArrowParameterList[?Yield, ?Await]
 
 the interpretation of CoverParenthesizedExpressionAndArrowParameterList is refined using the following grammar:
-
-
-
-
-<br>    
-
+<br><br>
 **ArrowFormalParameters[Yield, Await] :**
 
 &ensp;&ensp; ( UniqueFormalParameters[?Yield, ?Await] )
-
-
-
-
-
-
-<br>    
-
+<br><br>
 **AsyncArrowFunction[In, Yield, Await] :**
 
 &ensp;&ensp; async [no LineTerminator here] AsyncArrowBindingIdentifier[?Yield] [no LineTerminator here] => AsyncConciseBody[?In]
 
 &ensp;&ensp; CoverCallExpressionAndAsyncArrowHead[?Yield, ?Await] [no LineTerminator here] => AsyncConciseBody[?In]
-
-
-<br>    
-
+<br><br>
 **AsyncConciseBody[In] :**
 
 &ensp;&ensp; [lookahead ≠ {] ExpressionBody[?In, +Await]
 
 &ensp;&ensp; { AsyncFunctionBody }
-
-
-<br>    
-
+<br><br>
 **AsyncArrowBindingIdentifier[Yield] :**
 
 &ensp;&ensp; BindingIdentifier[?Yield, +Await]
-
-
-<br>    
-
+<br><br>
 **CoverCallExpressionAndAsyncArrowHead[Yield, Await] :**
 
 &ensp;&ensp; MemberExpression[?Yield, ?Await] Arguments[?Yield, ?Await]
@@ -1485,23 +1042,11 @@ When processing an instance of the production
 AsyncArrowFunction[In, Yield, Await] : CoverCallExpressionAndAsyncArrowHead[?Yield, ?Await] [no LineTerminator here] => AsyncConciseBody[?In]
 
 the interpretation of CoverCallExpressionAndAsyncArrowHead is refined using the following grammar:
-
-
-
-
-<br>    
-
+<br><br>
 **AsyncArrowHead :**
 
 &ensp;&ensp; async [no LineTerminator here] ArrowFormalParameters[~Yield, +Await]
-
-
-
-
-
-
-<br>    
-
+<br><br>
 **MethodDefinition[Yield, Await] :**
 
 &ensp;&ensp; ClassElementName[?Yield, ?Await] ( UniqueFormalParameters[~Yield, ~Await] ) { FunctionBody[~Yield, ~Await] }
@@ -1515,17 +1060,11 @@ the interpretation of CoverCallExpressionAndAsyncArrowHead is refined using the 
 &ensp;&ensp; get ClassElementName[?Yield, ?Await] ( ) { FunctionBody[~Yield, ~Await] }
 
 &ensp;&ensp; set ClassElementName[?Yield, ?Await] ( PropertySetParameterList ) { FunctionBody[~Yield, ~Await] }
-
-
-<br>    
-
+<br><br>
 **PropertySetParameterList :**
 
 &ensp;&ensp; FormalParameter[~Yield, ~Await]
-
-
-<br>    
-
+<br><br>
 **GeneratorDeclaration[Yield, Await, Default] :**
 
 &ensp;&ensp; function * BindingIdentifier[?Yield, ?Await] ( FormalParameters[+Yield, ~Await] ) { GeneratorBody }
@@ -1535,24 +1074,15 @@ the interpretation of CoverCallExpressionAndAsyncArrowHead is refined using the 
 &ensp;&ensp; **GeneratorExpression :**
 
 &ensp;&ensp; function * BindingIdentifier[+Yield, ~Await]opt ( FormalParameters[+Yield, ~Await] ) { GeneratorBody }
-
-
-<br>    
-
+<br><br>
 **GeneratorMethod[Yield, Await] :**
 
 &ensp;&ensp; * ClassElementName[?Yield, ?Await] ( UniqueFormalParameters[+Yield, ~Await] ) { GeneratorBody }
-
-
-<br>    
-
+<br><br>
 **GeneratorBody :**
 
 &ensp;&ensp; FunctionBody[+Yield, ~Await]
-
-
-<br>    
-
+<br><br>
 **YieldExpression[In, Await] :**
 
 &ensp;&ensp; yield
@@ -1566,114 +1096,69 @@ the interpretation of CoverCallExpressionAndAsyncArrowHead is refined using the 
 &ensp;&ensp; async [no LineTerminator here] function * BindingIdentifier[?Yield, ?Await] ( FormalParameters[+Yield, +Await] ) { AsyncGeneratorBody }
 
 &ensp;&ensp; [+Default] async [no LineTerminator here] function * ( FormalParameters[+Yield, +Await] ) { AsyncGeneratorBody }
-
-
-<br>    
-
+<br><br>
 **AsyncGeneratorExpression :**
 
 &ensp;&ensp; async [no LineTerminator here] function * BindingIdentifier[+Yield, +Await]opt ( FormalParameters[+Yield, +Await] ) { AsyncGeneratorBody }
-
-
-<br>    
-
+<br><br>
 **AsyncGeneratorMethod[Yield, Await] :**
 
 &ensp;&ensp; async [no LineTerminator here] * ClassElementName[?Yield, ?Await] ( UniqueFormalParameters[+Yield, +Await] ) { AsyncGeneratorBody }
-
-
-<br>    
-
+<br><br>
 **AsyncGeneratorBody :**
 
 &ensp;&ensp; FunctionBody[+Yield, +Await]
-
-
-<br>    
-
+<br><br>
 **AsyncFunctionDeclaration[Yield, Await, Default] :**
 
 &ensp;&ensp; async [no LineTerminator here] function BindingIdentifier[?Yield, ?Await] ( FormalParameters[~Yield, +Await] ) { AsyncFunctionBody }
 
 &ensp;&ensp; [+Default] async [no LineTerminator here] function ( FormalParameters[~Yield, +Await] ) { AsyncFunctionBody }
-
-
-<br>    
-
+<br><br>
 **AsyncFunctionExpression :**
 
 &ensp;&ensp; async [no LineTerminator here] function BindingIdentifier[~Yield, +Await]opt ( FormalParameters[~Yield, +Await] ) { AsyncFunctionBody }
-
-
-<br>    
-
+<br><br>
 **AsyncMethod[Yield, Await] :**
 
 &ensp;&ensp; async [no LineTerminator here] ClassElementName[?Yield, ?Await] ( UniqueFormalParameters[~Yield, +Await] ) { AsyncFunctionBody }
-
-
-<br>    
-
+<br><br>
 **AsyncFunctionBody :**
 
 &ensp;&ensp; FunctionBody[~Yield, +Await]
-
-
-<br>    
-
+<br><br>
 **AwaitExpression[Yield] :**
 
 &ensp;&ensp; await UnaryExpression[?Yield, +Await]
-
-
-<br>    
-
+<br><br>
 **ClassDeclaration[Yield, Await, Default] :**
 
 &ensp;&ensp; class BindingIdentifier[?Yield, ?Await] ClassTail[?Yield, ?Await]
 
 &ensp;&ensp; [+Default] class ClassTail[?Yield, ?Await]
-
-
-<br>    
-
+<br><br>
 **ClassExpression[Yield, Await] :**
 
 &ensp;&ensp; class BindingIdentifier[?Yield, ?Await]opt ClassTail[?Yield, ?Await]
-
-
-<br>    
-
+<br><br>
 **ClassTail[Yield, Await] :**
 
 &ensp;&ensp; ClassHeritage[?Yield, ?Await]opt { ClassBody[?Yield, ?Await]opt }
-
-
-<br>    
-
+<br><br>
 **ClassHeritage[Yield, Await] :**
 
 &ensp;&ensp; extends LeftHandSideExpression[?Yield, ?Await]
-
-
-<br>    
-
+<br><br>
 **ClassBody[Yield, Await] :**
 
 &ensp;&ensp; ClassElementList[?Yield, ?Await]
-
-
-<br>    
-
+<br><br>
 **ClassElementList[Yield, Await] :**
 
 &ensp;&ensp; ClassElement[?Yield, ?Await]
 
 &ensp;&ensp; ClassElementList[?Yield, ?Await] ClassElement[?Yield, ?Await]
-
-
-<br>    
-
+<br><br>
 **ClassElement[Yield, Await] :**
 
 &ensp;&ensp; MethodDefinition[?Yield, ?Await]
@@ -1687,40 +1172,25 @@ the interpretation of CoverCallExpressionAndAsyncArrowHead is refined using the 
 &ensp;&ensp; ClassStaticBlock
 
 &ensp;&ensp; ;
-
-
-<br>    
-
+<br><br>
 **FieldDefinition[Yield, Await] :**
 
 &ensp;&ensp; ClassElementName[?Yield, ?Await] Initializer[+In, ?Yield, ?Await]opt
-
-
-<br>    
-
+<br><br>
 **ClassElementName[Yield, Await] :**
 
 &ensp;&ensp; PropertyName[?Yield, ?Await]
 
 &ensp;&ensp; PrivateIdentifier
-
-
-<br>    
-
+<br><br>
 **ClassStaticBlock :**
 
 &ensp;&ensp; static { ClassStaticBlockBody }
-
-
-<br>    
-
+<br><br>
 **ClassStaticBlockBody :**
 
 &ensp;&ensp; ClassStaticBlockStatementList
-
-
-<br>    
-
+<br><br>
 **ClassStaticBlockStatementList :**
 
 &ensp;&ensp; StatementList[~Yield, +Await, ~Return]opt
