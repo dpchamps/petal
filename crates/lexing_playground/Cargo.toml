@@ -1,15 +1,16 @@
 [package]
 authors = ["Dave Campion me@davecampion.com"]
-description = "Petal Testing Ground Crate"
-name = "testing-ground"
+description = "Petal Lexing Playground Crate"
+name = "lexing_playground"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+rslint_lexer = "0.2.0"
+swc_petal_ast = { version = "0.85.0", path = "../swc_petal_ast" }
+
 swc_common = { version = "0.24.0" }
-swc_petal_ast = { version = "0.85.0", path ="../swc_petal_ast" }
-swc_ecma_visit = { version = "0.71.0"}
-swc_petal_parser = { path = "../swc_petal_parser" }
-swc_macros_common = "0.3.6"
+rslint_errors = "0.2.0"
+rslint_parser = "0.3.1"
+rslint_rowan = "0.10.0"

@@ -1370,7 +1370,7 @@ the interpretation of CoverParenthesizedExpressionAndArrowParameterList is refin
 
 &ensp;&ensp; ( UniqueFormalParameters[?Yield, ?Await] )
 
- 
+
 
 
 
@@ -1423,7 +1423,7 @@ the interpretation of CoverCallExpressionAndAsyncArrowHead is refined using the 
 
 &ensp;&ensp; async [no LineTerminator here] ArrowFormalParameters[~Yield, +Await]
 
- 
+
 
 
 

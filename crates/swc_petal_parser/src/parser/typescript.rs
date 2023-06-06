@@ -464,7 +464,7 @@ impl<I: Tokens> Parser<I> {
     pub(super) fn parse_ts_type_or_type_predicate_ann(
         &mut self,
         return_token: &'static Token,
-    ) -> PResult<TsTypeAnn> {
+    ) -> PResult<EsTypeAnn> {
         debug_assert!(self.input.syntax().typescript());
 
         self.in_type().parse_with(|p| {
@@ -624,7 +624,7 @@ impl<I: Tokens> Parser<I> {
         &mut self,
         eat_colon: bool,
         start: BytePos,
-    ) -> PResult<TsTypeAnn> {
+    ) -> PResult<EsTypeAnn> {
         trace_cur!(self, parse_ts_type_ann);
 
         debug_assert!(self.input.syntax().typescript());
@@ -638,10 +638,10 @@ impl<I: Tokens> Parser<I> {
 
             let type_ann = p.parse_ts_type()?;
 
-            Ok(TsTypeAnn {
+            Ok(EsTypeAnn::try_from(TsTypeAnn {
                 span: span!(p, start),
                 type_ann,
-            })
+            }).expect("Couldn't convert type ann"))
         })
     }
 
