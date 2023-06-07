@@ -851,14 +851,6 @@ the interpretation of CoverParenthesizedExpressionAndArrowParameterList is refin
 
 ## Scripts and Modules
 
-#### **Script :**
-
-&ensp;&ensp;ScriptBody<sub>opt</sub>
-<br><br>
-#### **ScriptBody :**
-
-&ensp;&ensp;StatementList[~Yield, ~Await, ~Return]
-<br><br>
 #### **Module :**
 
 &ensp;&ensp;ModuleBody<sub>opt</sub>
