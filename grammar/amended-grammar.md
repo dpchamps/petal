@@ -848,5 +848,3 @@ the interpretation of CoverParenthesizedExpressionAndArrowParameterList is refin
 **ClassElementName[Yield, Await] :**
 
 &ensp;&ensp; PropertyName[?Yield, ?Await]
-
-&ensp;&ensp; PrivateIdentifier
