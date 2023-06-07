@@ -3,13 +3,14 @@
 &ensp;&ensp;AngleBracketedTokens
 <br><br>
 #### TypeDeclaration :
-&ensp;&ensp;type BindingIdentifier TypeParametersopt = Type
+&ensp;&ensp;type BindingIdentifier TypeParameters<sub>opt</sub> = Type
 <br><br>
 #### TypeParameters :
 &ensp;&ensp;AngleBracketedTokens
 <br><br>
 #### Type :
 &ensp;&ensp;ConditionalType
+
 &ensp;&ensp;NonConditionalType
 <br><br>
 #### ConditionalType :
@@ -17,36 +18,55 @@
 <br><br>
 #### NonConditionalType :
 &ensp;&ensp;UnionType
+
 &ensp;&ensp;FunctionType
+
 &ensp;&ensp;ConstructorType
 <br><br>
 #### UnionType :
-&ensp;&ensp;|opt IntersectionType
+&ensp;&ensp;|<sub>opt</sub> IntersectionType
+
 &ensp;&ensp;UnionType | IntersectionType
 <br><br>
 #### IntersectionType :
-&ensp;&ensp;&opt TypeOperatorType
+&ensp;&ensp;&<sub>opt</sub> TypeOperatorType
+
 &ensp;&ensp;IntersectionType & TypeOperatorType
 <br><br>
 #### TypeOperatorType :
 &ensp;&ensp;readonly TypeOperatorType
+
 &ensp;&ensp;keyof TypeOperatorType
+
 &ensp;&ensp;unique TypeOperatorType
+
 &ensp;&ensp;infer TypeOperatorType
+
 &ensp;&ensp;not TypeOperatorType
+
 &ensp;&ensp;PrimaryType
 <br><br>
 #### PrimaryType :
 &ensp;&ensp;ParenthesizedType
+
 &ensp;&ensp;SquareBracketedType
+
 &ensp;&ensp;CurlyBracketedType
+
 &ensp;&ensp;TypeReference
+
 &ensp;&ensp;ArrayType
+
 &ensp;&ensp;LiteralType
+
 &ensp;&ensp;TypeQuery
+
 &ensp;&ensp;ImportType
+
 &ensp;&ensp;TypePredicate
+
 &ensp;&ensp;this
+
 &ensp;&ensp;void
 <br><br>
 #### ParenthesizedType :
@@ -59,10 +79,11 @@
 &ensp;&ensp;CurlyBracketedTokens
 <br><br>
 #### TypeReference :
-&ensp;&ensp;TypeName [no LineTerminator here] TypeArgumentsopt
+&ensp;&ensp;TypeName [no LineTerminator here] TypeArguments<sub>opt</sub>
 <br><br>
 #### TypeName :
 &ensp;&ensp;Identifier
+
 &ensp;&ensp;TypeName . Identifier
 <br><br>
 #### ArrayType :
@@ -70,18 +91,25 @@
 <br><br>
 #### LiteralType :
 &ensp;&ensp;NumericLiteralType
+
 &ensp;&ensp;StringLiteral
+
 &ensp;&ensp;TemplateLiteralType
+
 &ensp;&ensp;true
+
 &ensp;&ensp;false
+
 &ensp;&ensp;null
 <br><br>
 #### TemplateLiteralType :
 &ensp;&ensp;NoSubstitutionTemplate
+
 &ensp;&ensp;TemplateBracketedTokens
 <br><br>
 #### NumericLiteralType :
 &ensp;&ensp;NumericLiteral
+
 &ensp;&ensp;- [no LineTerminator here] NumericLiteral
 <br><br>
 ####   TypeQuery :
@@ -89,8 +117,11 @@
 <br><br>
 ####   EntityName :
 &ensp;&ensp;  IdentifierName
+
 &ensp;&ensp;  ImportSpecifier
+
 &ensp;&ensp;  EntityName . IdentifierName
+
 &ensp;&ensp;  EntityName :: TypeArguments
 <br><br>
 ####   ImportSpecifier :
@@ -98,19 +129,23 @@
 <br><br>
 ####   ImportType :
 &ensp;&ensp;  ImportSpecifier
+
 &ensp;&ensp;  ImportSpecifier . TypeName
 <br><br>
 ####   TypePredicate :
 &ensp;&ensp;  IdentifierOrThis [no LineTerminator here] is Type
+
 &ensp;&ensp;  asserts IdentifierOrThis
+
 &ensp;&ensp;  asserts IdentifierOrThis [no LineTerminator here] is Type
 <br><br>
 ####   IdentifierOrThis :
 &ensp;&ensp;  Identifier
+
 &ensp;&ensp;  this
 <br><br>
 ####   FunctionType :
-&ensp;&ensp;  TypeParametersopt ParameterList => Type
+&ensp;&ensp;  TypeParameters<sub>opt</sub> ParameterList => Type
 <br><br>
 ####   ParameterList :
 &ensp;&ensp;  ParenthesizedTokens
@@ -123,35 +158,41 @@
 <br><br>
 ####   BracketedTokens :
 &ensp;&ensp;  ParenthesizedTokens
+
 &ensp;&ensp;  SquareBracketedTokens
+
 &ensp;&ensp;  CurlyBracketedTokens
+
 &ensp;&ensp;  AngleBracketedTokens
+
 &ensp;&ensp;  TemplateBracketedTokens
 <br><br>
 ####   ParenthesizedTokens :
-&ensp;&ensp;  ( TokenBodyopt )
+&ensp;&ensp;  ( TokenBody<sub>opt</sub> )
 <br><br>
 ####   SquareBracketedTokens :
-&ensp;&ensp;  [ TokenBodyopt ]
+&ensp;&ensp;  [ TokenBody<sub>opt</sub> ]
 <br><br>
 ####   CurlyBracketedTokens :
-&ensp;&ensp;  { TokenBodyopt }
+&ensp;&ensp;  { TokenBody<sub>opt</sub> }
 <br><br>
 ####   AngleBracketedTokens :
-&ensp;&ensp;  < TokenBodyopt >
+&ensp;&ensp;  < TokenBody<sub>opt</sub> >
 <br><br>
 ####   TemplateBracketedTokens :
 &ensp;&ensp;  TemplateHead TemplateTokenBody TemplateTail
 <br><br>
 ####   TemplateTokenBody :
 &ensp;&ensp;  TokenBody
+
 &ensp;&ensp;  TokenBody TemplateMiddle TemplateTokenBody
 <br><br>
 ####   TokenBody :
-&ensp;&ensp;  TokenOrBracketedTokens TokenBodyopt
+&ensp;&ensp;  TokenOrBracketedTokens TokenBody<sub>opt</sub>
 <br><br>
 ####   TokenOrBracketedTokens :
 &ensp;&ensp;  NonBracketedToken
+
 &ensp;&ensp;  BracketedTokens
 <br><br>
 ####   NonBracketedToken :
