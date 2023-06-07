@@ -1,5 +1,5 @@
 *** ./grammar/complete-grammar.md	Tue Jun  6 21:05:01 2023
---- ./grammar/amended-grammar.md	Tue Jun  6 21:05:01 2023
+--- ./grammar/amended-grammar.md	Tue Jun  6 21:06:45 2023
 ***************
 *** 39,54 ****
   
@@ -474,7 +474,7 @@
   &ensp;&ensp; yield
 --- 825,838 ----
 ***************
-*** 1090,1200 ****
+*** 1090,1210 ****
   &ensp;&ensp; yield [no LineTerminator here] AssignmentExpression[?In, +Yield, ?Await]
   
   &ensp;&ensp; yield [no LineTerminator here] * AssignmentExpression[?In, +Yield, ?Await]
@@ -585,8 +585,18 @@
 - 
   ## Scripts and Modules
   
-  #### **Script :**
---- 840,854 ----
+- #### **Script :**
+- 
+- &ensp;&ensp;ScriptBody<sub>opt</sub>
+- <br><br>
+- #### **ScriptBody :**
+- 
+- &ensp;&ensp;StatementList[~Yield, ~Await, ~Return]
+- <br><br>
+  #### **Module :**
+  
+  &ensp;&ensp;ModuleBody<sub>opt</sub>
+--- 840,856 ----
 ***************
 *** 1246,1255 ****
   &ensp;&ensp;NameSpaceImport
@@ -599,7 +609,7 @@
   <br><br>
   #### **ImportedDefaultBinding :**
   
---- 900,905 ----
+--- 892,897 ----
 ***************
 *** 1300,1311 ****
   &ensp;&ensp;  export VariableStatement[~Yield, +Await]
@@ -614,4 +624,4 @@
   <br><br>
   #### **ExportFromClause :**
   
---- 950,955 ----
+--- 942,947 ----
