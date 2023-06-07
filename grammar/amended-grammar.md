@@ -848,3 +848,133 @@ the interpretation of CoverParenthesizedExpressionAndArrowParameterList is refin
 **ClassElementName[Yield, Await] :**
 
 &ensp;&ensp; PropertyName[?Yield, ?Await]
+
+## Scripts and Modules
+
+**Script :**
+
+&ensp;&ensp;ScriptBodyopt
+<br><br>
+**ScriptBody :**
+
+&ensp;&ensp;StatementList[~Yield, ~Await, ~Return]
+<br><br>
+**Module :**
+
+&ensp;&ensp;ModuleBodyopt
+<br><br>
+**ModuleBody :**
+
+&ensp;&ensp;ModuleItemList
+<br><br>
+**ModuleItemList :**
+
+&ensp;&ensp;ModuleItem
+
+&ensp;&ensp;ModuleItemList ModuleItem
+<br><br>
+**ModuleItem :**
+
+&ensp;&ensp;ImportDeclaration
+
+&ensp;&ensp;ExportDeclaration
+
+&ensp;&ensp;StatementListItem[~Yield, +Await, ~Return]
+<br><br>
+**ModuleExportName :**
+
+&ensp;&ensp;IdentifierName
+
+&ensp;&ensp;StringLiteral
+<br><br>
+**ImportDeclaration :**
+
+&ensp;&ensp;import ImportClause FromClause ;
+
+&ensp;&ensp;import ModuleSpecifier ;
+<br><br>
+**ImportClause :**
+
+&ensp;&ensp;ImportedDefaultBinding
+
+&ensp;&ensp;NameSpaceImport
+
+&ensp;&ensp;NamedImports
+<br><br>
+**ImportedDefaultBinding :**
+
+&ensp;&ensp;ImportedBinding
+<br><br>
+**NameSpaceImport :**
+
+&ensp;&ensp;* as ImportedBinding
+<br><br>
+**NamedImports :**
+
+&ensp;&ensp;  { }
+
+&ensp;&ensp;  { ImportsList }
+
+&ensp;&ensp;  { ImportsList , }
+<br><br>
+**FromClause :**
+
+&ensp;&ensp;  from ModuleSpecifier
+<br><br>
+**ImportsList :**
+
+&ensp;&ensp;  ImportSpecifier
+
+&ensp;&ensp;  ImportsList , ImportSpecifier
+<br><br>
+**ImportSpecifier :**
+
+&ensp;&ensp;  ImportedBinding
+
+&ensp;&ensp;  ModuleExportName as ImportedBinding
+<br><br>
+**ModuleSpecifier :**
+
+&ensp;&ensp;  StringLiteral
+<br><br>
+**ImportedBinding :**
+
+&ensp;&ensp;  BindingIdentifier[~Yield, +Await]
+<br><br>
+**ExportDeclaration :**
+
+&ensp;&ensp;  export ExportFromClause FromClause ;
+
+&ensp;&ensp;  export NamedExports ;
+
+&ensp;&ensp;  export VariableStatement[~Yield, +Await]
+
+&ensp;&ensp;  export Declaration[~Yield, +Await]
+<br><br>
+**ExportFromClause :**
+
+&ensp;&ensp;*
+
+&ensp;&ensp;* as ModuleExportName
+
+&ensp;&ensp;  NamedExports
+<br><br>
+**NamedExports :**
+
+&ensp;&ensp;  { }
+
+&ensp;&ensp;  { ExportsList }
+
+&ensp;&ensp;  { ExportsList , }
+<br><br>
+**ExportsList :**
+
+&ensp;&ensp;  ExportSpecifier
+
+&ensp;&ensp;  ExportsList , ExportSpecifier
+<br><br>
+**ExportSpecifier :**
+
+&ensp;&ensp;  ModuleExportName
+
+&ensp;&ensp;  ModuleExportName as ModuleExportName

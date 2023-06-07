@@ -1,5 +1,5 @@
-*** ./grammar/complete-grammar.md	Mon Jun  5 20:34:51 2023
---- ./grammar/amended-grammar.md	Mon Jun  5 21:01:51 2023
+*** ./grammar/complete-grammar.md	Tue Jun  6 20:52:48 2023
+--- ./grammar/amended-grammar.md	Tue Jun  6 20:52:48 2023
 ***************
 *** 39,54 ****
   
@@ -474,7 +474,7 @@
   &ensp;&ensp; yield
 --- 825,838 ----
 ***************
-*** 1090,1196 ****
+*** 1090,1200 ****
   &ensp;&ensp; yield [no LineTerminator here] AssignmentExpression[?In, +Yield, ?Await]
   
   &ensp;&ensp; yield [no LineTerminator here] * AssignmentExpression[?In, +Yield, ?Await]
@@ -568,7 +568,7 @@
   **ClassElementName[Yield, Await] :**
   
   &ensp;&ensp; PropertyName[?Yield, ?Await]
-- 
+  
 - &ensp;&ensp; PrivateIdentifier
 - <br><br>
 - **ClassStaticBlock :**
@@ -582,4 +582,36 @@
 - **ClassStaticBlockStatementList :**
 - 
 - &ensp;&ensp; StatementList[~Yield, +Await, ~Return]opt
---- 840,850 ----
+- 
+  ## Scripts and Modules
+  
+  **Script :**
+--- 840,854 ----
+***************
+*** 1246,1255 ****
+  &ensp;&ensp;NameSpaceImport
+  
+  &ensp;&ensp;NamedImports
+- 
+- &ensp;&ensp;ImportedDefaultBinding , NameSpaceImport
+- 
+- &ensp;&ensp;ImportedDefaultBinding , NamedImports
+  <br><br>
+  **ImportedDefaultBinding :**
+  
+--- 900,905 ----
+***************
+*** 1300,1311 ****
+  &ensp;&ensp;  export VariableStatement[~Yield, +Await]
+  
+  &ensp;&ensp;  export Declaration[~Yield, +Await]
+- 
+- &ensp;&ensp;  export default HoistableDeclaration[~Yield, +Await, +Default]
+- 
+- &ensp;&ensp;  export default ClassDeclaration[~Yield, +Await, +Default]
+- 
+- &ensp;&ensp;  export default [lookahead ∉ { function, async [no LineTerminator here] function, class }] AssignmentExpression[+In, ~Yield, +Await] ;
+  <br><br>
+  **ExportFromClause :**
+  
+--- 950,955 ----
