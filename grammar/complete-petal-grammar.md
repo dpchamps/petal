@@ -201,6 +201,10 @@
 
 &ensp;&ensp;MetaProperty
 
+&ensp;&ensp;MemberExpression :: TypeArguments
+
+&ensp;&ensp;MemberExpression [no LineTerminator here] !
+
 <br><br>
 #### **MetaProperty :**
 
@@ -226,6 +230,8 @@
 &ensp;&ensp;CallExpression[?Yield, ?Await] . IdentifierName
 
 &ensp;&ensp;CallExpression[?Yield, ?Await] TemplateLiteral[?Yield, ?Await, +Tagged]
+
+&ensp;&ensp;CallExpression :: TypeArguments
 <br><br>
 #### **ImportCall[Yield, Await] :**
 
@@ -249,13 +255,13 @@
 
 &ensp;&ensp;ArgumentList[?Yield, ?Await] , ... AssignmentExpression[+In, ?Yield, ?Await]
 <br><br>
-#### **<sub>opt</sub>ionalExpression[Yield, Await] :**
+#### **OptionalExpression[Yield, Await] :**
 
-&ensp;&ensp;MemberExpression[?Yield, ?Await]OptionalChain[?Yield, ?Await]
+&ensp;&ensp;MemberExpression[?Yield, ?Await] OptionalChain[?Yield, ?Await]
 
-&ensp;&ensp;CallExpression[?Yield, ?Await]OptionalChain[?Yield, ?Await]
+&ensp;&ensp;CallExpression[?Yield, ?Await] OptionalChain[?Yield, ?Await]
 
-&ensp;&ensp;<sub>opt</sub>ionalExpression[?Yield, ?Await]OptionalChain[?Yield, ?Await]
+&ensp;&ensp;OptionalExpression[?Yield, ?Await] OptionalChain[?Yield, ?Await]
 <br><br>
 #### **OptionalChain[Yield, Await] :**
 
@@ -276,6 +282,8 @@
 &ensp;&ensp;OptionalChain[?Yield, ?Await] TemplateLiteral[?Yield, ?Await, +Tagged]
 
 &ensp;&ensp;OptionalChain[?Yield, ?Await] . PrivateIdentifier
+
+&ensp;&ensp;OptionalChain :: TypeArguments
 <br><br>
 #### **LeftHandSideExpression[Yield, Await] :**
 
@@ -283,7 +291,7 @@
 
 &ensp;&ensp;CallExpression[?Yield, ?Await]
 
-&ensp;&ensp;<sub>opt</sub>ionalExpression[?Yield, ?Await]
+&ensp;&ensp;OptionalExpression[?Yield, ?Await]
 <br><br>
 #### **UpdateExpression[Yield, Await] :**
 
@@ -322,7 +330,7 @@
 &ensp;&ensp;  MultiplicativeOperator : one of
 
 * / %
-<br><br>
+  <br><br>
 #### **AdditiveExpression[Yield, Await] :**
 
 &ensp;&ensp;  MultiplicativeExpression[?Yield, ?Await]
@@ -356,6 +364,11 @@
 &ensp;&ensp;  RelationalExpression[?In, ?Yield, ?Await] instanceof ShiftExpression[?Yield, ?Await]
 
 &ensp;&ensp;  [+In] RelationalExpression[+In, ?Yield, ?Await] in ShiftExpression[?Yield, ?Await]
+
+&ensp;&ensp;RelationalExpression [no LineTerminator here] as Type
+
+&ensp;&ensp;RelationalExpression [no LineTerminator here] as const
+
 <br><br>
 #### **EqualityExpression[In, Yield, Await] :**
 
@@ -546,6 +559,8 @@
 #### **Declaration[Yield, Await] :**
 
 &ensp;&ensp;LexicalDeclaration[+In, ?Yield, ?Await]
+
+&ensp;&ensp;TypeDeclaration
 <br><br>
 #### **BreakableStatement[Yield, Await, Return] :**
 
@@ -590,9 +605,9 @@
 <br><br>
 #### **LexicalBinding[In, Yield, Await] :**
 
-&ensp;&ensp;BindingIdentifier[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]<sub>opt</sub>
+&ensp;&ensp;BindingIdentifier[?Yield, ?Await] TypeAnnotation<sub>opt</sub> Initializer[?In, ?Yield, ?Await]<sub>opt</sub>
 
-&ensp;&ensp;BindingPattern[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]
+&ensp;&ensp;BindingPattern[?Yield, ?Await] TypeAnnotation<sub>opt</sub> Initializer[?In, ?Yield, ?Await]
 <br><br>
 #### **BindingPattern[Yield, Await] :**
 
@@ -770,6 +785,12 @@
 &ensp;&ensp; FormalParameterList[Yield, Await] :
 
 &ensp;&ensp; FormalParameter[?Yield, ?Await]
+
+&ensp;&ensp;BindingIdentifier TypeAnnotation<sub>opt</sub> Initializer<sub>opt</sub>
+
+&ensp;&ensp;BindingIdentifier ? TypeAnnotation<sub>opt</sub>
+
+&ensp;&ensp;BindingPattern TypeAnnotation<sub>opt</sub> Initializer<sub>opt</sub>
 <br><br>
 #### **FormalParameterList[?Yield, ?Await] , FormalParameter[?Yield, ?Await]**
 
@@ -779,22 +800,33 @@
 <br><br>
 #### FunctionRestParameter[Yield, Await] :
 
-&ensp;&ensp; BindingRestElement[?Yield, ?Await]
+&ensp;&ensp;... BindingIdentifier[?Yield, ?Await] TypeAnnotation<sub>opt</sub>
+
+&ensp;&ensp;... BindingPattern[?Yield, ?Await] TypeAnnotation<sub>opt</sub>
 
 <br><br>
 #### **FormalParameter[Yield, Await] :**
 
-&ensp;&ensp; BindingElement[?Yield, ?Await]
+&ensp;&ensp; BindingIdentifier[?Yield, ?Await] TypeAnnotation<sub>opt</sub> Initializer<sub>opt</sub>
+
+&ensp;&ensp; BindingIdentifier[?Yield, ?Await] ? TypeAnnotation<sub>opt</sub>
+
+&ensp;&ensp; BindingPattern[?Yield, ?Await] TypeAnnotation<sub>opt</sub> Initializer<sub>opt</sub>
+
 <br><br>
 #### **ArrowFunction[In, Yield, Await] :**
 
 &ensp;&ensp; ArrowParameters[?Yield, ?Await] [no LineTerminator here] => ConciseBody[?In]
+
+&ensp;&ensp;ArrowParameters TypeAnnotation => ConciseBody
 <br><br>
 #### **ArrowParameters[Yield, Await] :**
 
 &ensp;&ensp; BindingIdentifier[?Yield, ?Await]
 
 &ensp;&ensp; CoverParenthesizedExpressionAndArrowParameterList[?Yield, ?Await]
+
+&ensp;&ensp;TypeParameters ( UniqueFormalParameters )
 <br><br>
 #### **ConciseBody[In] :**
 
@@ -820,7 +852,7 @@ the interpretation of CoverParenthesizedExpressionAndArrowParameterList is refin
 <br><br>
 #### **MethodDefinition[Yield, Await] :**
 
-&ensp;&ensp; ClassElementName[?Yield, ?Await] ( UniqueFormalParameters[~Yield, ~Await] ) { FunctionBody[~Yield, ~Await] }
+&ensp;&ensp;ClassElementName ?<sub>opt</sub> TypeParameters<sub>opt</sub> ( UniqueFormalParameters ) TypeAnnotation<sub>opt</sub> { FunctionBody }
 <br><br>
 #### **PropertySetParameterList :**
 
@@ -877,6 +909,8 @@ the interpretation of CoverParenthesizedExpressionAndArrowParameterList is refin
 &ensp;&ensp;import ImportClause FromClause ;
 
 &ensp;&ensp;import ModuleSpecifier ;
+
+&ensp;&ensp;import type ImportClause FromClause ;
 <br><br>
 #### **ImportClause :**
 
@@ -917,6 +951,10 @@ the interpretation of CoverParenthesizedExpressionAndArrowParameterList is refin
 &ensp;&ensp;  ImportedBinding
 
 &ensp;&ensp;  ModuleExportName as ImportedBinding
+
+&ensp;&ensp;type ImportedBinding
+
+&ensp;&ensp;type ModuleExportName as ImportedBinding
 <br><br>
 #### **ModuleSpecifier :**
 
@@ -963,3 +1001,203 @@ the interpretation of CoverParenthesizedExpressionAndArrowParameterList is refin
 &ensp;&ensp;  ModuleExportName
 
 &ensp;&ensp;  ModuleExportName as ModuleExportName
+
+## Types
+
+#### TypeArguments :
+&ensp;&ensp;AngleBracketedTokens
+<br><br>
+#### TypeDeclaration :
+&ensp;&ensp;type BindingIdentifier TypeParameters<sub>opt</sub> = Type
+<br><br>
+#### TypeParameters :
+&ensp;&ensp;AngleBracketedTokens
+<br><br>
+#### Type :
+&ensp;&ensp;ConditionalType
+
+&ensp;&ensp;NonConditionalType
+<br><br>
+#### ConditionalType :
+&ensp;&ensp;NonConditionalType [no LineTerminator here] extends NonConditionalType ? Type : Type
+<br><br>
+#### NonConditionalType :
+&ensp;&ensp;UnionType
+
+&ensp;&ensp;FunctionType
+
+&ensp;&ensp;ConstructorType
+<br><br>
+#### UnionType :
+&ensp;&ensp;|<sub>opt</sub> IntersectionType
+
+&ensp;&ensp;UnionType | IntersectionType
+<br><br>
+#### IntersectionType :
+&ensp;&ensp;&<sub>opt</sub> TypeOperatorType
+
+&ensp;&ensp;IntersectionType & TypeOperatorType
+#### TypeOperatorType :
+&ensp;&ensp;readonly TypeOperatorType
+
+&ensp;&ensp;keyof TypeOperatorType
+
+&ensp;&ensp;unique TypeOperatorType
+
+&ensp;&ensp;infer TypeOperatorType
+
+&ensp;&ensp;not TypeOperatorType
+
+&ensp;&ensp;PrimaryType
+<br><br>
+#### PrimaryType :
+&ensp;&ensp;ParenthesizedType
+
+&ensp;&ensp;SquareBracketedType
+
+&ensp;&ensp;CurlyBracketedType
+
+&ensp;&ensp;TypeReference
+
+&ensp;&ensp;ArrayType
+
+&ensp;&ensp;LiteralType
+
+&ensp;&ensp;TypeQuery
+
+&ensp;&ensp;ImportType
+
+&ensp;&ensp;TypePredicate
+
+&ensp;&ensp;this
+
+&ensp;&ensp;void
+<br><br>
+#### ParenthesizedType :
+&ensp;&ensp;ParenthesizedTokens
+<br><br>
+#### SquareBracketedType :
+&ensp;&ensp;SquareBracketedTokens
+<br><br>
+#### CurlyBracketedType :
+&ensp;&ensp;CurlyBracketedTokens
+<br><br>
+#### TypeReference :
+&ensp;&ensp;TypeName [no LineTerminator here] TypeArguments<sub>opt</sub>
+<br><br>
+#### TypeName :
+&ensp;&ensp;Identifier
+
+&ensp;&ensp;TypeName . Identifier
+<br><br>
+#### ArrayType :
+&ensp;&ensp;PrimaryType [no LineTerminator here] [ ]
+<br><br>
+#### LiteralType :
+&ensp;&ensp;NumericLiteralType
+
+&ensp;&ensp;StringLiteral
+
+&ensp;&ensp;TemplateLiteralType
+
+&ensp;&ensp;true
+
+&ensp;&ensp;false
+
+&ensp;&ensp;null
+<br><br>
+#### TemplateLiteralType :
+&ensp;&ensp;NoSubstitutionTemplate
+
+&ensp;&ensp;TemplateBracketedTokens
+<br><br>
+#### NumericLiteralType :
+&ensp;&ensp;NumericLiteral
+
+&ensp;&ensp;- [no LineTerminator here] NumericLiteral
+<br><br>
+####   TypeQuery :
+&ensp;&ensp;  typeof [no LineTerminator here] EntityName
+<br><br>
+####   EntityName :
+&ensp;&ensp;  IdentifierName
+
+&ensp;&ensp;  ImportSpecifier
+
+&ensp;&ensp;  EntityName . IdentifierName
+
+&ensp;&ensp;  EntityName :: TypeArguments
+<br><br>
+####   ImportSpecifier :
+&ensp;&ensp;  import [no LineTerminator here] ( ModuleSpecifier )
+<br><br>
+####   ImportType :
+&ensp;&ensp;  ImportSpecifier
+
+&ensp;&ensp;  ImportSpecifier . TypeName
+<br><br>
+####   TypePredicate :
+&ensp;&ensp;  IdentifierOrThis [no LineTerminator here] is Type
+
+&ensp;&ensp;  asserts IdentifierOrThis
+
+&ensp;&ensp;  asserts IdentifierOrThis [no LineTerminator here] is Type
+<br><br>
+####   IdentifierOrThis :
+&ensp;&ensp;  Identifier
+
+&ensp;&ensp;  this
+<br><br>
+####   FunctionType :
+&ensp;&ensp;  TypeParameters<sub>opt</sub> ParameterList => Type
+<br><br>
+####   ParameterList :
+&ensp;&ensp;  ParenthesizedTokens
+<br><br>
+####   TypeAnnotation :
+&ensp;&ensp;  : Type
+<br><br>
+####   IndexSignature :
+&ensp;&ensp;  [ BindingIdentifier TypeAnnotation ] TypeAnnotation
+<br><br>
+####   BracketedTokens :
+&ensp;&ensp;  ParenthesizedTokens
+
+&ensp;&ensp;  SquareBracketedTokens
+
+&ensp;&ensp;  CurlyBracketedTokens
+
+&ensp;&ensp;  AngleBracketedTokens
+
+&ensp;&ensp;  TemplateBracketedTokens
+<br><br>
+####   ParenthesizedTokens :
+&ensp;&ensp;  ( TokenBody<sub>opt</sub> )
+<br><br>
+####   SquareBracketedTokens :
+&ensp;&ensp;  [ TokenBody<sub>opt</sub> ]
+<br><br>
+####   CurlyBracketedTokens :
+&ensp;&ensp;  { TokenBody<sub>opt</sub> }
+<br><br>
+####   AngleBracketedTokens :
+&ensp;&ensp;  < TokenBody<sub>opt</sub> >
+<br><br>
+####   TemplateBracketedTokens :
+&ensp;&ensp;  TemplateHead TemplateTokenBody TemplateTail
+<br><br>
+####   TemplateTokenBody :
+&ensp;&ensp;  TokenBody
+
+&ensp;&ensp;  TokenBody TemplateMiddle TemplateTokenBody
+<br><br>
+####   TokenBody :
+&ensp;&ensp;  TokenOrBracketedTokens TokenBody<sub>opt</sub>
+<br><br>
+####   TokenOrBracketedTokens :
+&ensp;&ensp;  NonBracketedToken
+
+&ensp;&ensp;  BracketedTokens
+<br><br>
+####   NonBracketedToken :
+&ensp;&ensp;  Token but not one of ( or ) or [ or ] or { or } or < or > or TemplateHead or TemplateMiddle or TemplateTail

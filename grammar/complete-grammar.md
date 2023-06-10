@@ -305,13 +305,13 @@
 <br><br>
 #### **<sub>opt</sub>ionalExpression[Yield, Await] :**
 
-&ensp;&ensp;MemberExpression[?Yield, ?Await] <sub>opt</sub>ionalChain[?Yield, ?Await]
+&ensp;&ensp;MemberExpression[?Yield, ?Await] OptionalChain[?Yield, ?Await]
 
-&ensp;&ensp;CallExpression[?Yield, ?Await] <sub>opt</sub>ionalChain[?Yield, ?Await]
+&ensp;&ensp;CallExpression[?Yield, ?Await] OptionalChain[?Yield, ?Await]
 
-&ensp;&ensp;<sub>opt</sub>ionalExpression[?Yield, ?Await] <sub>opt</sub>ionalChain[?Yield, ?Await]
+&ensp;&ensp;OptionalExpression[?Yield, ?Await] OptionalChain[?Yield, ?Await]
 <br><br>
-#### **<sub>opt</sub>ionalChain[Yield, Await] :**
+#### **OptionalChain[Yield, Await] :**
 
 &ensp;&ensp;?. Arguments[?Yield, ?Await]
 
@@ -323,15 +323,15 @@
 
 &ensp;&ensp;?. PrivateIdentifier
 
-&ensp;&ensp;<sub>opt</sub>ionalChain[?Yield, ?Await] Arguments[?Yield, ?Await]
+&ensp;&ensp;OptionalChain[?Yield, ?Await] Arguments[?Yield, ?Await]
 
-&ensp;&ensp;<sub>opt</sub>ionalChain[?Yield, ?Await] [ Expression[+In, ?Yield, ?Await] ]
+&ensp;&ensp;OptionalChain[?Yield, ?Await] [ Expression[+In, ?Yield, ?Await] ]
 
-&ensp;&ensp;<sub>opt</sub>ionalChain[?Yield, ?Await] . IdentifierName
+&ensp;&ensp;OptionalChain[?Yield, ?Await] . IdentifierName
 
-&ensp;&ensp;<sub>opt</sub>ionalChain[?Yield, ?Await] TemplateLiteral[?Yield, ?Await, +Tagged]
+&ensp;&ensp;OptionalChain[?Yield, ?Await] TemplateLiteral[?Yield, ?Await, +Tagged]
 
-&ensp;&ensp;<sub>opt</sub>ionalChain[?Yield, ?Await] . PrivateIdentifier
+&ensp;&ensp;OptionalChain[?Yield, ?Await] . PrivateIdentifier
 <br><br>
 #### **LeftHandSideExpression[Yield, Await] :**
 
@@ -339,7 +339,7 @@
 
 &ensp;&ensp;CallExpression[?Yield, ?Await]
 
-&ensp;&ensp;<sub>opt</sub>ionalExpression[?Yield, ?Await]
+&ensp;&ensp;OptionalExpression[?Yield, ?Await]
 <br><br>
 #### **UpdateExpression[Yield, Await] :**
 
@@ -961,6 +961,13 @@
 
 &ensp;&ensp; BindingRestElement[?Yield, ?Await]
 <br><br>
+
+#### FunctionRestParameter[Yield, Await] :
+
+&ensp;&ensp; BindingRestElement[?Yield, ?Await]
+
+<br><br>
+
 #### **FormalParameter[Yield, Await] :**
 
 &ensp;&ensp; BindingElement[?Yield, ?Await]

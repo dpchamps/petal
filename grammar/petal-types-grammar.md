@@ -32,7 +32,6 @@
 &ensp;&ensp;&<sub>opt</sub> TypeOperatorType
 
 &ensp;&ensp;IntersectionType & TypeOperatorType
-<br><br>
 #### TypeOperatorType :
 &ensp;&ensp;readonly TypeOperatorType
 
