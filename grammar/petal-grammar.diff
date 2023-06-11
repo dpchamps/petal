@@ -1,5 +1,5 @@
 *** ./grammar/complete-ecma-grammar.md	Sat Jun 10 10:12:38 2023
---- ./grammar/amended-grammar.md	Sun Jun 11 09:13:07 2023
+--- ./grammar/amended-grammar.md	Sun Jun 11 11:07:28 2023
 ***************
 *** 39,54 ****
   
@@ -662,7 +662,7 @@
   &ensp;&ensp;ModuleBody<sub>opt</sub>
 --- 833,849 ----
 ***************
-*** 1244,1250 ****
+*** 1244,1267 ****
   
   &ensp;&ensp;import ImportClause FromClause ;
   
@@ -670,9 +670,8 @@
   <br><br>
   #### **ImportClause :**
   
---- 876,881 ----
-***************
-*** 1253,1262 ****
+- &ensp;&ensp;ImportedDefaultBinding
+- 
   &ensp;&ensp;NameSpaceImport
   
   &ensp;&ensp;NamedImports
@@ -681,9 +680,14 @@
 - 
 - &ensp;&ensp;ImportedDefaultBinding , NamedImports
   <br><br>
-  #### **ImportedDefaultBinding :**
+- #### **ImportedDefaultBinding :**
+- 
+- &ensp;&ensp;ImportedBinding
+- <br><br>
+  #### **NameSpaceImport :**
   
---- 884,889 ----
+  &ensp;&ensp;* as ImportedBinding
+--- 876,888 ----
 ***************
 *** 1307,1318 ****
   &ensp;&ensp;  export VariableStatement[~Yield, +Await]
@@ -698,4 +702,4 @@
   <br><br>
   #### **ExportFromClause :**
   
---- 934,939 ----
+--- 928,933 ----

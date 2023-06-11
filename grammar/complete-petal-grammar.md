@@ -912,15 +912,9 @@ the interpretation of CoverParenthesizedExpressionAndArrowParameterList is refin
 <br><br>
 #### **ImportClause :**
 
-&ensp;&ensp;ImportedDefaultBinding
-
 &ensp;&ensp;NameSpaceImport
 
 &ensp;&ensp;NamedImports
-<br><br>
-#### **ImportedDefaultBinding :**
-
-&ensp;&ensp;ImportedBinding
 <br><br>
 #### **NameSpaceImport :**
 
