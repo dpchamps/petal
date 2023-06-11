@@ -1,6 +1,6 @@
 [package]
 authors = ["Dave Campion me@davecampion.com"]
-description = "Petal Lexing Playground Crate"
+description = "Petal Parser Crate"
 name = "lexing_playground"
 version = "0.1.0"
 edition = "2021"

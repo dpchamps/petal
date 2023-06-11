@@ -8,6 +8,7 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/testing-ground/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/testing-ground/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/crates/petal_parser/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/petal_parser/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/swc_petal_parser/benches" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/crates/swc_petal_parser/examples" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/swc_petal_parser/src" isTestSource="false" />
@@ -15,7 +16,6 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/ast_extensions/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/swc_petal_ast/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/swc_petal_ecma_visit/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/crates/lexing_playground/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/testing-ground/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/petal_parser/target" />

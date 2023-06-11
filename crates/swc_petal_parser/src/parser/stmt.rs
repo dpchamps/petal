@@ -95,13 +95,12 @@ impl<'a, I: Tokens> Parser<I> {
         let _tracing = debug_tracing!(self, "parse_stmt_like");
 
         let start = cur_pos!(self);
-        let decorators = self.parse_decorators(true)?;
 
         if is_one_of!(self, "import", "export") {
             return self.handle_import_export(top_level, decorators);
         }
 
-        self.parse_stmt_internal(start, include_decl, top_level, decorators)
+        self.parse_stmt_internal(start, include_decl, top_level, vec![])
             .map(From::from)
     }
 
