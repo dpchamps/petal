@@ -876,7 +876,6 @@ the interpretation of CoverParenthesizedExpressionAndArrowParameterList is refin
 
 &ensp;&ensp;import ImportClause FromClause ;
 
-&ensp;&ensp;import ModuleSpecifier ;
 <br><br>
 #### **ImportClause :**
 

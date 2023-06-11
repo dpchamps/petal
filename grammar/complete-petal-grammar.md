@@ -908,8 +908,6 @@ the interpretation of CoverParenthesizedExpressionAndArrowParameterList is refin
 
 &ensp;&ensp;import ImportClause FromClause ;
 
-&ensp;&ensp;import ModuleSpecifier ;
-
 &ensp;&ensp;import type ImportClause FromClause ;
 <br><br>
 #### **ImportClause :**
