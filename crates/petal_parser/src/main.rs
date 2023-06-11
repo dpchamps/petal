@@ -12,7 +12,7 @@ fn main() {
 
     let typed_javascript = r#"
         x
-        import Type from "hello";
+        import type T from "hello";
         import * as T from "hype";
         export const xport = "y";
 
