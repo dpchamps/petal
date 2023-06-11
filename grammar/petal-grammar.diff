@@ -1,5 +1,5 @@
 *** ./grammar/complete-ecma-grammar.md	Sat Jun 10 10:12:38 2023
---- ./grammar/amended-grammar.md	Sun Jun 11 11:07:28 2023
+--- ./grammar/amended-grammar.md	Sun Jun 11 12:33:33 2023
 ***************
 *** 39,54 ****
   
@@ -216,16 +216,18 @@
   &ensp;&ensp;  LeftHandSideExpression[?Yield, ?Await] AssignmentOperator AssignmentExpression[?In, ?Yield, ?Await]
 --- 426,431 ----
 ***************
-*** 602,609 ****
+*** 600,609 ****
   
-  &ensp;&ensp;VariableStatement[?Yield, ?Await]
+  &ensp;&ensp;BlockStatement[?Yield, ?Await, ?Return]
   
+- &ensp;&ensp;VariableStatement[?Yield, ?Await]
+- 
 - &ensp;&ensp;EmptyStatement
 - 
   &ensp;&ensp;ExpressionStatement[?Yield, ?Await]
   
   &ensp;&ensp;IfStatement[?Yield, ?Await, ?Return]
---- 529,534 ----
+--- 527,532 ----
 ***************
 *** 616,649 ****
   
@@ -262,7 +264,7 @@
   #### **BreakableStatement[Yield, Await, Return] :**
   
   &ensp;&ensp;IterationStatement[?Yield, ?Await, ?Return]
---- 541,552 ----
+--- 539,550 ----
 ***************
 *** 684,690 ****
   
@@ -272,7 +274,7 @@
   <br><br>
   #### **LexicalBinding[In, Yield, Await] :**
   
---- 587,592 ----
+--- 585,590 ----
 ***************
 *** 692,713 ****
   
@@ -297,7 +299,7 @@
   #### **BindingPattern[Yield, Await] :**
   
   &ensp;&ensp;ObjectBindingPattern[?Yield, ?Await]
---- 594,599 ----
+--- 592,597 ----
 ***************
 *** 774,783 ****
   
@@ -310,7 +312,7 @@
   #### **ExpressionStatement[Yield, Await] :**
   
   &ensp;&ensp;[lookahead ∉ { {, function, async [no LineTerminator here] function, class, let [ }] Expression[+In, ?Yield, ?Await] ;
---- 660,665 ----
+--- 658,663 ----
 ***************
 *** 790,837 ****
   <br><br>
@@ -361,7 +363,7 @@
   &ensp;&ensp;[+Await] for await ( ForDeclaration[?Yield, ?Await] of AssignmentExpression[+In, ?Yield, ?Await] ) Statement[?Yield, ?Await, ?Return]
   <br><br>
   #### **ForDeclaration[Yield, Await] :**
---- 672,695 ----
+--- 670,693 ----
 ***************
 *** 862,871 ****
   
@@ -374,7 +376,7 @@
   #### **SwitchStatement[Yield, Await, Return] :**
   
   &ensp;&ensp;switch ( Expression[+In, ?Yield, ?Await] ) CaseBlock[?Yield, ?Await, ?Return]
---- 720,725 ----
+--- 718,723 ----
 ***************
 *** 890,933 ****
   
@@ -421,7 +423,7 @@
   #### **DebuggerStatement :**
   
   &ensp;&ensp; debugger ;
---- 744,749 ----
+--- 742,747 ----
 ***************
 *** 961,995 ****
   
@@ -459,7 +461,7 @@
   #### **ArrowFunction[In, Yield, Await] :**
   
   &ensp;&ensp; ArrowParameters[?Yield, ?Await] [no LineTerminator here] => ConciseBody[?In]
---- 777,791 ----
+--- 775,789 ----
 ***************
 *** 1022,1095 ****
   
@@ -536,7 +538,7 @@
   #### **YieldExpression[In, Await] :**
   
   &ensp;&ensp; yield
---- 818,831 ----
+--- 816,829 ----
 ***************
 *** 1097,1217 ****
   &ensp;&ensp; yield [no LineTerminator here] AssignmentExpression[?In, +Yield, ?Await]
@@ -660,7 +662,7 @@
   #### **Module :**
   
   &ensp;&ensp;ModuleBody<sub>opt</sub>
---- 833,849 ----
+--- 831,847 ----
 ***************
 *** 1244,1267 ****
   
@@ -687,11 +689,14 @@
   #### **NameSpaceImport :**
   
   &ensp;&ensp;* as ImportedBinding
---- 876,888 ----
+--- 874,886 ----
 ***************
-*** 1307,1318 ****
-  &ensp;&ensp;  export VariableStatement[~Yield, +Await]
+*** 1304,1318 ****
   
+  &ensp;&ensp;  export NamedExports ;
+  
+- &ensp;&ensp;  export VariableStatement[~Yield, +Await]
+- 
   &ensp;&ensp;  export Declaration[~Yield, +Await]
 - 
 - &ensp;&ensp;  export default HoistableDeclaration[~Yield, +Await, +Default]
@@ -702,4 +707,4 @@
   <br><br>
   #### **ExportFromClause :**
   
---- 928,933 ----
+--- 923,929 ----

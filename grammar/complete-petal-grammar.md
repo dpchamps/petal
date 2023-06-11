@@ -540,8 +540,6 @@
 
 &ensp;&ensp;BlockStatement[?Yield, ?Await, ?Return]
 
-&ensp;&ensp;VariableStatement[?Yield, ?Await]
-
 &ensp;&ensp;ExpressionStatement[?Yield, ?Await]
 
 &ensp;&ensp;IfStatement[?Yield, ?Await, ?Return]
@@ -961,8 +959,6 @@ the interpretation of CoverParenthesizedExpressionAndArrowParameterList is refin
 &ensp;&ensp;  export ExportFromClause FromClause ;
 
 &ensp;&ensp;  export NamedExports ;
-
-&ensp;&ensp;  export VariableStatement[~Yield, +Await]
 
 &ensp;&ensp;  export Declaration[~Yield, +Await]
 <br><br>
