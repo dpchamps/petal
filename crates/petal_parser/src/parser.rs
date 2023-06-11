@@ -1,8 +1,8 @@
 use rslint_errors::Diagnostic;
-use rslint_lexer::{Lexer, LexerReturn, SyntaxKind, Token};
+use rslint_lexer::{Lexer, SyntaxKind, Token};
 use rslint_rowan::{TextRange, TextSize};
 use swc_common::{BytePos, Span, SyntaxContext};
-use swc_common::util::take::Take;
+
 use swc_petal_ast::*;
 
 pub struct Parser<'a> {
@@ -18,7 +18,7 @@ pub struct Parser<'a> {
 pub enum ParseErr {
     CatchAll,
     UnexpectedParserState(Span, String),
-    MissingSemicolon(Span)
+    MissingSemicolon(Span),
 }
 
 type ParseResult<T> = Result<T, ParseErr>;
@@ -26,7 +26,7 @@ type ParseResult<T> = Result<T, ParseErr>;
 impl<'a> Parser<'a> {
     fn advance(&mut self) {
         let mut next = None;
-        while let Some((token, error)) = self.lexer.next() {
+        for (token, error) in self.lexer.by_ref() {
             self.last_position = self.position;
             self.position += token.len;
 
@@ -34,7 +34,6 @@ impl<'a> Parser<'a> {
                 next = Some((token, error));
                 break;
             }
-
         }
 
         if let Some((token, diagnostic)) = next {
@@ -47,7 +46,7 @@ impl<'a> Parser<'a> {
     }
 
     fn eat(&mut self, kind: SyntaxKind) -> Option<Token> {
-        if let None = self.current {
+        if self.current.is_none() {
             self.advance();
         }
 
@@ -64,7 +63,7 @@ impl<'a> Parser<'a> {
         if self.is(input) {
             let current = self.current;
             self.advance();
-            return current
+            return current;
         }
 
         None
@@ -73,22 +72,19 @@ impl<'a> Parser<'a> {
     fn raw(&mut self) -> &'a str {
         &self.source[TextRange::new(
             TextSize::from(self.last_position as u32),
-            TextSize::from((self.position as u32)),
+            TextSize::from(self.position as u32),
         )]
     }
 
     fn raw_from_token(&self, start: BytePos, token: Token) -> &'a str {
         &self.source[TextRange::new(
             TextSize::from(start.0),
-            TextSize::from(start.0 + token.len as u32)
+            TextSize::from(start.0 + token.len as u32),
         )]
     }
 
     fn raw_from_range(&self, start: u32, end: u32) -> &'a str {
-        &self.source[TextRange::new(
-            TextSize::from(start),
-            TextSize::from(end)
-        )]
+        &self.source[TextRange::new(TextSize::from(start), TextSize::from(end))]
     }
 
     fn is(&mut self, input: &str) -> bool {
@@ -105,7 +101,7 @@ impl<'a> Parser<'a> {
         }
 
         if let Some(current_token) = self.current {
-            return current_token.kind == token
+            return current_token.kind == token;
         }
 
         false
@@ -116,7 +112,11 @@ impl<'a> Parser<'a> {
     }
 
     fn span(&self) -> Span {
-        Span::new(BytePos(self.last_position as u32), BytePos(self.position as u32), SyntaxContext::empty())
+        Span::new(
+            BytePos(self.last_position as u32),
+            BytePos(self.position as u32),
+            SyntaxContext::empty(),
+        )
     }
 
     fn span_start(&self) -> BytePos {
@@ -124,15 +124,23 @@ impl<'a> Parser<'a> {
     }
 
     fn finish_span(&self, span_start: BytePos) -> Span {
-        Span::new(span_start, BytePos(self.position as u32), SyntaxContext::empty())
+        Span::new(
+            span_start,
+            BytePos(self.position as u32),
+            SyntaxContext::empty(),
+        )
     }
 
     fn semicolon(&mut self) -> ParseResult<()> {
-        self.eat(SyntaxKind::SEMICOLON).map(|_| ()).ok_or(ParseErr::MissingSemicolon(self.finish_span(self.span_start())))
+        self.eat(SyntaxKind::SEMICOLON)
+            .map(|_| ())
+            .ok_or(ParseErr::MissingSemicolon(
+                self.finish_span(self.span_start()),
+            ))
     }
 
     pub fn new(source: &'a str) -> Self {
-        let mut lexer = Lexer::from_str(source, 0);
+        let lexer = Lexer::from_str(source, 0);
 
         Self {
             lexer,
@@ -162,8 +170,7 @@ impl<'a> Parser<'a> {
         })
     }
 
-    fn parse_module_items(&mut self) -> ParseResult<Vec<ModuleItem>>
-    {
+    fn parse_module_items(&mut self) -> ParseResult<Vec<ModuleItem>> {
         let mut items = vec![];
         while !self.eof() {
             items.push(self.parse_statement_list_item(true)?);
@@ -175,7 +182,7 @@ impl<'a> Parser<'a> {
 
     fn parse_statement_list_item(&mut self, is_top: bool) -> ParseResult<ModuleItem> {
         if is_top && (self.is("import") || self.is("export")) {
-            return Ok(ModuleItem::ModuleDecl(self.parse_import_export()?))
+            return Ok(ModuleItem::ModuleDecl(self.parse_import_export()?));
         }
 
         Ok(ModuleItem::Stmt(self.parse_stmt_list_item()?))
@@ -192,7 +199,10 @@ impl<'a> Parser<'a> {
             return Ok(self.parse_export_declaration()?.into());
         }
 
-        Err(ParseErr::UnexpectedParserState(self.finish_span(start), "Expected import/export keywords".into()))
+        Err(ParseErr::UnexpectedParserState(
+            self.finish_span(start),
+            "Expected import/export keywords".into(),
+        ))
     }
 
     fn parse_import_declaration(&mut self) -> ParseResult<ImportDecl> {
@@ -200,7 +210,10 @@ impl<'a> Parser<'a> {
         let type_only = self.eat_raw("type").is_some();
 
         let specifiers: Vec<ImportSpecifier> = if self.eat_raw("*").is_some() {
-            self.eat_raw("as").ok_or(ParseErr::UnexpectedParserState(self.finish_span(start), "expected as keyword".into()))?;
+            self.eat_raw("as").ok_or(ParseErr::UnexpectedParserState(
+                self.finish_span(start),
+                "expected as keyword".into(),
+            ))?;
             let import_binding = ImportStarAsSpecifier {
                 span: self.finish_span(start),
                 local: self.parse_ident()?,
@@ -208,12 +221,18 @@ impl<'a> Parser<'a> {
 
             vec![import_binding.into()]
         } else {
-            self.parse_import_list()?.into_iter().map(|x|x.into()).collect()
+            self.parse_import_list()?
+                .into_iter()
+                .map(|x| x.into())
+                .collect()
         };
 
         let from_start = self.span_start();
 
-        self.eat_raw("from").ok_or(ParseErr::UnexpectedParserState(self.finish_span(from_start), "expected 'from' keyword".into()))?;
+        self.eat_raw("from").ok_or(ParseErr::UnexpectedParserState(
+            self.finish_span(from_start),
+            "expected 'from' keyword".into(),
+        ))?;
 
         let src = self.parse_str()?;
 
@@ -227,7 +246,11 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_import_list(&mut self) -> ParseResult<Vec<ImportNamedSpecifier>> {
-        self.eat(SyntaxKind::L_CURLY).ok_or(ParseErr::UnexpectedParserState(self.span(), "expected '{'".into()))?;
+        self.eat(SyntaxKind::L_CURLY)
+            .ok_or(ParseErr::UnexpectedParserState(
+                self.span(),
+                "expected '{'".into(),
+            ))?;
         let mut specifiers = vec![];
 
         while !self.is_kind(SyntaxKind::R_CURLY) {
@@ -251,23 +274,34 @@ impl<'a> Parser<'a> {
                     span: self.finish_span(start),
                     local: match module_export_or_import_binding {
                         ModuleExportName::Ident(ident) => ident,
-                        _ => return Err(ParseErr::UnexpectedParserState(self.finish_span(start), "expected identifier, but got string".into()))
+                        _ => {
+                            return Err(ParseErr::UnexpectedParserState(
+                                self.finish_span(start),
+                                "expected identifier, but got string".into(),
+                            ))
+                        }
                     },
                     imported: None,
                     is_type_only,
-                }
+                },
             };
 
             // if the next two things aren't a comma AND the closing of the argument list, we're in an invalid state
-            if !self.eat(SyntaxKind::COMMA).is_some() && !self.is_kind(SyntaxKind::R_CURLY) {
-                return Err(ParseErr::UnexpectedParserState(self.finish_span(start), "expected '}' or ','".into()));
+            if self.eat(SyntaxKind::COMMA).is_none() && !self.is_kind(SyntaxKind::R_CURLY) {
+                return Err(ParseErr::UnexpectedParserState(
+                    self.finish_span(start),
+                    "expected '}' or ','".into(),
+                ));
             }
-
 
             specifiers.push(import_specifier);
         }
 
-        self.eat(SyntaxKind::R_CURLY).ok_or(ParseErr::UnexpectedParserState(self.span(), "expected to find '}'".into()))?;
+        self.eat(SyntaxKind::R_CURLY)
+            .ok_or(ParseErr::UnexpectedParserState(
+                self.span(),
+                "expected to find '}'".into(),
+            ))?;
 
         Ok(specifiers)
     }
@@ -282,30 +316,40 @@ impl<'a> Parser<'a> {
 
     fn parse_module_export_name(&mut self) -> ParseResult<ModuleExportName> {
         if self.is_kind(SyntaxKind::STRING) {
-            return Ok(ModuleExportName::Str(self.parse_str()?))
+            return Ok(ModuleExportName::Str(self.parse_str()?));
         }
 
-        return Ok(ModuleExportName::Ident(self.parse_ident()?))
+        Ok(ModuleExportName::Ident(self.parse_ident()?))
     }
 
     pub(crate) fn parse_ident(&mut self) -> ParseResult<Ident> {
         let start = self.span_start();
-        let ident_name = self.eat(SyntaxKind::IDENT).map(|tok| self.raw_from_token(start, tok)).ok_or(ParseErr::CatchAll)?;
+        let ident_name = self
+            .eat(SyntaxKind::IDENT)
+            .map(|tok| self.raw_from_token(start, tok))
+            .ok_or(ParseErr::CatchAll)?;
 
         Ok(Ident {
             span: self.finish_span(start),
             sym: ident_name.into(),
-            optional: false
+            optional: false,
         })
     }
 
     pub(crate) fn parse_str(&mut self) -> ParseResult<Str> {
         let start = self.span_start();
-        let token = self.eat(SyntaxKind::STRING).ok_or(ParseErr::UnexpectedParserState(self.finish_span(start), "expected to find string, this is a parser problem".into()))?;
+        let token = self
+            .eat(SyntaxKind::STRING)
+            .ok_or(ParseErr::UnexpectedParserState(
+                self.finish_span(start),
+                "expected to find string, this is a parser problem".into(),
+            ))?;
 
         Ok(Str {
             span: self.finish_span(start),
-            value: self.raw_from_range(start.0+1, start.0+(token.len as u32)-1).into(),
+            value: self
+                .raw_from_range(start.0 + 1, start.0 + (token.len as u32) - 1)
+                .into(),
             raw: None,
         })
     }
@@ -314,12 +358,15 @@ impl<'a> Parser<'a> {
 #[cfg(test)]
 mod tests {
     use swc_common::DUMMY_SP;
-    use swc_petal_ast::{Ident, ImportDecl, ImportNamedSpecifier, ImportSpecifier, ImportStarAsSpecifier, Module, ModuleExportName, Program};
-    use swc_petal_ast::ExportSpecifier::Named;
+    use swc_petal_ast::{
+        Ident, ImportDecl, ImportNamedSpecifier, ImportSpecifier, ImportStarAsSpecifier, Module,
+        ModuleExportName, Program,
+    };
+
+    use crate::*;
     use swc_petal_ast::ImportSpecifier::Namespace;
     use swc_petal_ast::ModuleDecl::Import;
     use swc_petal_ast::ModuleItem::ModuleDecl;
-    use crate::*;
     use swc_petal_ecma_visit::assert_eq_ignore_span;
     #[test]
     fn is() {
@@ -337,25 +384,20 @@ mod tests {
     fn parse_namespace_import() {
         let source = "import * as Module from 'bazinga';";
         let result = Parser::parse(source).expect("Failed to parse module");
-        let expectation = Program::Module(Module{
+        let expectation = Program::Module(Module {
             span: DUMMY_SP,
-            body: vec![
-                ModuleDecl(Import(ImportDecl {
+            body: vec![ModuleDecl(Import(ImportDecl {
+                span: DUMMY_SP,
+                specifiers: vec![Namespace(ImportStarAsSpecifier {
                     span: DUMMY_SP,
-                    specifiers: vec![
-                        Namespace(ImportStarAsSpecifier {
-                            span: DUMMY_SP,
-                            local: Ident::new("Module".into(), DUMMY_SP),
-                        })
-                    ],
-                    src: "bazinga".into(),
-                    type_only: false,
-                    asserts: None,
-                }))
-            ],
+                    local: Ident::new("Module".into(), DUMMY_SP),
+                })],
+                src: "bazinga".into(),
+                type_only: false,
+                asserts: None,
+            }))],
             shebang: None,
         });
-
 
         assert_eq_ignore_span!(expectation, result);
     }
@@ -364,25 +406,20 @@ mod tests {
     fn parse_namespace_import_type() {
         let source = "import type * as Module from 'bazinga';";
         let result = Parser::parse(source).expect("Failed to parse module");
-        let expectation = Program::Module(Module{
+        let expectation = Program::Module(Module {
             span: DUMMY_SP,
-            body: vec![
-                ModuleDecl(Import(ImportDecl {
+            body: vec![ModuleDecl(Import(ImportDecl {
+                span: DUMMY_SP,
+                specifiers: vec![Namespace(ImportStarAsSpecifier {
                     span: DUMMY_SP,
-                    specifiers: vec![
-                        Namespace(ImportStarAsSpecifier {
-                            span: DUMMY_SP,
-                            local: Ident::new("Module".into(), DUMMY_SP),
-                        })
-                    ],
-                    src: "bazinga".into(),
-                    type_only: true,
-                    asserts: None,
-                }))
-            ],
+                    local: Ident::new("Module".into(), DUMMY_SP),
+                })],
+                src: "bazinga".into(),
+                type_only: true,
+                asserts: None,
+            }))],
             shebang: None,
         });
-
 
         assert_eq_ignore_span!(expectation, result);
     }
@@ -394,37 +431,32 @@ mod tests {
             import * as Another from 'std';
         "#;
         let result = Parser::parse(source).expect("Failed to parse module");
-        let expectation = Program::Module(Module{
+        let expectation = Program::Module(Module {
             span: DUMMY_SP,
             body: vec![
                 ModuleDecl(Import(ImportDecl {
                     span: DUMMY_SP,
-                    specifiers: vec![
-                        Namespace(ImportStarAsSpecifier {
-                            span: DUMMY_SP,
-                            local: Ident::new("Module".into(), DUMMY_SP),
-                        })
-                    ],
+                    specifiers: vec![Namespace(ImportStarAsSpecifier {
+                        span: DUMMY_SP,
+                        local: Ident::new("Module".into(), DUMMY_SP),
+                    })],
                     src: "bazinga".into(),
                     type_only: false,
                     asserts: None,
                 })),
                 ModuleDecl(Import(ImportDecl {
                     span: DUMMY_SP,
-                    specifiers: vec![
-                        Namespace(ImportStarAsSpecifier {
-                            span: DUMMY_SP,
-                            local: Ident::new("Another".into(), DUMMY_SP),
-                        })
-                    ],
+                    specifiers: vec![Namespace(ImportStarAsSpecifier {
+                        span: DUMMY_SP,
+                        local: Ident::new("Another".into(), DUMMY_SP),
+                    })],
                     src: "std".into(),
                     type_only: false,
                     asserts: None,
-                }))
+                })),
             ],
             shebang: None,
         });
-
 
         assert_eq_ignore_span!(expectation, result);
     }
@@ -433,24 +465,20 @@ mod tests {
     fn parse_import_specifier_list_single() {
         let source = r#"import {a} from "b";"#;
         let result = Parser::parse(source).expect("Failed to parse module");
-        let expectation = Program::Module(Module{
+        let expectation = Program::Module(Module {
             span: DUMMY_SP,
-            body: vec![
-                ModuleDecl(Import(ImportDecl {
+            body: vec![ModuleDecl(Import(ImportDecl {
+                span: DUMMY_SP,
+                specifiers: vec![ImportSpecifier::Named(ImportNamedSpecifier {
                     span: DUMMY_SP,
-                    specifiers: vec![
-                        ImportSpecifier::Named(ImportNamedSpecifier {
-                            span: DUMMY_SP,
-                            local: Ident::new("a".into(), DUMMY_SP),
-                            imported: None,
-                            is_type_only: false,
-                        })
-                    ],
-                    src: "b".into(),
-                    type_only: false,
-                    asserts: None,
-                })),
-            ],
+                    local: Ident::new("a".into(), DUMMY_SP),
+                    imported: None,
+                    is_type_only: false,
+                })],
+                src: "b".into(),
+                type_only: false,
+                asserts: None,
+            }))],
             shebang: None,
         });
 
@@ -461,24 +489,20 @@ mod tests {
     fn parse_import_specifier_list_single_trailing_comma() {
         let source = r#"import {a,} from "b";"#;
         let result = Parser::parse(source).expect("Failed to parse module");
-        let expectation = Program::Module(Module{
+        let expectation = Program::Module(Module {
             span: DUMMY_SP,
-            body: vec![
-                ModuleDecl(Import(ImportDecl {
+            body: vec![ModuleDecl(Import(ImportDecl {
+                span: DUMMY_SP,
+                specifiers: vec![ImportSpecifier::Named(ImportNamedSpecifier {
                     span: DUMMY_SP,
-                    specifiers: vec![
-                        ImportSpecifier::Named(ImportNamedSpecifier {
-                            span: DUMMY_SP,
-                            local: Ident::new("a".into(), DUMMY_SP),
-                            imported: None,
-                            is_type_only: false,
-                        })
-                    ],
-                    src: "b".into(),
-                    type_only: false,
-                    asserts: None,
-                })),
-            ],
+                    local: Ident::new("a".into(), DUMMY_SP),
+                    imported: None,
+                    is_type_only: false,
+                })],
+                src: "b".into(),
+                type_only: false,
+                asserts: None,
+            }))],
             shebang: None,
         });
 
@@ -489,24 +513,20 @@ mod tests {
     fn parse_import_specifier_list_type() {
         let source = r#"import {type a} from "b";"#;
         let result = Parser::parse(source).expect("Failed to parse module");
-        let expectation = Program::Module(Module{
+        let expectation = Program::Module(Module {
             span: DUMMY_SP,
-            body: vec![
-                ModuleDecl(Import(ImportDecl {
+            body: vec![ModuleDecl(Import(ImportDecl {
+                span: DUMMY_SP,
+                specifiers: vec![ImportSpecifier::Named(ImportNamedSpecifier {
                     span: DUMMY_SP,
-                    specifiers: vec![
-                        ImportSpecifier::Named(ImportNamedSpecifier {
-                            span: DUMMY_SP,
-                            local: Ident::new("a".into(), DUMMY_SP),
-                            imported: None,
-                            is_type_only: true,
-                        })
-                    ],
-                    src: "b".into(),
-                    type_only: false,
-                    asserts: None,
-                })),
-            ],
+                    local: Ident::new("a".into(), DUMMY_SP),
+                    imported: None,
+                    is_type_only: true,
+                })],
+                src: "b".into(),
+                type_only: false,
+                asserts: None,
+            }))],
             shebang: None,
         });
 
@@ -517,36 +537,34 @@ mod tests {
     fn parse_import_specifier_list_multiple() {
         let source = r#"import {foo, bazzar, grewt} from "b";"#;
         let result = Parser::parse(source).expect("Failed to parse module");
-        let expectation = Program::Module(Module{
+        let expectation = Program::Module(Module {
             span: DUMMY_SP,
-            body: vec![
-                ModuleDecl(Import(ImportDecl {
-                    span: DUMMY_SP,
-                    specifiers: vec![
-                        ImportSpecifier::Named(ImportNamedSpecifier {
-                            span: DUMMY_SP,
-                            local: Ident::new("foo".into(), DUMMY_SP),
-                            imported: None,
-                            is_type_only: false,
-                        }),
-                        ImportSpecifier::Named(ImportNamedSpecifier {
-                            span: DUMMY_SP,
-                            local: Ident::new("bazzar".into(), DUMMY_SP),
-                            imported: None,
-                            is_type_only: false,
-                        }),
-                        ImportSpecifier::Named(ImportNamedSpecifier {
-                            span: DUMMY_SP,
-                            local: Ident::new("grewt".into(), DUMMY_SP),
-                            imported: None,
-                            is_type_only: false,
-                        })
-                    ],
-                    src: "b".into(),
-                    type_only: false,
-                    asserts: None,
-                })),
-            ],
+            body: vec![ModuleDecl(Import(ImportDecl {
+                span: DUMMY_SP,
+                specifiers: vec![
+                    ImportSpecifier::Named(ImportNamedSpecifier {
+                        span: DUMMY_SP,
+                        local: Ident::new("foo".into(), DUMMY_SP),
+                        imported: None,
+                        is_type_only: false,
+                    }),
+                    ImportSpecifier::Named(ImportNamedSpecifier {
+                        span: DUMMY_SP,
+                        local: Ident::new("bazzar".into(), DUMMY_SP),
+                        imported: None,
+                        is_type_only: false,
+                    }),
+                    ImportSpecifier::Named(ImportNamedSpecifier {
+                        span: DUMMY_SP,
+                        local: Ident::new("grewt".into(), DUMMY_SP),
+                        imported: None,
+                        is_type_only: false,
+                    }),
+                ],
+                src: "b".into(),
+                type_only: false,
+                asserts: None,
+            }))],
             shebang: None,
         });
 
@@ -557,24 +575,20 @@ mod tests {
     fn parse_import_specifier_list_alias() {
         let source = r#"import {foo as bar} from "copacabana";"#;
         let result = Parser::parse(source).expect("Failed to parse module");
-        let expectation = Program::Module(Module{
+        let expectation = Program::Module(Module {
             span: DUMMY_SP,
-            body: vec![
-                ModuleDecl(Import(ImportDecl {
+            body: vec![ModuleDecl(Import(ImportDecl {
+                span: DUMMY_SP,
+                specifiers: vec![ImportSpecifier::Named(ImportNamedSpecifier {
                     span: DUMMY_SP,
-                    specifiers: vec![
-                        ImportSpecifier::Named(ImportNamedSpecifier {
-                            span: DUMMY_SP,
-                            local: Ident::new("bar".into(), DUMMY_SP),
-                            imported: Some(ModuleExportName::Ident(Ident::new("foo".into(), DUMMY_SP))),
-                            is_type_only: false,
-                        }),
-                    ],
-                    src: "copacabana".into(),
-                    type_only: false,
-                    asserts: None,
-                })),
-            ],
+                    local: Ident::new("bar".into(), DUMMY_SP),
+                    imported: Some(ModuleExportName::Ident(Ident::new("foo".into(), DUMMY_SP))),
+                    is_type_only: false,
+                })],
+                src: "copacabana".into(),
+                type_only: false,
+                asserts: None,
+            }))],
             shebang: None,
         });
 
@@ -582,7 +596,7 @@ mod tests {
     }
 
     #[test]
-    fn parse_imports_mixed(){
+    fn parse_imports_mixed() {
         let source = r#"
             import {foo, type t_foo} from "a";
             import * as module from "b";
@@ -590,7 +604,7 @@ mod tests {
             import type {type x, y} from "wacky_module";
         "#;
         let result = Parser::parse(source).expect("Failed to parse module");
-        let expectation = Program::Module(Module{
+        let expectation = Program::Module(Module {
             span: DUMMY_SP,
             body: vec![
                 ModuleDecl(Import(ImportDecl {
@@ -615,24 +629,20 @@ mod tests {
                 })),
                 ModuleDecl(Import(ImportDecl {
                     span: DUMMY_SP,
-                    specifiers: vec![
-                        Namespace(ImportStarAsSpecifier {
-                            span: DUMMY_SP,
-                            local: Ident::new("module".into(), DUMMY_SP),
-                        })
-                    ],
+                    specifiers: vec![Namespace(ImportStarAsSpecifier {
+                        span: DUMMY_SP,
+                        local: Ident::new("module".into(), DUMMY_SP),
+                    })],
                     src: "b".into(),
                     type_only: false,
                     asserts: None,
                 })),
                 ModuleDecl(Import(ImportDecl {
                     span: DUMMY_SP,
-                    specifiers: vec![
-                        Namespace(ImportStarAsSpecifier {
-                            span: DUMMY_SP,
-                            local: Ident::new("TypeNamespace".into(), DUMMY_SP),
-                        })
-                    ],
+                    specifiers: vec![Namespace(ImportStarAsSpecifier {
+                        span: DUMMY_SP,
+                        local: Ident::new("TypeNamespace".into(), DUMMY_SP),
+                    })],
                     src: "c".into(),
                     type_only: true,
                     asserts: None,

@@ -1,10 +1,9 @@
 use crate::parser::Parser;
-use rslint_lexer::{Lexer, SyntaxKind};
-use rslint_parser::TokenSource;
+use rslint_lexer::Lexer;
 
 pub mod parser;
 fn main() {
-    let javascript = r#"
+    let _javascript = r#"
         const x = 1;
         const y = "Hello";
         const z = x + y;
@@ -18,17 +17,15 @@ fn main() {
 
     // println!("{:?}", result);
 
-    let (tokens, _) = Lexer::from_str(typed_javascript, 0).into_iter().fold(
-        (vec![], vec![]),
-        |mut acc, (token, error)| {
+    let (_tokens, _) =
+        Lexer::from_str(typed_javascript, 0).fold((vec![], vec![]), |mut acc, (token, error)| {
             println!("{:?}", token);
             acc.0.push(token);
             if let Some(error) = error {
                 acc.1.push(error)
             }
             acc
-        },
-    );
+        });
 
     let mut parser = Parser::new(typed_javascript);
     let ident = parser.parse_ident();
