@@ -11,14 +11,7 @@ fn main() {
     "#;
 
     let typed_javascript = r#"
-        x
-        import type T from "hello";
-        import * as T from "hype";
-        export const xport = "y";
-
-        const x: number = 1;
-        const y: string = "Hello";
-        const z = x+y;
+        import {x,y,x} from "b";
     "#;
 
     // let result = Parser::parse(typed_javascript);
