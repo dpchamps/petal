@@ -10,7 +10,7 @@ fn main() {
     "#;
 
     let typed_javascript = r#"
-        import {x,y,x} from "b";
+        export {A as B};
     "#;
 
     // let result = Parser::parse(typed_javascript);
