@@ -1,5 +1,5 @@
+use crate::parser::{ParseErr, ParseResult, Parser};
 use rslint_lexer::SyntaxKind;
-use crate::parser::{ParseErr, Parser, ParseResult};
 use swc_petal_ast::*;
 
 impl<'a> Parser<'a> {
@@ -144,12 +144,11 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_export(&mut self) -> ParseResult<ModuleDecl> {
-
         if self.is_kind(SyntaxKind::CONST_KW) || self.is("let") || self.is("type") {
-            return Ok(self.parse_export_decl()?.into())
+            return Ok(self.parse_export_decl()?.into());
         }
 
-        return self.parse_named_or_from_export();
+        self.parse_named_or_from_export()
     }
 
     fn parse_export_decl(&mut self) -> ParseResult<ExportDecl> {
@@ -159,11 +158,11 @@ impl<'a> Parser<'a> {
     fn parse_named_or_from_export(&mut self) -> ParseResult<ModuleDecl> {
         // we could either be entering an ExportFromClause or a NamedExport production
 
-        if self.eat(SyntaxKind::STAR).is_some(){
+        if self.eat(SyntaxKind::STAR).is_some() {
             // we're officially in an export from clause.
             // for ast reasons, we trat this case like an export list
             if self.is("as") {
-                return Ok(self.parse_exports_list(false, true)?.into())
+                return Ok(self.parse_exports_list(false, true)?.into());
             }
 
             let start = self.span_start();
@@ -174,14 +173,18 @@ impl<'a> Parser<'a> {
                 span: self.finish_span(start),
                 src,
                 asserts: None,
-            }))
+            }));
         }
 
         // otherwise, we still don't know, but we've settled the ast ambiguity
-        return Ok(self.parse_exports_list(true, false)?.into());
+        Ok(self.parse_exports_list(true, false)?.into())
     }
 
-    fn parse_exports_list(&mut self, needs_r_brace: bool, needs_from: bool) -> ParseResult<NamedExport> {
+    fn parse_exports_list(
+        &mut self,
+        needs_r_brace: bool,
+        needs_from: bool,
+    ) -> ParseResult<NamedExport> {
         let start = self.span_start();
         let mut specifiers = vec![];
 
@@ -198,32 +201,29 @@ impl<'a> Parser<'a> {
                 let start = self.span_start();
 
                 let orig = self.parse_module_export_name()?;
-                let exported = if let Some(_) = self.eat_raw("as") {
+                let exported = if self.eat_raw("as").is_some() {
                     Some(self.parse_module_export_name()?)
                 } else {
                     None
                 };
 
-                specifiers.push(
-                    ExportSpecifier::Named(ExportNamedSpecifier{
-                        span: self.finish_span(start),
-                        orig,
-                        exported,
-                        is_type_only: false,
-                    })
-                );
+                specifiers.push(ExportSpecifier::Named(ExportNamedSpecifier {
+                    span: self.finish_span(start),
+                    orig,
+                    exported,
+                    is_type_only: false,
+                }));
 
                 self.finish_comma_curly()?;
             }
         }
-
 
         if needs_r_brace {
             self.expect(SyntaxKind::R_CURLY)?;
         }
 
         let from_result = self.eat_raw("from");
-        let src = if let Some(_) = from_result {
+        let src = if from_result.is_some() {
             Some(self.parse_str()?)
         } else {
             None
@@ -267,7 +267,7 @@ mod tests {
     use crate::*;
     use swc_petal_ast::ImportSpecifier::Namespace;
     use swc_petal_ast::ModuleDecl::{ExportAll as ModExportAll, ExportNamed, Import};
-    use swc_petal_ast::ModuleItem::{ModuleDecl, };
+    use swc_petal_ast::ModuleItem::ModuleDecl;
     use swc_petal_ecma_visit::assert_eq_ignore_span;
 
     #[test]
@@ -565,7 +565,7 @@ mod tests {
     }
 
     #[test]
-    fn parse_export_all(){
+    fn parse_export_all() {
         let source = r#"
             export * from "somewhere";
         "#;
@@ -584,7 +584,7 @@ mod tests {
     }
 
     #[test]
-    fn parse_export_from_namespace(){
+    fn parse_export_from_namespace() {
         let source = r#"
             export * as Module from "somewhere";
         "#;
@@ -593,12 +593,10 @@ mod tests {
             span: DUMMY_SP,
             body: vec![ModuleDecl(ExportNamed(NamedExport {
                 span: DUMMY_SP,
-                specifiers: vec![
-                    ExportSpecifier::Namespace(ExportNamespaceSpecifier {
-                        span: DUMMY_SP,
-                        name: ModuleExportName::Ident(Ident::new("Module".into(), DUMMY_SP)),
-                    })
-                ],
+                specifiers: vec![ExportSpecifier::Namespace(ExportNamespaceSpecifier {
+                    span: DUMMY_SP,
+                    name: ModuleExportName::Ident(Ident::new("Module".into(), DUMMY_SP)),
+                })],
                 src: Some("somewhere".into()),
                 type_only: false,
                 asserts: None,
@@ -610,7 +608,7 @@ mod tests {
     }
 
     #[test]
-    fn parse_export_from_named(){
+    fn parse_export_from_named() {
         let source = r#"
             export {Alpha, Beta as Gamma} from "some/slashed/module.ts";
         "#;
@@ -629,9 +627,12 @@ mod tests {
                     ExportSpecifier::Named(ExportNamedSpecifier {
                         span: DUMMY_SP,
                         orig: ModuleExportName::Ident(Ident::new("Beta".into(), DUMMY_SP)),
-                        exported: Some(ModuleExportName::Ident(Ident::new("Gamma".into(), DUMMY_SP))),
+                        exported: Some(ModuleExportName::Ident(Ident::new(
+                            "Gamma".into(),
+                            DUMMY_SP,
+                        ))),
                         is_type_only: false,
-                    })
+                    }),
                 ],
                 src: Some("some/slashed/module.ts".into()),
                 type_only: false,
@@ -644,7 +645,7 @@ mod tests {
     }
 
     #[test]
-    fn parse_export_from_empty(){
+    fn parse_export_from_empty() {
         let source = r#"
             export {} from "nowhere";
         "#;
@@ -665,7 +666,7 @@ mod tests {
     }
 
     #[test]
-    fn parse_export_named(){
+    fn parse_export_named() {
         let source = r#"
             export {Arpeggio, Dorian, Staccato as Articulation};
         "#;
@@ -690,9 +691,12 @@ mod tests {
                     ExportSpecifier::Named(ExportNamedSpecifier {
                         span: DUMMY_SP,
                         orig: ModuleExportName::Ident(Ident::new("Staccato".into(), DUMMY_SP)),
-                        exported: Some(ModuleExportName::Ident(Ident::new("Articulation".into(), DUMMY_SP))),
+                        exported: Some(ModuleExportName::Ident(Ident::new(
+                            "Articulation".into(),
+                            DUMMY_SP,
+                        ))),
                         is_type_only: false,
-                    })
+                    }),
                 ],
                 src: None,
                 type_only: false,
@@ -705,7 +709,7 @@ mod tests {
     }
 
     #[test]
-    fn parse_export_named_empty(){
+    fn parse_export_named_empty() {
         let source = r#"
             export {};
         "#;
@@ -726,11 +730,11 @@ mod tests {
     }
 
     #[test]
-    fn parse_export_declaration(){
+    fn parse_export_declaration() {
         let source = r#"
             export const X = "hello";
             export let SomeFn = () => {};
         "#;
-        let result = Parser::parse(source).expect("Failed to parse module");
+        let _result = Parser::parse(source).expect("Failed to parse module");
     }
 }

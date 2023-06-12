@@ -75,7 +75,8 @@ impl<'a> Parser<'a> {
     }
 
     fn expect(&mut self, token: SyntaxKind) -> ParseResult<Token> {
-        self.eat(token).ok_or(self.expected_state(&token.to_string().unwrap_or("unknown")))
+        self.eat(token)
+            .ok_or(self.expected_state(token.to_string().unwrap_or("unknown")))
     }
 
     fn expect_raw(&mut self, input: &str) -> ParseResult<Token> {
@@ -88,7 +89,6 @@ impl<'a> Parser<'a> {
             TextSize::from(self.position as u32),
         )]
     }
-
 
     fn raw_from_token(&self, start: BytePos, token: Token) -> &'a str {
         &self.source[TextRange::new(
@@ -215,17 +215,9 @@ impl<'a> Parser<'a> {
 
 #[cfg(test)]
 mod tests {
-    use swc_common::DUMMY_SP;
-    use swc_petal_ast::{
-        Ident, ImportDecl, ImportNamedSpecifier, ImportSpecifier, ImportStarAsSpecifier, Module,
-        ModuleExportName, Program,
-    };
 
     use crate::*;
-    use swc_petal_ast::ImportSpecifier::Namespace;
-    use swc_petal_ast::ModuleDecl::Import;
-    use swc_petal_ast::ModuleItem::ModuleDecl;
-    use swc_petal_ecma_visit::assert_eq_ignore_span;
+
     #[test]
     fn is() {
         let source = "abra kadabra alakazam";
@@ -237,6 +229,4 @@ mod tests {
         parser.advance();
         assert!(parser.is("alakazam"));
     }
-
-
 }
