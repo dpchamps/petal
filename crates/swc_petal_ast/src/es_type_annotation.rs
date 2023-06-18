@@ -120,10 +120,8 @@ impl Clone for EsType {
 #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct EsFunctionType {
     pub span: Span,
-    pub params: Vec<TsFnParam>,
-
     #[serde(default)]
-    pub type_params: Option<EsBracketBody>,
+    pub type_params: Vec<EsType>,
     #[serde(rename = "typeAnnotation")]
     pub type_ann: EsTypeAnn,
 }
@@ -231,6 +229,37 @@ pub struct EsSquareBracketedType {
 pub struct EsCurlyBracketedType {
     pub span: Span,
     pub body: EsBracketBody,
+}
+
+#[ast_node("EsTypeParameters")]
+#[derive(Eq, Hash, EqIgnoreSpan)]
+pub struct EsTypeParameters {
+    pub span: Span,
+    pub params: Vec<EsTypeParamDecl>
+}
+
+#[ast_node]
+#[derive(Eq, Hash, EqIgnoreSpan)]
+pub enum EsTypeParamDecl {
+    #[tag("Identifier")]
+    Ident(Ident),
+    #[tag("HeritageTypeConstraint")]
+    HeritageTypeConstraint(EsHeritageTypeConstraint)
+}
+
+#[ast_node("EsHeritageTypeConstraint")]
+#[derive(Eq, Hash, EqIgnoreSpan)]
+pub struct EsHeritageTypeConstraint {
+    pub span: Span,
+    pub base_type: Box<EsType>,
+    pub constraint: Box<EsType>
+}
+
+#[ast_node("EsTypeArguments")]
+#[derive(Eq, Hash, EqIgnoreSpan)]
+pub struct EsTypeArguments {
+    pub span: Span,
+    pub params: Vec<EsType>
 }
 
 #[ast_node("EsBracketedType")]

@@ -203,8 +203,7 @@ impl TryFrom<TsFnType> for EsFunctionType {
     fn try_from(t: TsFnType) -> Result<Self, Self::Error> {
         Ok(EsFunctionType {
             span: t.span,
-            params: t.params,
-            type_params: t.type_params.map(|x| x.into()),
+            type_params: vec![],
             type_ann: t.type_ann.try_into()?,
         })
     }
