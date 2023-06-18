@@ -1,11 +1,5 @@
-#### TypeArguments :
-&ensp;&ensp;AngleBracketedTokens
-<br><br>
 #### TypeDeclaration :
 &ensp;&ensp;type BindingIdentifier TypeParameters<sub>opt</sub> = Type
-<br><br>
-#### TypeParameters :
-&ensp;&ensp;AngleBracketedTokens
 <br><br>
 #### Type :
 &ensp;&ensp;ConditionalType
@@ -146,7 +140,12 @@
 &ensp;&ensp;  TypeParameters<sub>opt</sub> ParameterList => Type
 <br><br>
 ####   ParameterList :
-&ensp;&ensp;  ParenthesizedTokens
+&ensp;&ensp;  ( FunctionTypeArgs<sub>opt</sub> )
+<br><br>
+####   FunctionTypeArgs :
+&ensp;&ensp;  Type
+
+&ensp;&ensp;  FunctionTypeArgs , Type
 <br><br>
 ####   TypeAnnotation :
 &ensp;&ensp;  : Type
@@ -174,9 +173,6 @@
 ####   CurlyBracketedTokens :
 &ensp;&ensp;  { TokenBody<sub>opt</sub> }
 <br><br>
-####   AngleBracketedTokens :
-&ensp;&ensp;  < TypeParameterList<sub>opt</sub> >
-<br><br>
 ####   TemplateBracketedTokens :
 &ensp;&ensp;  TemplateHead TemplateTokenBody TemplateTail
 <br><br>
@@ -184,6 +180,17 @@
 &ensp;&ensp;  TokenBody
 
 &ensp;&ensp;  TokenBody TemplateMiddle TemplateTokenBody
+<br><br>
+#### TypeArguments :
+&ensp;&ensp;< TypeArgumentList<sub>opt</sub> >
+<br><br>
+####   TypeArgumentList :
+&ensp;&ensp; Type
+
+&ensp;&ensp; TypeArgumentList, Type
+<br><br>
+#### TypeParameters :
+&ensp;&ensp;< TypeParameterList<sub>opt</sub> >
 <br><br>
 ####   TypeParameterList : 
 &ensp;&ensp;  TypeParameterDecl
