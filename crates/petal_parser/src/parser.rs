@@ -5,7 +5,7 @@ use swc_common::{BytePos, Span, SyntaxContext};
 
 use swc_petal_ast::*;
 mod module;
-
+mod types;
 pub struct Parser<'a> {
     lexer: Lexer<'a>,
     source: &'a str,

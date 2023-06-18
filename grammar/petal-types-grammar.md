@@ -1,4 +1,3 @@
-<br><br>
 #### TypeArguments :
 &ensp;&ensp;AngleBracketedTokens
 <br><br>
@@ -176,7 +175,7 @@
 &ensp;&ensp;  { TokenBody<sub>opt</sub> }
 <br><br>
 ####   AngleBracketedTokens :
-&ensp;&ensp;  < TokenBody<sub>opt</sub> >
+&ensp;&ensp;  < TypeParameterList<sub>opt</sub> >
 <br><br>
 ####   TemplateBracketedTokens :
 &ensp;&ensp;  TemplateHead TemplateTokenBody TemplateTail
@@ -185,6 +184,19 @@
 &ensp;&ensp;  TokenBody
 
 &ensp;&ensp;  TokenBody TemplateMiddle TemplateTokenBody
+<br><br>
+####   TypeParameterList : 
+&ensp;&ensp;  TypeParameterDecl
+
+&ensp;&ensp;  TypeParameterList ,  TypeParameterDecl
+<br><br>
+####   TypeParameterDecl :
+&ensp;&ensp; Identifier
+
+&ensp;&ensp; HeritageTypeConstraint
+<br><br>
+#### HeritageTypeConstraint :
+&ensp;&ensp; NonConditionalType [no LineTerminator here] extends Type
 <br><br>
 ####   TokenBody :
 &ensp;&ensp;  TokenOrBracketedTokens TokenBody<sub>opt</sub>

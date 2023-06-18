@@ -16,6 +16,18 @@ pub struct EsTypeAnn {
     pub type_ann: Box<EsType>,
 }
 
+#[ast_node("EsTypeAliasDeclaration")]
+#[derive(Eq, Hash, EqIgnoreSpan)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
+pub struct EsTypeAliasDecl {
+    pub span: Span,
+    pub ident: Ident,
+    #[serde(default)]
+    pub type_params: Option<EsAngleBracketedType>,
+    #[serde(rename = "typeAnnotation")]
+    pub type_ann: Box<EsType>,
+}
+
 #[ast_node(no_clone)]
 #[derive(Eq, Hash, Is, EqIgnoreSpan)]
 #[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
