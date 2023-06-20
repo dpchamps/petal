@@ -153,10 +153,13 @@ impl<'a> Parser<'a> {
             ))
     }
 
-    fn finish_comma_curly(&mut self) -> ParseResult<()> {
+    fn finish_trailing_comma(&mut self, terminal: SyntaxKind) -> ParseResult<()> {
         // if the next two things aren't a comma AND the closing of the argument list, we're in an invalid state
-        if self.eat(SyntaxKind::COMMA).is_none() && !self.is_kind(SyntaxKind::R_CURLY) {
-            return Err(self.expected_state("expected '}' or ','"));
+        if self.eat(SyntaxKind::COMMA).is_none() && !self.is_kind(terminal) {
+            return Err(self.expected_state(&format!(
+                "expected '{}' or ','",
+                terminal.to_string().unwrap_or("unknown")
+            )));
         };
 
         Ok(())

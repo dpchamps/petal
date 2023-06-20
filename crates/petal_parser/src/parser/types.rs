@@ -1,29 +1,36 @@
-use crate::parser::{Parser, ParseResult};
+use crate::parser::{ParseResult, Parser};
+use rslint_lexer::SyntaxKind;
 use swc_petal_ast::*;
-
 
 impl<'a> Parser<'a> {
     pub(super) fn parse_type_decl(&mut self) -> ParseResult<EsTypeAliasDecl> {
         let start = self.span_start();
         self.expect_raw("type")?;
         let ident = self.parse_ident()?;
-        let type_params = self.parse_type_angle_bracketed_list().ok();
-        let type_ann = self.parse_type()?;
+        let type_params = if self.is_kind(SyntaxKind::L_ANGLE) {
+            Some(self.parse_type_params()?)
+        } else {
+            None
+        };
+
+        self.expect(SyntaxKind::EQ)?;
+
+        let type_ann = Box::new(self.parse_type()?);
 
         Ok(EsTypeAliasDecl {
             span: self.finish_span(start),
             ident,
             type_params,
-            type_ann
+            type_ann,
         })
     }
 
-    fn parse_type_angle_bracketed_list(&mut self) -> ParseResult<EsAngleBracketedType>{
+    fn parse_type_angle_bracketed_list(&mut self) -> ParseResult<EsAngleBracketedType> {
         unimplemented!()
     }
 
-    fn parse_type(&mut self) -> ParseResult<Box<EsType>> {
-        unimplemented!()
+    fn parse_type(&mut self) -> ParseResult<EsType> {
+        Ok(self.parse_type_ref()?.into())
     }
 
     fn parse_conditional_type(&mut self) -> ParseResult<EsConditionalType> {
@@ -51,11 +58,33 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_type_ref(&mut self) -> ParseResult<EsTypeRef> {
-        todo!()
+        let start = self.span_start();
+        let type_name = self.parse_type_name()?;
+        let type_arguments =  if self.is_kind(SyntaxKind::L_ANGLE) {
+            Some(self.parse_type_arguments()?)
+        } else {
+            None
+        };
+
+        Ok(EsTypeRef {
+            span: self.finish_span(start),
+            type_name,
+            type_arguments,
+        })
     }
 
     fn parse_type_name(&mut self) -> ParseResult<EsEntityName> {
-        todo!()
+        let mut entity = EsEntityName::Ident(self.parse_ident()?);
+
+        while self.eat(SyntaxKind::DOT).is_some() {
+            let ident = self.parse_ident()?;
+            entity = EsEntityName::EsQualifiedName(Box::new(EsQualifiedName {
+                left: entity,
+                right: ident
+            }));
+        }
+
+       Ok(entity)
     }
 
     fn parse_array_type(&mut self) -> ParseResult<EsArrayType> {
@@ -78,7 +107,7 @@ impl<'a> Parser<'a> {
         todo!()
     }
 
-    fn parse_import_type(&mut self) -> ParseResult<EsImportType>{
+    fn parse_import_type(&mut self) -> ParseResult<EsImportType> {
         todo!()
     }
 
@@ -99,11 +128,57 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_type_arguments(&mut self) -> ParseResult<EsTypeArguments> {
-        todo!()
+        let start = self.span_start();
+        self.expect(SyntaxKind::L_ANGLE)?;
+
+        let mut params = vec![];
+
+        while !self.is_kind(SyntaxKind::R_ANGLE) {
+            params.push(Box::new(self.parse_type()?));
+
+            self.finish_trailing_comma(SyntaxKind::R_ANGLE)?;
+        }
+
+        self.expect(SyntaxKind::R_ANGLE)?;
+
+        Ok(EsTypeArguments {
+            span: self.finish_span(start),
+            params,
+        })
     }
 
-    fn parse_type_params(&mut self) -> ParseResult<EsTypeArguments> {
-        todo!()
+    fn parse_type_params(&mut self) -> ParseResult<EsTypeParameters> {
+        let start = self.span_start();
+        self.expect(SyntaxKind::L_ANGLE)?;
+        let mut params = vec![];
+        while !self.is_kind(SyntaxKind::R_ANGLE) {
+            params.push(self.parse_type_param()?);
+
+            self.finish_trailing_comma(SyntaxKind::R_ANGLE)?;
+        }
+
+        self.expect(SyntaxKind::R_ANGLE)?;
+
+        Ok(EsTypeParameters {
+            span: self.finish_span(start),
+            params,
+        })
+    }
+
+    fn parse_type_param(&mut self) -> ParseResult<EsTypeParamDecl> {
+        let start = self.span_start();
+        let base_type = self.parse_ident()?;
+        if self.eat_raw("extends").is_some() {
+            return Ok(EsTypeParamDecl::HeritageTypeConstraint(
+                EsHeritageTypeConstraint {
+                    span: self.finish_span(start),
+                    base_type,
+                    constraint: Box::new(self.parse_type()?),
+                },
+            ));
+        }
+
+        return Ok(EsTypeParamDecl::Ident(base_type));
     }
 
     /*
@@ -117,4 +192,144 @@ impl<'a> Parser<'a> {
     the `CurlyBracketedType` production. The rest will stay in the grammar
     but remain unparsed until it's certain that they should be removed
     */
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::parser::Parser;
+    use swc_common::DUMMY_SP;
+    use swc_petal_ast::{EsEntityName, EsHeritageTypeConstraint, EsTypeParamDecl, EsTypeParameters, EsTypeRef, Ident};
+    use swc_petal_ast::EsType::EsTypeReference;
+    use swc_petal_ecma_visit::assert_eq_ignore_span;
+
+    fn get_partial_parser(source: &str) -> Parser {
+        let mut parser = Parser::new(source);
+        parser.advance();
+
+        parser
+    }
+
+    #[test]
+    fn parse_type_empty_type_params() {
+        let source = "<>";
+        let mut parser = get_partial_parser(source);
+
+        let expectation = EsTypeParameters {
+            span: DUMMY_SP,
+            params: vec![],
+        };
+        let result = parser
+            .parse_type_params()
+            .expect("Failed to parse type params");
+
+        assert_eq_ignore_span!(expectation, result);
+    }
+
+    #[test]
+    fn parse_type_single_type_params() {
+        let source = "<T>";
+        let mut parser = get_partial_parser(source);
+
+        let expectation = EsTypeParameters {
+            span: DUMMY_SP,
+            params: vec![EsTypeParamDecl::Ident(Ident {
+                span: DUMMY_SP,
+                sym: "T".into(),
+                optional: false,
+            })],
+        };
+        let result = parser
+            .parse_type_params()
+            .expect("Failed to parse type params");
+
+        assert_eq_ignore_span!(expectation, result);
+    }
+
+    #[test]
+    fn parse_type_multiple_type_params() {
+        let source = "<T, U>";
+        let mut parser = get_partial_parser(source);
+
+        let expectation = EsTypeParameters {
+            span: DUMMY_SP,
+            params: vec![
+                EsTypeParamDecl::Ident(Ident {
+                    span: DUMMY_SP,
+                    sym: "T".into(),
+                    optional: false,
+                }),
+                EsTypeParamDecl::Ident(Ident {
+                    span: DUMMY_SP,
+                    sym: "U".into(),
+                    optional: false,
+                }),
+            ],
+        };
+        let result = parser
+            .parse_type_params()
+            .expect("Failed to parse type params");
+
+        assert_eq_ignore_span!(expectation, result);
+    }
+
+    #[test]
+    fn parse_type_type_params_trailing_comma() {
+        let source = "<T, U,>";
+        let mut parser = get_partial_parser(source);
+
+        let expectation = EsTypeParameters {
+            span: DUMMY_SP,
+            params: vec![
+                EsTypeParamDecl::Ident(Ident {
+                    span: DUMMY_SP,
+                    sym: "T".into(),
+                    optional: false,
+                }),
+                EsTypeParamDecl::Ident(Ident {
+                    span: DUMMY_SP,
+                    sym: "U".into(),
+                    optional: false,
+                }),
+            ],
+        };
+        let result = parser
+            .parse_type_params()
+            .expect("Failed to parse type params");
+
+        assert_eq_ignore_span!(expectation, result);
+    }
+
+    #[test]
+    fn parse_type_type_params_heritage() {
+        let source = "<T extends U>";
+        let mut parser = get_partial_parser(source);
+
+        let expectation = EsTypeParameters {
+            span: DUMMY_SP,
+            params: vec![
+                EsTypeParamDecl::HeritageTypeConstraint(EsHeritageTypeConstraint {
+                    span: DUMMY_SP,
+                    base_type: Ident {
+                        span: DUMMY_SP,
+                        sym: "T".into(),
+                        optional: false,
+                    },
+                    constraint: Box::new(EsTypeReference(EsTypeRef {
+                        span: DUMMY_SP,
+                        type_name: EsEntityName::Ident(Ident {
+                            span: DUMMY_SP,
+                            sym: "U".into(),
+                            optional: false
+                        }),
+                        type_arguments: None,
+                    })),
+                })
+            ],
+        };
+        let result = parser
+            .parse_type_params()
+            .expect("Failed to parse type params");
+
+        assert_eq_ignore_span!(expectation, result);
+    }
 }

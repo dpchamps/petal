@@ -130,7 +130,7 @@ impl<'a> Parser<'a> {
                 },
             };
 
-            self.finish_comma_curly()?;
+            self.finish_trailing_comma(SyntaxKind::R_CURLY)?;
             specifiers.push(import_specifier);
         }
 
@@ -214,7 +214,7 @@ impl<'a> Parser<'a> {
                     is_type_only: false,
                 }));
 
-                self.finish_comma_curly()?;
+                self.finish_trailing_comma(SyntaxKind::R_CURLY)?;
             }
         }
 
