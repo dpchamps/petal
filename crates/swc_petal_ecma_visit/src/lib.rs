@@ -1814,6 +1814,13 @@ define!({
         pub type_ann: Box<EsType>,
     }
 
+    pub struct EsTypeAliasDecl {
+        pub span: Span,
+        pub ident: Ident,
+        pub type_params: Option<EsTypeParameters>,
+        pub type_ann: Box<EsType>,
+    }
+
     pub enum EsType {
         EsConditionalType(EsConditionalType),
         EsUnionType(EsUnionType),
@@ -1851,9 +1858,8 @@ define!({
 
     pub struct EsFunctionType {
         pub span: Span,
-        pub params: Vec<TsFnParam>,
 
-        pub type_params: Option<EsBracketBody>,
+        pub type_params: Vec<Box<EsType>>,
         pub type_ann: EsTypeAnn,
     }
 
@@ -1920,6 +1926,27 @@ define!({
         pub body: EsBracketBody,
     }
 
+    pub struct EsTypeParameters {
+        pub span: Span,
+        pub params: Vec<EsTypeParamDecl>
+    }
+
+    pub enum EsTypeParamDecl {
+        Ident(Ident),
+        HeritageTypeConstraint(EsHeritageTypeConstraint)
+    }
+
+    pub struct EsHeritageTypeConstraint {
+        pub span: Span,
+        pub base_type: Ident,
+        pub constraint: Box<EsType>
+    }
+
+    pub struct EsTypeArguments {
+        pub span: Span,
+        pub params: Vec<Box<EsType>>
+    }
+
     pub struct EsAngleBracketedType {
         pub span: Span,
         pub body: EsBracketBody,
@@ -1949,7 +1976,7 @@ define!({
     pub struct EsTypeRef {
         pub span: Span,
         pub type_name: EsEntityName,
-        pub type_arguments: Option<EsBracketBody>,
+        pub type_arguments: Option<EsTypeArguments>,
     }
 
     pub struct EsArrayType {

@@ -91,7 +91,7 @@ impl TryFrom<TsTypeRef> for EsTypeRef {
             span: t.span,
             type_name: t.type_name.into(),
             type_arguments: match t.type_params {
-                Some(tparams) => Some(tparams.try_into()?),
+                Some(_) => None,
                 None => None,
             },
         })

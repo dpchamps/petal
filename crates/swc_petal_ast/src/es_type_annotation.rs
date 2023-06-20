@@ -23,7 +23,7 @@ pub struct EsTypeAliasDecl {
     pub span: Span,
     pub ident: Ident,
     #[serde(default)]
-    pub type_params: Option<EsAngleBracketedType>,
+    pub type_params: Option<EsTypeParameters>,
     #[serde(rename = "typeAnnotation")]
     pub type_ann: Box<EsType>,
 }
@@ -121,7 +121,7 @@ impl Clone for EsType {
 pub struct EsFunctionType {
     pub span: Span,
     #[serde(default)]
-    pub type_params: Vec<EsType>,
+    pub type_params: Vec<Box<EsType>>,
     #[serde(rename = "typeAnnotation")]
     pub type_ann: EsTypeAnn,
 }
@@ -251,7 +251,7 @@ pub enum EsTypeParamDecl {
 #[derive(Eq, Hash, EqIgnoreSpan)]
 pub struct EsHeritageTypeConstraint {
     pub span: Span,
-    pub base_type: Box<EsType>,
+    pub base_type: Ident,
     pub constraint: Box<EsType>
 }
 
@@ -259,7 +259,7 @@ pub struct EsHeritageTypeConstraint {
 #[derive(Eq, Hash, EqIgnoreSpan)]
 pub struct EsTypeArguments {
     pub span: Span,
-    pub params: Vec<EsType>
+    pub params: Vec<Box<EsType>>
 }
 
 #[ast_node("EsBracketedType")]
@@ -307,7 +307,7 @@ pub struct EsTypeRef {
     pub span: Span,
     pub type_name: EsEntityName,
     #[serde(default)]
-    pub type_arguments: Option<EsBracketBody>,
+    pub type_arguments: Option<EsTypeArguments>,
 }
 
 #[ast_node("EsArrayType")]
