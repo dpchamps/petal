@@ -182,7 +182,11 @@
 &ensp;&ensp;  TokenBody TemplateMiddle TemplateTokenBody
 <br><br>
 #### TypeArguments :
-&ensp;&ensp;< TypeArgumentList<sub>opt</sub> >
+&ensp;&ensp; < >
+
+&ensp;&ensp; < TypeArgumentList >
+
+&ensp;&ensp; < TypeArgumentList , >
 <br><br>
 ####   TypeArgumentList :
 &ensp;&ensp; Type
@@ -190,7 +194,11 @@
 &ensp;&ensp; TypeArgumentList, Type
 <br><br>
 #### TypeParameters :
-&ensp;&ensp;< TypeParameterList<sub>opt</sub> >
+&ensp;&ensp;< >
+
+&ensp;&ensp;< TypeParameterList >
+
+&ensp;&ensp;< TypeParameterList , >
 <br><br>
 ####   TypeParameterList : 
 &ensp;&ensp;  TypeParameterDecl
