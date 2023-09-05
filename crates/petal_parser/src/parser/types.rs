@@ -124,7 +124,28 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_index_signature(&mut self) -> ParseResult<EsIndexSignature> {
-        todo!()
+        let start = self.span_start();
+        self.expect(SyntaxKind::L_BRACK)?;
+        let binding_id = self.parse_ident()?;
+        let type_ann = if self.is_kind(SyntaxKind::COLON) {
+            Some(self.parse_type_annotation()?)
+        } else {
+            None
+        };
+
+        self.expect(SyntaxKind::R_BRACK)?;
+
+        return Ok(EsIndexSignature {
+            binding_id: EsBindingIdent {
+                span: binding_id.span,
+                id: binding_id,
+                type_ann,
+            },
+            type_ann: None,
+            readonly: false,
+            is_static: false,
+            span: self.finish_span(start),
+        })
     }
 
     fn parse_type_arguments(&mut self) -> ParseResult<EsTypeArguments> {
