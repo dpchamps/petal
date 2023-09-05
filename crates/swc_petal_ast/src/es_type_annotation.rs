@@ -121,9 +121,11 @@ impl Clone for EsType {
 pub struct EsFunctionType {
     pub span: Span,
     #[serde(default)]
-    pub type_params: Vec<Box<EsType>>,
+    pub type_params: Option<EsTypeParameters>,
+    #[serde(default)]
+    pub params: Vec<Box<EsType>>,
     #[serde(rename = "typeAnnotation")]
-    pub type_ann: EsTypeAnn,
+    pub return_type: Box<EsType>,
 }
 
 #[ast_node]

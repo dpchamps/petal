@@ -116,11 +116,42 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_function_type(&mut self) -> ParseResult<EsFunctionType> {
-        todo!()
+        let start = self.span_start();
+        let type_params = if self.is_kind(SyntaxKind::L_ANGLE) {
+            Some(self.parse_type_params()?)
+        } else {
+            None
+        };
+
+        let mut params = vec![];
+
+        while !self.is_kind(SyntaxKind::R_PAREN) {
+            params.push(Box::new(self.parse_type()?));
+
+            self.finish_trailing_comma(SyntaxKind::R_PAREN)?;
+        }
+
+        self.expect(SyntaxKind::FAT_ARROW)?;
+
+        let return_type = Box::new(self.parse_type()?);
+
+        
+        Ok(EsFunctionType {
+            span: self.finish_span(start),
+            type_params,
+            params,
+            return_type
+        })
     }
 
     pub(crate) fn parse_type_annotation(&mut self) -> ParseResult<EsTypeAnn> {
-        todo!()
+        let start = self.span_start();
+        self.expect(SyntaxKind::COLON)?;
+        let type_ann_type = self.parse_type()?;
+        Ok(EsTypeAnn {
+            span: self.finish_span(start),
+            type_ann: Box::new(type_ann_type),
+        })
     }
 
     fn parse_index_signature(&mut self) -> ParseResult<EsIndexSignature> {

@@ -1859,8 +1859,9 @@ define!({
     pub struct EsFunctionType {
         pub span: Span,
 
-        pub type_params: Vec<Box<EsType>>,
-        pub type_ann: EsTypeAnn,
+        pub type_params: Option<EsTypeParameters>,
+        pub params: Vec<Box<EsType>>,
+        pub return_type: Box<EsType>,
     }
 
     pub enum EsThisTypeOrIdent {
