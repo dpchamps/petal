@@ -2018,7 +2018,7 @@ define!({
         pub span: Span,
         pub asserts: bool,
         pub param_name: EsThisTypeOrIdent,
-        pub type_ann: Option<EsTypeAnn>,
+        pub type_ann: Option<Box<EsType>>,
     }
 
     pub enum TokenOrBracketedTokens {

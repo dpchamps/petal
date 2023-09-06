@@ -384,7 +384,7 @@ pub struct EsTypePredicate {
     pub asserts: bool,
     pub param_name: EsThisTypeOrIdent,
     #[serde(rename = "typeAnnotation")]
-    pub type_ann: Option<EsTypeAnn>,
+    pub type_ann: Option<Box<EsType>>,
 }
 
 #[ast_node]

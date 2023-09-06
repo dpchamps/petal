@@ -1,6 +1,7 @@
 use crate::parser::{ParseResult, Parser};
 use rslint_lexer::SyntaxKind;
 use swc_petal_ast::*;
+use swc_petal_ast::EsType::EsTypeReference;
 
 impl<'a> Parser<'a> {
     pub(super) fn parse_type_decl(&mut self) -> ParseResult<EsTypeAliasDecl> {
@@ -112,7 +113,35 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_type_predicate(&mut self) -> ParseResult<EsTypePredicate> {
-        todo!()
+        let start = self.span_start();
+        let asserts = self.eat_raw("asserts").is_some();
+        let param_name = self.parse_ident_or_this()?;
+
+        // Type annotation is required when the predicate is not an assertion
+        let type_ann = if !asserts || self.is("is") {
+            self.expect_raw("is")?;
+            Some(Box::new(self.parse_type()?))
+        } else {
+            None
+        };
+
+
+        Ok(EsTypePredicate{
+            span: self.finish_span(start),
+            asserts,
+            param_name,
+            type_ann,
+        })
+    }
+
+    fn parse_ident_or_this(&mut self) -> ParseResult<EsThisTypeOrIdent> {
+        let start = self.span_start();
+
+        if self.is_kind(SyntaxKind::THIS_KW) {
+            return Ok(EsThisTypeOrIdent::EsThisType(EsThisType { span: self.finish_span(start) }))
+        }
+
+        Ok(EsThisTypeOrIdent::Ident(self.parse_ident()?))
     }
 
     fn parse_function_type(&mut self) -> ParseResult<EsFunctionType> {
@@ -124,6 +153,7 @@ impl<'a> Parser<'a> {
         };
 
         let mut params = vec![];
+        self.expect(SyntaxKind::L_PAREN)?;
 
         while !self.is_kind(SyntaxKind::R_PAREN) {
             params.push(Box::new(self.parse_type()?));
@@ -131,6 +161,7 @@ impl<'a> Parser<'a> {
             self.finish_trailing_comma(SyntaxKind::R_PAREN)?;
         }
 
+        self.expect(SyntaxKind::R_PAREN)?;
         self.expect(SyntaxKind::FAT_ARROW)?;
 
         let return_type = Box::new(self.parse_type()?);
@@ -250,7 +281,7 @@ impl<'a> Parser<'a> {
 mod tests {
     use crate::parser::Parser;
     use swc_common::DUMMY_SP;
-    use swc_petal_ast::{EsEntityName, EsFunctionType, EsHeritageTypeConstraint, EsType, EsTypeParamDecl, EsTypeParameters, EsTypeRef, Ident};
+    use swc_petal_ast::{EsEntityName, EsFunctionType, EsHeritageTypeConstraint, EsThisTypeOrIdent, EsType, EsTypeParamDecl, EsTypeParameters, EsTypePredicate, EsTypeRef, Ident};
     use swc_petal_ast::EsType::EsTypeReference;
     use swc_petal_ecma_visit::assert_eq_ignore_span;
 
@@ -405,5 +436,34 @@ mod tests {
                 type_arguments: None,
             })),
         };
+
+        let result = parser
+            .parse_function_type()
+            .expect("Failed to parse function type");
+
+        assert_eq_ignore_span!(expectation, result);
+    }
+
+    #[test]
+    fn parse_type_type_predicate_assert_no_type_ann(){
+        let input = "asserts a";
+        let mut parser = get_partial_parser(input);
+
+        let expectation = EsTypePredicate{
+            span: DUMMY_SP,
+            asserts: true,
+            param_name: EsThisTypeOrIdent::Ident(Ident{
+                span: DUMMY_SP,
+                sym: "a".into(),
+                optional: false,
+            }),
+            type_ann: None,
+        };
+
+        let result = parser
+            .parse_type_predicate()
+            .expect("Failed to parse type_predicate");
+
+        assert_eq_ignore_span!(expectation, result);
     }
 }

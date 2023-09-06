@@ -10,7 +10,7 @@ fn main() {
     "#;
 
     let typed_javascript = r#"
-        export {A as B};
+        const x = (x: unknown): asserts x is string => {}
     "#;
 
     // let result = Parser::parse(typed_javascript);
