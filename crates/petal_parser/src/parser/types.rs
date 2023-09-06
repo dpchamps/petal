@@ -250,7 +250,7 @@ impl<'a> Parser<'a> {
 mod tests {
     use crate::parser::Parser;
     use swc_common::DUMMY_SP;
-    use swc_petal_ast::{EsEntityName, EsHeritageTypeConstraint, EsTypeParamDecl, EsTypeParameters, EsTypeRef, Ident};
+    use swc_petal_ast::{EsEntityName, EsFunctionType, EsHeritageTypeConstraint, EsType, EsTypeParamDecl, EsTypeParameters, EsTypeRef, Ident};
     use swc_petal_ast::EsType::EsTypeReference;
     use swc_petal_ecma_visit::assert_eq_ignore_span;
 
@@ -383,5 +383,27 @@ mod tests {
             .expect("Failed to parse type params");
 
         assert_eq_ignore_span!(expectation, result);
+    }
+
+    #[test]
+    fn parse_type_function_type(){
+        let source = "() => X";
+
+        let mut parser = get_partial_parser(source);
+
+        let expectation = EsFunctionType {
+            span: DUMMY_SP,
+            type_params: None,
+            params: vec![],
+            return_type: Box::new(EsType::EsTypeReference(EsTypeRef {
+                span: DUMMY_SP,
+                type_name: EsEntityName::Ident(Ident{
+                    span: DUMMY_SP,
+                    sym: "X".into(),
+                    optional: false,
+                }),
+                type_arguments: None,
+            })),
+        };
     }
 }
