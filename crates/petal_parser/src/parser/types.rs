@@ -30,6 +30,7 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_type(&mut self) -> ParseResult<EsType> {
+        // TODO: this is just a placeholder, not correct.
         Ok(self.parse_type_ref()?.into())
     }
 
