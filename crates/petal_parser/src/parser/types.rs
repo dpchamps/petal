@@ -1,7 +1,6 @@
 use crate::parser::{ParseResult, Parser};
 use rslint_lexer::SyntaxKind;
 use swc_petal_ast::*;
-use swc_petal_ast::EsType::EsTypeReference;
 
 impl<'a> Parser<'a> {
     pub(super) fn parse_type_decl(&mut self) -> ParseResult<EsTypeAliasDecl> {
@@ -61,7 +60,7 @@ impl<'a> Parser<'a> {
     fn parse_type_ref(&mut self) -> ParseResult<EsTypeRef> {
         let start = self.span_start();
         let type_name = self.parse_type_name()?;
-        let type_arguments =  if self.is_kind(SyntaxKind::L_ANGLE) {
+        let type_arguments = if self.is_kind(SyntaxKind::L_ANGLE) {
             Some(self.parse_type_arguments()?)
         } else {
             None
@@ -81,11 +80,11 @@ impl<'a> Parser<'a> {
             let ident = self.parse_ident()?;
             entity = EsEntityName::EsQualifiedName(Box::new(EsQualifiedName {
                 left: entity,
-                right: ident
+                right: ident,
             }));
         }
 
-       Ok(entity)
+        Ok(entity)
     }
 
     fn parse_array_type(&mut self) -> ParseResult<EsArrayType> {
@@ -107,7 +106,7 @@ impl<'a> Parser<'a> {
 
         let expr_name = self.parse_type_query_expr()?;
 
-        let type_args =  if self.is_kind(SyntaxKind::L_ANGLE) {
+        let type_args = if self.is_kind(SyntaxKind::L_ANGLE) {
             Some(self.parse_type_arguments()?)
         } else {
             None
@@ -121,12 +120,11 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_type_query_expr(&mut self) -> ParseResult<EsTypeQueryExpr> {
-
         if self.is_kind(SyntaxKind::IMPORT_KW) {
-            return Ok(EsTypeQueryExpr::Import(self.parse_import_type()?))
+            return Ok(EsTypeQueryExpr::Import(self.parse_import_type()?));
         }
 
-        return Ok(EsTypeQueryExpr::EsEntityName(self.parse_type_name()?))
+        Ok(EsTypeQueryExpr::EsEntityName(self.parse_type_name()?))
     }
 
     fn parse_import_type(&mut self) -> ParseResult<EsImportType> {
@@ -142,7 +140,7 @@ impl<'a> Parser<'a> {
             None
         };
 
-        Ok(EsImportType{
+        Ok(EsImportType {
             span: self.finish_span(start),
             arg: module_specifier,
             qualifier,
@@ -163,8 +161,7 @@ impl<'a> Parser<'a> {
             None
         };
 
-
-        Ok(EsTypePredicate{
+        Ok(EsTypePredicate {
             span: self.finish_span(start),
             asserts,
             param_name,
@@ -176,7 +173,9 @@ impl<'a> Parser<'a> {
         let start = self.span_start();
 
         if self.is_kind(SyntaxKind::THIS_KW) {
-            return Ok(EsThisTypeOrIdent::EsThisType(EsThisType { span: self.finish_span(start) }))
+            return Ok(EsThisTypeOrIdent::EsThisType(EsThisType {
+                span: self.finish_span(start),
+            }));
         }
 
         Ok(EsThisTypeOrIdent::Ident(self.parse_ident()?))
@@ -204,12 +203,11 @@ impl<'a> Parser<'a> {
 
         let return_type = Box::new(self.parse_type()?);
 
-        
         Ok(EsFunctionType {
             span: self.finish_span(start),
             type_params,
             params,
-            return_type
+            return_type,
         })
     }
 
@@ -235,7 +233,7 @@ impl<'a> Parser<'a> {
 
         self.expect(SyntaxKind::R_BRACK)?;
 
-        return Ok(EsIndexSignature {
+        Ok(EsIndexSignature {
             binding_id: EsBindingIdent {
                 span: binding_id.span,
                 id: binding_id,
@@ -299,7 +297,7 @@ impl<'a> Parser<'a> {
             ));
         }
 
-        return Ok(EsTypeParamDecl::Ident(base_type));
+        Ok(EsTypeParamDecl::Ident(base_type))
     }
 
     /*
@@ -319,8 +317,12 @@ impl<'a> Parser<'a> {
 mod tests {
     use crate::parser::Parser;
     use swc_common::DUMMY_SP;
-    use swc_petal_ast::{EsEntityName, EsFunctionType, EsHeritageTypeConstraint, EsImportType, EsThisTypeOrIdent, EsType, EsTypeArguments, EsTypeParamDecl, EsTypeParameters, EsTypePredicate, EsTypeQuery, EsTypeQueryExpr, EsTypeRef, Ident, Str};
     use swc_petal_ast::EsType::EsTypeReference;
+    use swc_petal_ast::{
+        EsEntityName, EsFunctionType, EsHeritageTypeConstraint, EsImportType, EsThisTypeOrIdent,
+        EsType, EsTypeArguments, EsTypeParamDecl, EsTypeParameters, EsTypePredicate, EsTypeQuery,
+        EsTypeQueryExpr, EsTypeRef, Ident, Str,
+    };
     use swc_petal_ecma_visit::assert_eq_ignore_span;
 
     fn get_partial_parser(source: &str) -> Parser {
@@ -427,8 +429,8 @@ mod tests {
 
         let expectation = EsTypeParameters {
             span: DUMMY_SP,
-            params: vec![
-                EsTypeParamDecl::HeritageTypeConstraint(EsHeritageTypeConstraint {
+            params: vec![EsTypeParamDecl::HeritageTypeConstraint(
+                EsHeritageTypeConstraint {
                     span: DUMMY_SP,
                     base_type: Ident {
                         span: DUMMY_SP,
@@ -440,12 +442,12 @@ mod tests {
                         type_name: EsEntityName::Ident(Ident {
                             span: DUMMY_SP,
                             sym: "U".into(),
-                            optional: false
+                            optional: false,
                         }),
                         type_arguments: None,
                     })),
-                })
-            ],
+                },
+            )],
         };
         let result = parser
             .parse_type_params()
@@ -455,7 +457,7 @@ mod tests {
     }
 
     #[test]
-    fn parse_type_function_type(){
+    fn parse_type_function_type() {
         let source = "() => X";
 
         let mut parser = get_partial_parser(source);
@@ -466,7 +468,7 @@ mod tests {
             params: vec![],
             return_type: Box::new(EsType::EsTypeReference(EsTypeRef {
                 span: DUMMY_SP,
-                type_name: EsEntityName::Ident(Ident{
+                type_name: EsEntityName::Ident(Ident {
                     span: DUMMY_SP,
                     sym: "X".into(),
                     optional: false,
@@ -483,14 +485,14 @@ mod tests {
     }
 
     #[test]
-    fn parse_type_type_predicate_assert_no_type_ann(){
+    fn parse_type_type_predicate_assert_no_type_ann() {
         let input = "asserts a";
         let mut parser = get_partial_parser(input);
 
-        let expectation = EsTypePredicate{
+        let expectation = EsTypePredicate {
             span: DUMMY_SP,
             asserts: true,
-            param_name: EsThisTypeOrIdent::Ident(Ident{
+            param_name: EsThisTypeOrIdent::Ident(Ident {
                 span: DUMMY_SP,
                 sym: "a".into(),
                 optional: false,
@@ -506,13 +508,13 @@ mod tests {
     }
 
     #[test]
-    fn parse_type_import_type(){
+    fn parse_type_import_type() {
         let input = r#"import("bazinga")"#;
         let mut parser = get_partial_parser(input);
 
         let expectation = EsImportType {
             span: DUMMY_SP,
-            arg: Str{
+            arg: Str {
                 span: DUMMY_SP,
                 value: "bazinga".into(),
                 raw: None,
@@ -521,24 +523,26 @@ mod tests {
             type_args: None,
         };
 
-        let result = parser.parse_import_type().expect("Failed to parse import type");
+        let result = parser
+            .parse_import_type()
+            .expect("Failed to parse import type");
 
         assert_eq_ignore_span!(expectation, result);
     }
 
     #[test]
-    fn parse_type_import_type_qualifier(){
+    fn parse_type_import_type_qualifier() {
         let input = r#"import("bazinga").X"#;
         let mut parser = get_partial_parser(input);
 
         let expectation = EsImportType {
             span: DUMMY_SP,
-            arg: Str{
+            arg: Str {
                 span: DUMMY_SP,
                 value: "bazinga".into(),
                 raw: None,
             },
-            qualifier: Some(EsEntityName::Ident(Ident{
+            qualifier: Some(EsEntityName::Ident(Ident {
                 span: DUMMY_SP,
                 sym: "X".into(),
                 optional: false,
@@ -546,19 +550,21 @@ mod tests {
             type_args: None,
         };
 
-        let result = parser.parse_import_type().expect("Failed to parse import type");
+        let result = parser
+            .parse_import_type()
+            .expect("Failed to parse import type");
 
         assert_eq_ignore_span!(expectation, result);
     }
 
     #[test]
-    fn parse_type_type_query(){
+    fn parse_type_type_query() {
         let input = "typeof X";
         let mut parser = get_partial_parser(input);
 
-        let expectation = EsTypeQuery{
+        let expectation = EsTypeQuery {
             span: DUMMY_SP,
-            expr_name: EsTypeQueryExpr::EsEntityName(EsEntityName::Ident(Ident{
+            expr_name: EsTypeQueryExpr::EsEntityName(EsEntityName::Ident(Ident {
                 span: DUMMY_SP,
                 sym: "X".into(),
                 optional: false,
@@ -566,19 +572,21 @@ mod tests {
             type_args: None,
         };
 
-        let result = parser.parse_type_query().expect("Failed to parse type query");
+        let result = parser
+            .parse_type_query()
+            .expect("Failed to parse type query");
 
         assert_eq_ignore_span!(expectation, result);
     }
 
     #[test]
-    fn parse_type_type_query_import(){
+    fn parse_type_type_query_import() {
         let input = "typeof import('module')";
         let mut parser = get_partial_parser(input);
 
-        let expectation = EsTypeQuery{
+        let expectation = EsTypeQuery {
             span: DUMMY_SP,
-            expr_name: EsTypeQueryExpr::Import(EsImportType{
+            expr_name: EsTypeQueryExpr::Import(EsImportType {
                 span: DUMMY_SP,
                 arg: Str {
                     span: DUMMY_SP,
@@ -591,28 +599,30 @@ mod tests {
             type_args: None,
         };
 
-        let result = parser.parse_type_query().expect("Failed to parse type query");
+        let result = parser
+            .parse_type_query()
+            .expect("Failed to parse type query");
 
         assert_eq_ignore_span!(expectation, result);
     }
 
     #[test]
-    fn parse_type_type_query_type_args(){
+    fn parse_type_type_query_type_args() {
         let input = "typeof X<Y>";
         let mut parser = get_partial_parser(input);
 
-        let expectation = EsTypeQuery{
+        let expectation = EsTypeQuery {
             span: DUMMY_SP,
-            expr_name: EsTypeQueryExpr::EsEntityName(EsEntityName::Ident(Ident{
+            expr_name: EsTypeQueryExpr::EsEntityName(EsEntityName::Ident(Ident {
                 span: DUMMY_SP,
                 sym: "X".into(),
                 optional: false,
             })),
-            type_args: Some(EsTypeArguments{
+            type_args: Some(EsTypeArguments {
                 span: DUMMY_SP,
-                params: vec![Box::new(EsTypeReference(EsTypeRef{
+                params: vec![Box::new(EsTypeReference(EsTypeRef {
                     span: DUMMY_SP,
-                    type_name: EsEntityName::Ident(Ident{
+                    type_name: EsEntityName::Ident(Ident {
                         span: DUMMY_SP,
                         sym: "Y".into(),
                         optional: false,
@@ -622,7 +632,9 @@ mod tests {
             }),
         };
 
-        let result = parser.parse_type_query().expect("Failed to parse type query");
+        let result = parser
+            .parse_type_query()
+            .expect("Failed to parse type query");
 
         assert_eq_ignore_span!(expectation, result);
     }
