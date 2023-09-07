@@ -1988,7 +1988,7 @@ define!({
     pub struct EsTypeQuery {
         pub span: Span,
         pub expr_name: EsTypeQueryExpr,
-        pub type_args: Option<EsBracketBody>,
+        pub type_args: Option<EsTypeArguments>,
     }
 
     pub enum EsTypeQueryExpr {

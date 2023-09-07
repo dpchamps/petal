@@ -328,7 +328,7 @@ pub struct EsTypeQuery {
     pub span: Span,
     pub expr_name: EsTypeQueryExpr,
     #[serde(default, rename = "typeArguments")]
-    pub type_args: Option<EsBracketBody>,
+    pub type_args: Option<EsTypeArguments>,
 }
 
 #[ast_node]

@@ -1108,7 +1108,6 @@ the interpretation of CoverParenthesizedExpressionAndArrowParameterList is refin
 
 &ensp;&ensp;  EntityName . IdentifierName
 
-&ensp;&ensp;  EntityName :: TypeArguments
 <br><br>
 ####   ImportSpecifier :
 &ensp;&ensp;  import [no LineTerminator here] ( ModuleSpecifier )
