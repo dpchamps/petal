@@ -226,6 +226,16 @@ impl<'a> Parser<'a> {
             raw: Some(raw_number.into()),
         })
     }
+
+    pub(crate) fn parse_bool(&mut self) -> ParseResult<Bool> {
+        let start = self.span_start();
+        let value = self.eat(SyntaxKind::TRUE_KW).map(|_| true).or_else(|| self.eat(SyntaxKind::FALSE_KW).map(|_| false)).ok_or(ParseErr::UnexpectedParserState(self.span(), "Expected true or false keyword".into()))?;
+
+        Ok(Bool {
+            span: self.finish_span(start),
+            value,
+        })
+    }
 }
 
 #[cfg(test)]

@@ -2030,7 +2030,7 @@ define!({
 
         Str(Str),
 
-        Template(Tpl),
+        Template(EsTemplateBracketedType),
 
         Bool(Bool),
 

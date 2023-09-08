@@ -408,7 +408,7 @@ pub enum EsLiteralType {
     Str(Str),
 
     #[tag("TemplateLiteral")]
-    Template(Tpl),
+    Template(EsTemplateBracketedType),
 
     #[tag("BoolLiteral")]
     Bool(Bool),
