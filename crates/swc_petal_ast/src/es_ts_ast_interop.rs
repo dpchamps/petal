@@ -1,6 +1,6 @@
 use std::string::ParseError;
 use crate::TokenOrBracketedTokens::BracketBody;
-use crate::{BindingIdent, EsAngleBracketedType, EsBindingIdent, EsBracketBody, EsConstructorType, EsEntityName, EsFunctionType, EsIndexSignature, EsNormalBracketBody, EsQualifiedName, EsTemplateBracketedType, EsThisType, EsToken, EsType, EsTypeAnn, EsTypeRef, Ident, TokenOrBracketedTokens, TsConstructorType, TsEntityName, TsFnOrConstructorType, TsFnParam, TsFnType, TsIndexSignature, TsKeywordType, TsKeywordTypeKind, TsThisType, TsType, TsTypeAnn, TsTypeParam, TsTypeParamDecl, TsTypeParamInstantiation, TsTypeRef};
+use crate::{BindingIdent, EsAngleBracketedType, EsBindingIdent, EsBracketBody, EsConstructorType, EsEntityName, EsFunctionType, EsIndexSignature, EsNormalBracketBody, EsQualifiedName, EsThisType, EsToken, EsType, EsTypeAnn, EsTypeRef, Ident, TokenOrBracketedTokens, TsConstructorType, TsEntityName, TsFnOrConstructorType, TsFnParam, TsFnType, TsIndexSignature, TsKeywordType, TsKeywordTypeKind, TsThisType, TsType, TsTypeAnn, TsTypeParam, TsTypeParamDecl, TsTypeParamInstantiation, TsTypeRef};
 use swc_atoms::{js_word, JsWord};
 use swc_common::DUMMY_SP;
 
@@ -127,12 +127,6 @@ impl TryFrom<TsTypeParamInstantiation> for EsBracketBody {
                         match EsBracketBody::try_from(tps) {
                             Ok(EsBracketBody::EsNormalBracketBody(n)) => {
                                 initial_args.extend(n.token_body.into_iter().map(|x|Ok(x)));
-                            },
-                            Ok(EsBracketBody::EsTemplateBracketBody(body)) => {
-                                initial_args.push(Ok(TokenOrBracketedTokens::BracketBody(EsType::EsTemplateBracketedType(EsTemplateBracketedType{
-                                    span: DUMMY_SP,
-                                    body: EsBracketBody::EsTemplateBracketBody(body)
-                                }))))
                             },
                             _ => return vec![Err(InteropErr::NoKnownConversion)]
                         }

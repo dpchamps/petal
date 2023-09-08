@@ -1955,23 +1955,17 @@ define!({
 
     pub struct EsTemplateBracketedType {
         pub span: Span,
-        pub body: EsBracketBody,
+        pub types: Vec<Box<EsType>>,
+        pub quasis: Vec<TplElement>
     }
 
     pub enum EsBracketBody {
         EsNormalBracketBody(EsNormalBracketBody),
-        EsTemplateBracketBody(EsTemplateBracketBody),
     }
 
     pub struct EsNormalBracketBody {
         pub span: Span,
         pub token_body: Vec<TokenOrBracketedTokens>,
-    }
-
-    pub struct EsTemplateBracketBody {
-        pub span: Span,
-        pub exprs: Vec<TokenOrBracketedTokens>,
-        pub token_body: Vec<TplElement>,
     }
 
     pub struct EsTypeRef {

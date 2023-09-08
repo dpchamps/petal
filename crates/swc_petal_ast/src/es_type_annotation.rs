@@ -275,7 +275,8 @@ pub struct EsAngleBracketedType {
 #[derive(Eq, Hash, EqIgnoreSpan)]
 pub struct EsTemplateBracketedType {
     pub span: Span,
-    pub body: EsBracketBody,
+    pub types: Vec<Box<EsType>>,
+    pub quasis: Vec<TplElement>
 }
 
 #[ast_node]
@@ -283,8 +284,6 @@ pub struct EsTemplateBracketedType {
 pub enum EsBracketBody {
     #[tag("EsNormalBracketBody")]
     EsNormalBracketBody(EsNormalBracketBody),
-    #[tag("EsNormalTemplateBody")]
-    EsTemplateBracketBody(EsTemplateBracketBody),
 }
 
 #[ast_node("EsNormalBracketBody")]
@@ -292,14 +291,6 @@ pub enum EsBracketBody {
 pub struct EsNormalBracketBody {
     pub span: Span,
     pub token_body: Vec<TokenOrBracketedTokens>,
-}
-
-#[ast_node("EsTemplateBracketBody")]
-#[derive(Eq, Hash, EqIgnoreSpan)]
-pub struct EsTemplateBracketBody {
-    pub span: Span,
-    pub exprs: Vec<TokenOrBracketedTokens>,
-    pub token_body: Vec<TplElement>,
 }
 
 #[ast_node("EsTypeReference")]
