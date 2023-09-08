@@ -6,6 +6,7 @@ use swc_common::{BytePos, Span, SyntaxContext};
 use swc_petal_ast::*;
 mod module;
 mod types;
+
 pub struct Parser<'a> {
     lexer: Lexer<'a>,
     source: &'a str,
@@ -211,6 +212,18 @@ impl<'a> Parser<'a> {
                 .raw_from_range(start.0 + 1, start.0 + (token.len as u32) - 1)
                 .into(),
             raw: None,
+        })
+    }
+
+    pub(crate) fn parse_number(&mut self) -> ParseResult<Number> {
+        let start = self.span_start();
+        let number_token = self.expect(SyntaxKind::NUMBER)?;
+        let raw_number = self.raw_from_token(start, number_token);
+        let parsed_number = raw_number.parse::<f64>().map_err(|_| ParseErr::UnexpectedParserState(self.finish_span(start),  format!("Fatal parser error: expected a number, but could not convert string into number: {}", raw_number)))?;
+        Ok(Number{
+            span: self.finish_span(start),
+            value: parsed_number,
+            raw: Some(raw_number.into()),
         })
     }
 }

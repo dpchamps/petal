@@ -4,7 +4,7 @@ use rslint_lexer::Lexer;
 pub mod parser;
 fn main() {
     let typed_javascript = r#"
-        `${a} a`
+        type X = -1
     "#;
 
     // let result = Parser::parse(typed_javascript);
