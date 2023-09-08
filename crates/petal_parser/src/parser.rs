@@ -220,7 +220,7 @@ impl<'a> Parser<'a> {
         let number_token = self.expect(SyntaxKind::NUMBER)?;
         let raw_number = self.raw_from_token(start, number_token);
         let parsed_number = raw_number.parse::<f64>().map_err(|_| ParseErr::UnexpectedParserState(self.finish_span(start),  format!("Fatal parser error: expected a number, but could not convert string into number: {}", raw_number)))?;
-        Ok(Number{
+        Ok(Number {
             span: self.finish_span(start),
             value: parsed_number,
             raw: Some(raw_number.into()),
@@ -229,7 +229,14 @@ impl<'a> Parser<'a> {
 
     pub(crate) fn parse_bool(&mut self) -> ParseResult<Bool> {
         let start = self.span_start();
-        let value = self.eat(SyntaxKind::TRUE_KW).map(|_| true).or_else(|| self.eat(SyntaxKind::FALSE_KW).map(|_| false)).ok_or(ParseErr::UnexpectedParserState(self.span(), "Expected true or false keyword".into()))?;
+        let value = self
+            .eat(SyntaxKind::TRUE_KW)
+            .map(|_| true)
+            .or_else(|| self.eat(SyntaxKind::FALSE_KW).map(|_| false))
+            .ok_or(ParseErr::UnexpectedParserState(
+                self.span(),
+                "Expected true or false keyword".into(),
+            ))?;
 
         Ok(Bool {
             span: self.finish_span(start),

@@ -1,4 +1,4 @@
-use crate::parser::{ParseResult, Parser, ParseErr};
+use crate::parser::{ParseErr, ParseResult, Parser};
 use rslint_lexer::SyntaxKind;
 
 use swc_petal_ast::*;
@@ -95,16 +95,19 @@ impl<'a> Parser<'a> {
 
     fn parse_literal_type(&mut self) -> ParseResult<EsLiteralType> {
         if self.is_kind(SyntaxKind::NUMBER) {
-            return Ok(EsLiteralType::Number(self.parse_number()?))
+            return Ok(EsLiteralType::Number(self.parse_number()?));
         } else if self.is_kind(SyntaxKind::STRING) {
-            return Ok(EsLiteralType::Str(self.parse_str()?))
+            return Ok(EsLiteralType::Str(self.parse_str()?));
         } else if self.is_kind(SyntaxKind::BACKTICK) {
-            return Ok(EsLiteralType::Template(self.parse_template_literal_type()?))
+            return Ok(EsLiteralType::Template(self.parse_template_literal_type()?));
         } else if self.is_kind(SyntaxKind::TRUE_KW) || self.is_kind(SyntaxKind::FALSE_KW) {
-            return Ok(EsLiteralType::Bool(self.parse_bool()?))
+            return Ok(EsLiteralType::Bool(self.parse_bool()?));
         }
 
-        Err(ParseErr::UnexpectedParserState(self.span(), "Failed to parse literal type, recevied unexpected value".into()))
+        Err(ParseErr::UnexpectedParserState(
+            self.span(),
+            "Failed to parse literal type, recevied unexpected value".into(),
+        ))
     }
 
     fn parse_template_literal_type(&mut self) -> ParseResult<EsTemplateBracketedType> {
