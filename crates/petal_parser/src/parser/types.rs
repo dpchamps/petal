@@ -1,5 +1,6 @@
 use crate::parser::{ParseResult, Parser};
 use rslint_lexer::SyntaxKind;
+use swc_common::{BytePos, DUMMY_SP, Span};
 use swc_petal_ast::*;
 
 impl<'a> Parser<'a> {
@@ -97,7 +98,55 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_template_literal_type(&mut self) -> ParseResult<EsTemplateBracketedType> {
-        todo!()
+        let start = self.span_start();
+
+        self.expect(SyntaxKind::BACKTICK)?;
+
+
+        let mut types = vec![];
+        let mut quasis = vec![];
+
+        let mut quasi_span = self.span_start();
+        let mut raw_tmpl = String::new();
+
+        while !self.is_kind(SyntaxKind::BACKTICK) {
+            if self.eat(SyntaxKind::DOLLARCURLY).is_some() {
+                // push current el
+                quasis.push(TplElement {
+                    span: self.finish_span(quasi_span),
+                    tail: false,
+                    cooked: None,
+                    raw: raw_tmpl.clone().into(),
+                });
+
+                // parse tmpl type
+                types.push(Box::new(self.parse_type()?));
+                // finish type
+                self.expect(SyntaxKind::R_CURLY)?;
+                raw_tmpl.clear();
+            } else {
+                let raw_start = self.span_start();
+                let template_chunk = self.expect(SyntaxKind::TEMPLATE_CHUNK)?;
+                let raw_chunk = self.raw_from_token(raw_start, template_chunk);
+
+                raw_tmpl.push_str(raw_chunk);
+            }
+        }
+
+        quasis.push(TplElement {
+            span: self.finish_span(quasi_span),
+            tail: quasis.len() > 0,
+            cooked: None,
+            raw: raw_tmpl.clone().into(),
+        });
+
+        self.expect(SyntaxKind::BACKTICK)?;
+
+        Ok(EsTemplateBracketedType {
+            span: self.finish_span(start),
+            types,
+            quasis,
+        })
     }
 
     fn parse_type_query(&mut self) -> ParseResult<EsTypeQuery> {
@@ -319,11 +368,7 @@ mod tests {
     use crate::parser::Parser;
     use swc_common::DUMMY_SP;
     use swc_petal_ast::EsType::EsTypeReference;
-    use swc_petal_ast::{
-        EsEntityName, EsFunctionType, EsHeritageTypeConstraint, EsImportType, EsThisTypeOrIdent,
-        EsType, EsTypeArguments, EsTypeParamDecl, EsTypeParameters, EsTypePredicate, EsTypeQuery,
-        EsTypeQueryExpr, EsTypeRef, Ident, Str,
-    };
+    use swc_petal_ast::{EsEntityName, EsFunctionType, EsHeritageTypeConstraint, EsImportType, EsTemplateBracketedType, EsThisTypeOrIdent, EsType, EsTypeArguments, EsTypeParamDecl, EsTypeParameters, EsTypePredicate, EsTypeQuery, EsTypeQueryExpr, EsTypeRef, Ident, Str, TplElement};
     use swc_petal_ecma_visit::assert_eq_ignore_span;
 
     fn get_partial_parser(source: &str) -> Parser {
@@ -636,6 +681,97 @@ mod tests {
         let result = parser
             .parse_type_query()
             .expect("Failed to parse type query");
+
+        assert_eq_ignore_span!(expectation, result);
+    }
+
+    #[test]
+    fn parse_type_template_literal_type(){
+        let input = "`this is a template`";
+        let mut parser = get_partial_parser(input);
+
+        let expectation = EsTemplateBracketedType {
+            span: DUMMY_SP,
+            types: vec![],
+            quasis: vec![TplElement {
+                span: DUMMY_SP,
+                tail: false,
+                cooked: None,
+                raw: "this is a template".into(),
+            }],
+        };
+
+        let result = parser.parse_template_literal_type().expect("failed to parse template literal type");
+
+        assert_eq_ignore_span!(expectation, result);
+    }
+
+    #[test]
+    fn parse_type_template_literal_type_single_type_with_quasis(){
+        let input = "`this is ${X} a template`";
+        let mut parser = get_partial_parser(input);
+
+        let expectation = EsTemplateBracketedType {
+            span: DUMMY_SP,
+            types: vec![Box::new(EsType::EsTypeReference(EsTypeRef {
+                span: DUMMY_SP,
+                type_name: EsEntityName::Ident(Ident{
+                    span: DUMMY_SP,
+                    sym: "X".into(),
+                    optional: false,
+                }),
+                type_arguments: None,
+            }))],
+            quasis: vec![TplElement {
+                span: DUMMY_SP,
+                tail: false,
+                cooked: None,
+                raw: "this is ".into(),
+            },
+                         TplElement {
+                             span: DUMMY_SP,
+                             tail: true,
+                             cooked: None,
+                             raw: " a template".into(),
+                         }],
+        };
+
+        let result = parser.parse_template_literal_type().expect("failed to parse template literal type");
+
+        assert_eq_ignore_span!(expectation, result);
+    }
+
+    #[test]
+    fn parse_type_template_literal_type_single_type(){
+        let input = "`${X}`";
+        let mut parser = get_partial_parser(input);
+
+        let expectation = EsTemplateBracketedType {
+            span: DUMMY_SP,
+            types: vec![Box::new(EsType::EsTypeReference(EsTypeRef {
+                span: DUMMY_SP,
+                type_name: EsEntityName::Ident(Ident{
+                    span: DUMMY_SP,
+                    sym: "X".into(),
+                    optional: false,
+                }),
+                type_arguments: None,
+            }))],
+            quasis: vec![TplElement {
+                span: DUMMY_SP,
+                tail: false,
+                cooked: None,
+                raw: "".into(),
+            },
+                         TplElement {
+                             span: DUMMY_SP,
+                             tail: true,
+                             cooked: None,
+                             raw: "".into(),
+                         }],
+        };
+
+        let result = parser.parse_template_literal_type().expect("failed to parse template literal type");
 
         assert_eq_ignore_span!(expectation, result);
     }

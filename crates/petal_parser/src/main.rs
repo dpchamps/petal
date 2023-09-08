@@ -3,14 +3,9 @@ use rslint_lexer::Lexer;
 
 pub mod parser;
 fn main() {
-    let _javascript = r#"
-        const x = 1;
-        const y = "Hello";
-        const z = x + y;
-    "#;
 
     let typed_javascript = r#"
-        const x = (x: unknown): asserts x is string => {}
+        `${a} a`
     "#;
 
     // let result = Parser::parse(typed_javascript);
