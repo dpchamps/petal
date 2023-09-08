@@ -90,7 +90,6 @@ impl<'a> Parser<'a> {
         )]
     }
 
-
     fn raw_from_token(&self, start: BytePos, token: Token) -> &'a str {
         &self.source[TextRange::new(
             TextSize::from(start.0),
