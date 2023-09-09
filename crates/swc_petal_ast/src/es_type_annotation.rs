@@ -49,8 +49,8 @@ pub enum EsType {
     #[tag("EsParenthesizedType")]
     EsParenthesizedType(EsParenthesizedType),
 
-    #[tag("EsSquareBracketedType")]
-    EsSquareBracketedType(EsSquareBracketedType),
+    #[tag("EsTupleType")]
+    EsTupleType(EsTupleType),
 
     #[tag("EsCurlyBracketedType")]
     EsCurlyBracketedType(EsCurlyBracketedType),
@@ -84,6 +84,9 @@ pub enum EsType {
 
     #[tag("EsVoidType")]
     EsVoidType(EsVoidType),
+
+    #[tag("EsRestType")]
+    EsRestType(EsRestType),
 }
 
 // Implement Clone without inline to avoid multiple copies of the
@@ -99,7 +102,7 @@ impl Clone for EsType {
             EsIntersectionType(t) => EsIntersectionType(t.clone()),
             EsTypeOperatorType(t) => EsTypeOperatorType(t.clone()),
             EsParenthesizedType(t) => EsParenthesizedType(t.clone()),
-            EsSquareBracketedType(t) => EsSquareBracketedType(t.clone()),
+            EsTupleType(t) => EsTupleType(t.clone()),
             EsCurlyBracketedType(t) => EsCurlyBracketedType(t.clone()),
             EsAngleBracketedType(t) => EsAngleBracketedType(t.clone()),
             EsTemplateBracketedType(t) => EsTemplateBracketedType(t.clone()),
@@ -111,6 +114,7 @@ impl Clone for EsType {
             EsTypePredicate(t) => EsTypePredicate(t.clone()),
             EsThisType(t) => EsThisType(t.clone()),
             EsVoidType(t) => EsVoidType(t.clone()),
+            EsRestType(t) => EsRestType(t.clone())
         }
     }
 }
@@ -224,6 +228,21 @@ pub struct EsParenthesizedType {
 pub struct EsSquareBracketedType {
     pub span: Span,
     pub body: EsBracketBody,
+}
+
+#[ast_node("EsBracketedType")]
+#[derive(Eq, Hash, EqIgnoreSpan)]
+pub struct EsTupleType {
+    pub span: Span,
+    pub elem_types: Vec<Box<EsType>>
+}
+
+#[ast_node("EsRestType")]
+#[derive(Eq, Hash, EqIgnoreSpan)]
+pub struct EsRestType {
+    pub span: Span,
+    #[serde(rename = "typeAnnotation")]
+    pub type_ann: Box<EsType>
 }
 
 #[ast_node("EsBracketedType")]

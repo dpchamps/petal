@@ -1831,7 +1831,7 @@ define!({
 
         EsParenthesizedType(EsParenthesizedType),
 
-        EsSquareBracketedType(EsSquareBracketedType),
+        EsTupleType(EsTupleType),
 
         EsCurlyBracketedType(EsCurlyBracketedType),
 
@@ -1854,6 +1854,8 @@ define!({
         EsThisType(EsThisType),
 
         EsVoidType(EsVoidType),
+
+        EsRestType(EsRestType),
     }
 
     pub struct EsFunctionType {
@@ -1917,9 +1919,14 @@ define!({
         pub body: EsBracketBody,
     }
 
-    pub struct EsSquareBracketedType {
+    pub struct EsTupleType {
         pub span: Span,
-        pub body: EsBracketBody,
+        pub elem_types: Vec<Box<EsType>>
+    }
+
+    pub struct EsRestType {
+        pub span: Span,
+        pub type_ann: Box<EsType>
     }
 
     pub struct EsCurlyBracketedType {

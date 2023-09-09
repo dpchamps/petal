@@ -1035,7 +1035,7 @@ the interpretation of CoverParenthesizedExpressionAndArrowParameterList is refin
 #### PrimaryType :
 &ensp;&ensp;ParenthesizedType
 
-&ensp;&ensp;SquareBracketedType
+&ensp;&ensp;TupleType
 
 &ensp;&ensp;CurlyBracketedType
 
@@ -1058,9 +1058,12 @@ the interpretation of CoverParenthesizedExpressionAndArrowParameterList is refin
 #### ParenthesizedType :
 &ensp;&ensp;ParenthesizedTokens
 <br><br>
-#### SquareBracketedType :
-&ensp;&ensp;SquareBracketedTokens
+
+####   TupleType :
+&ensp;&ensp; [ TupleTypeArgumentList ]
+&ensp;&ensp; [ TupleTypeArgumentList , ]
 <br><br>
+
 #### CurlyBracketedType :
 &ensp;&ensp;CurlyBracketedTokens
 <br><br>
@@ -1124,6 +1127,9 @@ the interpretation of CoverParenthesizedExpressionAndArrowParameterList is refin
 
 &ensp;&ensp;  asserts IdentifierOrThis [no LineTerminator here] is Type
 <br><br>
+####   RestType :
+&ensp;&ensp;  ... Type
+<br><br>
 ####   IdentifierOrThis :
 &ensp;&ensp;  Identifier
 
@@ -1149,8 +1155,6 @@ the interpretation of CoverParenthesizedExpressionAndArrowParameterList is refin
 ####   BracketedTokens :
 &ensp;&ensp;  ParenthesizedTokens
 
-&ensp;&ensp;  SquareBracketedTokens
-
 &ensp;&ensp;  CurlyBracketedTokens
 
 &ensp;&ensp;  AngleBracketedTokens
@@ -1160,9 +1164,7 @@ the interpretation of CoverParenthesizedExpressionAndArrowParameterList is refin
 ####   ParenthesizedTokens :
 &ensp;&ensp;  ( TokenBody<sub>opt</sub> )
 <br><br>
-####   SquareBracketedTokens :
-&ensp;&ensp;  [ TokenBody<sub>opt</sub> ]
-<br><br>
+
 ####   CurlyBracketedTokens :
 &ensp;&ensp;  { TokenBody<sub>opt</sub> }
 <br><br>
@@ -1185,6 +1187,17 @@ the interpretation of CoverParenthesizedExpressionAndArrowParameterList is refin
 &ensp;&ensp; Type
 
 &ensp;&ensp; TypeArgumentList, Type
+<br><br>
+####   TupleTypeArgumentList :
+&ensp;&ensp; TypeOrRestType
+
+&ensp;&ensp; TypeArgumentList, TypeOrRestType
+<br><br>
+### TypeOrRestType :
+&ensp;&ensp; RestType
+
+&ensp;&ensp; Type
+
 <br><br>
 #### TypeParameters :
 &ensp;&ensp;< >
