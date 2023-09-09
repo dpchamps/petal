@@ -90,7 +90,13 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_array_type(&mut self) -> ParseResult<EsArrayType> {
-        todo!()
+        let start = self.span_start();
+        let elem_type = self.parse_type()?;
+
+        self.expect(SyntaxKind::L_BRACK)?;
+        self.expect(SyntaxKind::R_BRACK)?;
+
+        Ok(EsArrayType{ span: self.finish_span(start), elem_type: Box::new(elem_type) })
     }
 
     fn parse_literal_type(&mut self) -> ParseResult<EsLiteralType> {
@@ -379,12 +385,12 @@ impl<'a> Parser<'a> {
 mod tests {
     use crate::parser::Parser;
     use swc_common::DUMMY_SP;
-    use swc_petal_ast::EsType::EsTypeReference;
+    use swc_petal_ast::EsType::{EsTypeReference};
     use swc_petal_ast::{
         EsEntityName, EsFunctionType, EsHeritageTypeConstraint, EsImportType,
         EsTemplateBracketedType, EsThisTypeOrIdent, EsType, EsTypeArguments, EsTypeParamDecl,
         EsTypeParameters, EsTypePredicate, EsTypeQuery, EsTypeQueryExpr, EsTypeRef, Ident, Str,
-        TplElement,
+        TplElement,EsArrayType
     };
     use swc_petal_ecma_visit::assert_eq_ignore_span;
 
@@ -799,6 +805,26 @@ mod tests {
         let result = parser
             .parse_template_literal_type()
             .expect("failed to parse template literal type");
+
+        assert_eq_ignore_span!(expectation, result);
+    }
+
+    #[test]
+    fn parse_type_array_type(){
+        let input = "T[]";
+        let mut parser = get_partial_parser(input);
+
+        let expectation = EsArrayType{ span: DUMMY_SP, elem_type: Box::new(EsType::EsTypeReference(EsTypeRef{
+            span: DUMMY_SP,
+            type_name: EsEntityName::Ident(Ident{
+                span: DUMMY_SP,
+                sym: "T".into(),
+                optional: false,
+            }),
+            type_arguments: None,
+        })) };
+
+        let result = parser.parse_array_type().expect("Failed to parse array type");
 
         assert_eq_ignore_span!(expectation, result);
     }
