@@ -89,6 +89,30 @@ impl<'a> Parser<'a> {
         Ok(entity)
     }
 
+    fn parse_tuple_type(&mut self) -> ParseResult<EsTupleType> {
+        let start = self.span_start();
+
+        self.expect(SyntaxKind::L_BRACK)?;
+
+        let mut elem_types = vec![];
+
+        while !self.is_kind(SyntaxKind::R_BRACK) {
+            if self.is_kind(SyntaxKind::DOT2) {
+                elem_types.push(Box::new(EsType::EsRestType(self.parse_type_rest_type()?)));
+            } else {
+                elem_types.push(Box::new(self.parse_type()?))
+            }
+            self.finish_trailing_comma(SyntaxKind::R_BRACK)?;
+        }
+
+        self.expect(SyntaxKind::R_BRACK)?;
+
+        Ok(EsTupleType {
+            span: self.finish_span(start),
+            elem_types,
+        })
+    }
+
     fn parse_array_type(&mut self) -> ParseResult<EsArrayType> {
         let start = self.span_start();
         let elem_type = self.parse_type()?;
@@ -371,6 +395,17 @@ impl<'a> Parser<'a> {
         Ok(EsTypeParamDecl::Ident(base_type))
     }
 
+    fn parse_type_rest_type(&mut self) -> ParseResult<EsRestType> {
+        let start = self.span_start();
+        self.expect(SyntaxKind::DOT2)?;
+        let type_ann = Box::new(self.parse_type()?);
+
+        Ok(EsRestType {
+            span: self.finish_span(start),
+            type_ann
+        })
+    }
+
     /*
     Note to self:
 
@@ -389,12 +424,7 @@ mod tests {
     use crate::parser::Parser;
     use swc_common::DUMMY_SP;
     use swc_petal_ast::EsType::EsTypeReference;
-    use swc_petal_ast::{
-        EsArrayType, EsEntityName, EsFunctionType, EsHeritageTypeConstraint, EsImportType,
-        EsTemplateBracketedType, EsThisTypeOrIdent, EsType, EsTypeArguments, EsTypeParamDecl,
-        EsTypeParameters, EsTypePredicate, EsTypeQuery, EsTypeQueryExpr, EsTypeRef, Ident, Str,
-        TplElement,
-    };
+    use swc_petal_ast::{EsArrayType, EsEntityName, EsFunctionType, EsHeritageTypeConstraint, EsImportType, EsRestType, EsTemplateBracketedType, EsThisTypeOrIdent, EsTupleType, EsType, EsTypeArguments, EsTypeParamDecl, EsTypeParameters, EsTypePredicate, EsTypeQuery, EsTypeQueryExpr, EsTypeRef, Ident, Str, TplElement};
     use swc_petal_ecma_visit::assert_eq_ignore_span;
 
     fn get_partial_parser(source: &str) -> Parser {
@@ -833,6 +863,54 @@ mod tests {
         let result = parser
             .parse_array_type()
             .expect("Failed to parse array type");
+
+        assert_eq_ignore_span!(expectation, result);
+    }
+
+    #[test]
+    fn parse_type_tuple_type() {
+        let input = "[T]";
+        let mut parser = get_partial_parser(input);
+
+        let expectation = EsTupleType {
+            span: DUMMY_SP,
+            elem_types: vec![Box::new(EsType::EsTypeReference(EsTypeRef {
+                span: DUMMY_SP,
+                type_name: EsEntityName::Ident(Ident{
+                    span: DUMMY_SP,
+                    sym: "T".into(),
+                    optional: false,
+                }),
+                type_arguments: None,
+            }))],
+        };
+
+        let result = parser.parse_tuple_type().expect("failed to parse tuple type");
+
+        assert_eq_ignore_span!(expectation, result);
+    }
+    #[test]
+    fn parse_type_tuple_type_rest_param() {
+        let input = "[...T]";
+        let mut parser = get_partial_parser(input);
+
+        let expectation = EsTupleType {
+            span: DUMMY_SP,
+            elem_types: vec![Box::new(EsType::EsRestType(EsRestType{
+                span: DUMMY_SP,
+                type_ann: Box::new(EsType::EsTypeReference(EsTypeRef {
+                    span: DUMMY_SP,
+                    type_name: EsEntityName::Ident(Ident{
+                        span: DUMMY_SP,
+                        sym: "T".into(),
+                        optional: false,
+                    }),
+                    type_arguments: None,
+                })),
+            }))],
+        };
+
+        let result = parser.parse_tuple_type().expect("failed to parse tuple type");
 
         assert_eq_ignore_span!(expectation, result);
     }
