@@ -32,7 +32,7 @@ impl<'a> Parser<'a> {
 
     fn parse_type(&mut self) -> ParseResult<EsType> {
         // TODO: this is just a placeholder, not correct.
-        Ok(self.parse_type_ref()?.into())
+        Ok(self.parse_primary_type()?)
     }
 
     fn parse_conditional_type(&mut self) -> ParseResult<EsConditionalType> {
@@ -954,31 +954,6 @@ mod tests {
     }
 
     #[test]
-    fn parse_type_array_type() {
-        let input = "T[]";
-        let mut parser = get_partial_parser(input);
-
-        let expectation = EsArrayType {
-            span: DUMMY_SP,
-            elem_type: Box::new(EsType::EsTypeReference(EsTypeRef {
-                span: DUMMY_SP,
-                type_name: EsEntityName::Ident(Ident {
-                    span: DUMMY_SP,
-                    sym: "T".into(),
-                    optional: false,
-                }),
-                type_arguments: None,
-            })),
-        };
-
-        let result = parser
-            .parse_array_type()
-            .expect("Failed to parse array type");
-
-        assert_eq_ignore_span!(expectation, result);
-    }
-
-    #[test]
     fn parse_type_tuple_type() {
         let input = "[T]";
         let mut parser = get_partial_parser(input);
@@ -1227,5 +1202,30 @@ mod tests {
         let result = parser.parse_primary_type().expect("Failed to parse asserts type predicate from primary type");
 
         assert_eq_ignore_span!(expectation, result)
+    }
+
+    #[test]
+    fn parse_type_primary_type_array_type() {
+        let input = "T[]";
+        let mut parser = get_partial_parser(input);
+
+        let expectation = EsType::EsArrayType(EsArrayType {
+            span: DUMMY_SP,
+            elem_type: Box::new(EsType::EsTypeReference(EsTypeRef {
+                span: DUMMY_SP,
+                type_name: EsEntityName::Ident(Ident {
+                    span: DUMMY_SP,
+                    sym: "T".into(),
+                    optional: false,
+                }),
+                type_arguments: None,
+            })),
+        });
+
+        let result = parser
+            .parse_primary_type()
+            .expect("Failed to parse array type");
+
+        assert_eq_ignore_span!(expectation, result);
     }
 }
