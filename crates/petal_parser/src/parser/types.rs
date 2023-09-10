@@ -55,8 +55,89 @@ impl<'a> Parser<'a> {
         todo!()
     }
 
-    fn parse_primary_type(&mut self) -> ParseResult<Box<EsType>> {
-        todo!()
+    fn parse_primary_type(&mut self) -> ParseResult<EsType> {
+        let start = self.span_start();
+        let p_type = if self.is_kind(SyntaxKind::L_BRACK) {
+            Some(EsType::EsTupleType(self.parse_tuple_type()?))
+        } else if self.is_kind(SyntaxKind::L_PAREN) || self.is_kind(SyntaxKind::L_ANGLE) {
+            Some(EsType::EsFunctionType(self.parse_function_type()?))
+        } else if self.is_kind(SyntaxKind::L_CURLY) {
+            todo!("Parse refinement type or object")
+        } else if self.is_kind(SyntaxKind::TYPEOF_KW) {
+            Some(EsType::EsTypeQuery(self.parse_type_query()?))
+        } else if self.is_kind(SyntaxKind::IMPORT_KW) {
+            Some(EsType::EsImportType(self.parse_import_type()?))
+        } else if self.is_kind(SyntaxKind::VOID_KW){
+            let start = self.span_start();
+            self.expect(SyntaxKind::VOID_KW)?;
+            Some(EsType::EsVoidType(EsVoidType{ span: self.finish_span(start) }))
+        } else {
+            None
+        };
+
+
+        let p_type = if let Some(p_type) = p_type {
+            p_type
+        } else {
+            self.resolve_ambiguous_primary_type()?
+        };
+
+
+        // Account for array type
+        if self.eat(SyntaxKind::L_BRACK).is_some(){
+            self.expect(SyntaxKind::R_BRACK)?;
+            return Ok(EsType::EsArrayType(EsArrayType{
+                span: self.finish_span(start),
+                elem_type: Box::new(p_type),
+            }))
+        }
+
+        return Ok(p_type)
+    }
+
+    fn resolve_ambiguous_primary_type(&mut self) -> ParseResult<EsType> {
+        // Resolving some ambiguous productions without any lookahead
+        // if we haven't found a primary type, then it's either
+        // this type, type ref type, type predicate type, or literal type
+
+        // if asserts is next, we know it's a type predicate
+        if self.is("asserts"){
+            // type predicate
+            Ok(EsType::EsTypePredicate(self.parse_type_predicate()?))
+        } else if self.is_kind(SyntaxKind::THIS_KW) || self.is_kind(SyntaxKind::IDENT) {
+            self.resolve_ambiguous_type_predicate_type_ref_this_type()
+        } else {
+            // if the above isn't true, then we have a literal type
+            // literal type
+            Ok(EsType::EsLiteralType(self.parse_literal_type()?))
+        }
+    }
+
+    fn resolve_ambiguous_type_predicate_type_ref_this_type(&mut self) -> ParseResult<EsType> {
+        let start = self.span_start();
+        let this_or_ident_type = self.parse_ident_or_this()?;
+
+        // we still need to determine whether or not we're in a
+        // type predicate. If `is` is present after a this or ident, then
+        // we know this is a type predicate
+        if self.eat_raw("is").is_some() {
+            // type predicate
+            Ok(EsType::EsTypePredicate(EsTypePredicate {
+                span: self.finish_span(start),
+                asserts: false,
+                param_name: this_or_ident_type,
+                type_ann: Some(Box::new(self.parse_type()?)),
+            }))
+        } else {
+            // Otherwise, we need to now unwrap the previous ast node into the corresponding type
+            // todo: could also implement this as an into, but seems like overkill for a one off
+            match this_or_ident_type {
+                // this
+                EsThisTypeOrIdent::EsThisType(this_type) => Ok(EsType::EsThisType(this_type)),
+                // typeref
+                EsThisTypeOrIdent::Ident(id) => Ok(EsType::EsTypeReference(self.parse_type_ref_from_ident(id)?))
+            }
+        }
     }
 
     fn parse_type_ref(&mut self) -> ParseResult<EsTypeRef> {
@@ -77,6 +158,36 @@ impl<'a> Parser<'a> {
 
     fn parse_type_name(&mut self) -> ParseResult<EsEntityName> {
         let mut entity = EsEntityName::Ident(self.parse_ident()?);
+
+        while self.eat(SyntaxKind::DOT).is_some() {
+            let ident = self.parse_ident()?;
+            entity = EsEntityName::EsQualifiedName(Box::new(EsQualifiedName {
+                left: entity,
+                right: ident,
+            }));
+        }
+
+        Ok(entity)
+    }
+
+    fn parse_type_ref_from_ident(&mut self, ident: Ident) -> ParseResult<EsTypeRef> {
+        let start_span = ident.span.clone();
+        let type_name = self.parse_type_name_from_ident(ident)?;
+        let type_arguments = if self.is_kind(SyntaxKind::L_ANGLE) {
+            Some(self.parse_type_arguments()?)
+        } else {
+            None
+        };
+
+        Ok(EsTypeRef {
+            span: start_span,
+            type_name,
+            type_arguments,
+        })
+    }
+
+    fn parse_type_name_from_ident(&mut self, ident: Ident) -> ParseResult<EsEntityName> {
+        let mut entity = EsEntityName::Ident(ident);
 
         while self.eat(SyntaxKind::DOT).is_some() {
             let ident = self.parse_ident()?;
@@ -267,7 +378,7 @@ impl<'a> Parser<'a> {
     fn parse_ident_or_this(&mut self) -> ParseResult<EsThisTypeOrIdent> {
         let start = self.span_start();
 
-        if self.is_kind(SyntaxKind::THIS_KW) {
+        if self.eat(SyntaxKind::THIS_KW).is_some() {
             return Ok(EsThisTypeOrIdent::EsThisType(EsThisType {
                 span: self.finish_span(start),
             }));
@@ -424,7 +535,7 @@ mod tests {
     use crate::parser::Parser;
     use swc_common::DUMMY_SP;
     use swc_petal_ast::EsType::EsTypeReference;
-    use swc_petal_ast::{EsArrayType, EsEntityName, EsFunctionType, EsHeritageTypeConstraint, EsImportType, EsRestType, EsTemplateBracketedType, EsThisTypeOrIdent, EsTupleType, EsType, EsTypeArguments, EsTypeParamDecl, EsTypeParameters, EsTypePredicate, EsTypeQuery, EsTypeQueryExpr, EsTypeRef, Ident, Str, TplElement};
+    use swc_petal_ast::{Bool, EsArrayType, EsEntityName, EsFunctionType, EsHeritageTypeConstraint, EsImportType, EsLiteralType, EsQualifiedName, EsRestType, EsTemplateBracketedType, EsThisType, EsThisTypeOrIdent, EsTupleType, EsType, EsTypeArguments, EsTypeParamDecl, EsTypeParameters, EsTypePredicate, EsTypeQuery, EsTypeQueryExpr, EsTypeRef, Ident, Number, Str, TplElement};
     use swc_petal_ecma_visit::assert_eq_ignore_span;
 
     fn get_partial_parser(source: &str) -> Parser {
@@ -913,5 +1024,208 @@ mod tests {
         let result = parser.parse_tuple_type().expect("failed to parse tuple type");
 
         assert_eq_ignore_span!(expectation, result);
+    }
+
+    #[test]
+    fn parse_type_primary_type_ambiguity_asserts_type_predicate(){
+        let input = "asserts T is T";
+        let mut parser = get_partial_parser(input);
+
+        let expectation = EsType::EsTypePredicate(EsTypePredicate {
+            span: DUMMY_SP,
+            asserts: true,
+            param_name: EsThisTypeOrIdent::Ident(Ident {
+                span: DUMMY_SP,
+                sym: "T".into(),
+                optional: false,
+            }),
+            type_ann: Some(Box::new(EsType::EsTypeReference(EsTypeRef{
+                span: DUMMY_SP,
+                type_name: EsEntityName::Ident(Ident {
+                    span: DUMMY_SP,
+                    sym: "T".into(),
+                    optional: false,
+                }),
+                type_arguments: None,
+            }))),
+        });
+
+        let result = parser.parse_primary_type().expect("Failed to parse asserts type predicate from primary type");
+
+        assert_eq_ignore_span!(expectation, result)
+    }
+
+    #[test]
+    fn parse_type_primary_type_ambiguity_is_type_predicate(){
+        let input = "T is T";
+        let mut parser = get_partial_parser(input);
+
+        let expectation = EsType::EsTypePredicate(EsTypePredicate {
+            span: DUMMY_SP,
+            asserts: false,
+            param_name: EsThisTypeOrIdent::Ident(Ident {
+                span: DUMMY_SP,
+                sym: "T".into(),
+                optional: false,
+            }),
+            type_ann: Some(Box::new(EsType::EsTypeReference(EsTypeRef{
+                span: DUMMY_SP,
+                type_name: EsEntityName::Ident(Ident {
+                    span: DUMMY_SP,
+                    sym: "T".into(),
+                    optional: false,
+                }),
+                type_arguments: None,
+            }))),
+        });
+
+        let result = parser.parse_primary_type().expect("Failed to parse asserts type predicate from primary type");
+
+        assert_eq_ignore_span!(expectation, result)
+    }
+
+    #[test]
+    fn parse_type_primary_type_ambiguity_this_is_type_predicate(){
+        let input = "this is T";
+        let mut parser = get_partial_parser(input);
+
+        let expectation = EsType::EsTypePredicate(EsTypePredicate {
+            span: DUMMY_SP,
+            asserts: false,
+            param_name: EsThisTypeOrIdent::EsThisType(EsThisType { span: DUMMY_SP }),
+            type_ann: Some(Box::new(EsType::EsTypeReference(EsTypeRef{
+                span: DUMMY_SP,
+                type_name: EsEntityName::Ident(Ident {
+                    span: DUMMY_SP,
+                    sym: "T".into(),
+                    optional: false,
+                }),
+                type_arguments: None,
+            }))),
+        });
+
+        let result = parser.parse_primary_type().expect("Failed to parse asserts type predicate from primary type");
+
+        assert_eq_ignore_span!(expectation, result)
+    }
+
+    #[test]
+    fn parse_type_primary_type_ambiguity_this(){
+        let input = "this";
+        let mut parser = get_partial_parser(input);
+
+        let expectation = EsType::EsThisType(EsThisType { span: DUMMY_SP });
+
+        let result = parser.parse_primary_type().expect("Failed to parse asserts type predicate from primary type");
+
+        assert_eq_ignore_span!(expectation, result)
+    }
+
+    #[test]
+    fn parse_type_primary_type_ambiguity_type_ref(){
+        let input = "T.U<X, Y>";
+        let mut parser = get_partial_parser(input);
+
+        let expectation = EsType::EsTypeReference(EsTypeRef {
+            span: DUMMY_SP,
+            type_name: EsEntityName::EsQualifiedName(Box::new(EsQualifiedName{ left: EsEntityName::Ident(Ident{
+                span: DUMMY_SP,
+                sym: "T".into(),
+                optional: false,
+            }), right: Ident {
+                span: DUMMY_SP,
+                sym: "U".into(),
+                optional: false,
+            } })),
+            type_arguments: Some(EsTypeArguments{
+                span: DUMMY_SP,
+                params: vec![
+                    Box::new(EsType::EsTypeReference(EsTypeRef{
+                        span: DUMMY_SP,
+                        type_name: EsEntityName::Ident(Ident{
+                            span: DUMMY_SP,
+                            sym: "X".into(),
+                            optional: false,
+                        }),
+                        type_arguments: None,
+                    })),
+                    Box::new(EsType::EsTypeReference(EsTypeRef{
+                        span: DUMMY_SP,
+                        type_name: EsEntityName::Ident(Ident{
+                            span: DUMMY_SP,
+                            sym: "Y".into(),
+                            optional: false,
+                        }),
+                        type_arguments: None,
+                    })),
+                ],
+            }),
+        });
+
+        let result = parser.parse_primary_type().expect("Failed to parse asserts type predicate from primary type");
+
+        assert_eq_ignore_span!(expectation, result)
+    }
+
+    #[test]
+    fn parse_type_primary_type_ambiguity_literal_type_string(){
+        let input = r#""string""#;;
+        let mut parser = get_partial_parser(input);
+
+        let expectation = EsType::EsLiteralType(EsLiteralType::Str(Str{
+            span: DUMMY_SP,
+            value: "string".into(),
+            raw: None,
+        }));
+
+        let result = parser.parse_primary_type().expect("Failed to parse asserts type predicate from primary type");
+
+        assert_eq_ignore_span!(expectation, result)
+    }
+
+    #[test]
+    fn parse_type_primary_type_ambiguity_literal_type_number(){
+        let input = r#"42.0"#;;
+        let mut parser = get_partial_parser(input);
+
+        let expectation = EsType::EsLiteralType(EsLiteralType::Number(Number{
+            span: DUMMY_SP,
+            value: 42.0,
+            raw: Some("42.0".into()),
+        }));
+
+        let result = parser.parse_primary_type().expect("Failed to parse asserts type predicate from primary type");
+
+        assert_eq_ignore_span!(expectation, result)
+    }
+
+    #[test]
+    fn parse_type_primary_type_ambiguity_literal_type_bool_true(){
+        let input = r#"true"#;;
+        let mut parser = get_partial_parser(input);
+
+        let expectation = EsType::EsLiteralType(EsLiteralType::Bool(Bool{
+            span: DUMMY_SP,
+            value: true,
+        }));
+
+        let result = parser.parse_primary_type().expect("Failed to parse asserts type predicate from primary type");
+
+        assert_eq_ignore_span!(expectation, result)
+    }
+
+    #[test]
+    fn parse_type_primary_type_ambiguity_literal_type_bool_false(){
+        let input = r#"false"#;;
+        let mut parser = get_partial_parser(input);
+
+        let expectation = EsType::EsLiteralType(EsLiteralType::Bool(Bool{
+            span: DUMMY_SP,
+            value: false,
+        }));
+
+        let result = parser.parse_primary_type().expect("Failed to parse asserts type predicate from primary type");
+
+        assert_eq_ignore_span!(expectation, result)
     }
 }

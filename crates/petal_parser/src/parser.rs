@@ -75,6 +75,15 @@ impl<'a> Parser<'a> {
         None
     }
 
+    fn pop(&mut self) -> ParseResult<(Token, BytePos)> {
+        if self.current.is_none() {
+            self.advance()
+        }
+        let position = self.span_start();
+
+        self.current.map(|t| (t, position)).ok_or(ParseErr::UnexpectedParserState(self.span(), "Expected current token".into()))
+    }
+
     fn expect(&mut self, token: SyntaxKind) -> ParseResult<Token> {
         self.eat(token)
             .ok_or(self.expected_state(token.to_string().unwrap_or("unknown")))
