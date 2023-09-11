@@ -4,7 +4,7 @@ use rslint_lexer::Lexer;
 pub mod parser;
 fn main() {
     let typed_javascript = r#"
-        ......string
+        readonly keyof unique infer not
     "#;
 
     // let result = Parser::parse(typed_javascript);

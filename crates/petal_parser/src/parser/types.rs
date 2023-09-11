@@ -51,8 +51,42 @@ impl<'a> Parser<'a> {
         todo!()
     }
 
-    fn parse_type_op_type(&mut self) -> ParseResult<EsTypeOperatorType> {
-        todo!()
+    fn parse_type_op_type(&mut self) -> ParseResult<EsType> {
+        let start = self.span_start();
+
+        if self.eat_raw("readonly").is_some() {
+            Ok(EsTypeOperatorType {
+                span: self.finish_span(start),
+                op: EsTypeOperatorOp::ReadOnly,
+                es_type: Box::new(self.parse_type_op_type()?),
+            }.into())
+        }else if self.eat_raw("keyof").is_some() {
+            Ok(EsTypeOperatorType {
+                span: self.finish_span(start),
+                op: EsTypeOperatorOp::ReadOnly,
+                es_type: Box::new(self.parse_type_op_type()?),
+            }.into())
+        } else if self.eat_raw("unique").is_some() {
+            Ok(EsTypeOperatorType {
+                span: self.finish_span(start),
+                op: EsTypeOperatorOp::Unique,
+                es_type: Box::new(self.parse_type_op_type()?)
+            }.into())
+        } else if self.eat_raw("infer").is_some() {
+            Ok(EsTypeOperatorType {
+                span: self.finish_span(start),
+                op: EsTypeOperatorOp::Infer,
+                es_type: Box::new(self.parse_type_op_type()?)
+            }.into())
+        } else if self.eat_raw("not").is_some() {
+            Ok(EsTypeOperatorType {
+                span: self.finish_span(start),
+                op: EsTypeOperatorOp::Not,
+                es_type: Box::new(self.parse_type_op_type()?)
+            }.into())
+        } else {
+            self.parse_array_type()
+        }
     }
 
     /// Note: this somewhat diverges from how the grammar is written
@@ -266,7 +300,7 @@ impl<'a> Parser<'a> {
 
         Err(ParseErr::UnexpectedParserState(
             self.span(),
-            "Failed to parse literal type, recevied unexpected value".into(),
+            "Failed to parse literal type, received unexpected value".into(),
         ))
     }
 
@@ -551,7 +585,7 @@ mod tests {
     use crate::parser::Parser;
     use swc_common::DUMMY_SP;
     use swc_petal_ast::EsType::EsTypeReference;
-    use swc_petal_ast::{Bool, EsArrayType, EsEntityName, EsFunctionType, EsHeritageTypeConstraint, EsImportType, EsLiteralType, EsQualifiedName, EsRestType, EsTemplateBracketedType, EsThisType, EsThisTypeOrIdent, EsTupleType, EsType, EsTypeArguments, EsTypeParamDecl, EsTypeParameters, EsTypePredicate, EsTypeQuery, EsTypeQueryExpr, EsTypeRef, Ident, Number, Str, TplElement};
+    use swc_petal_ast::{Bool, EsArrayType, EsEntityName, EsFunctionType, EsHeritageTypeConstraint, EsImportType, EsLiteralType, EsQualifiedName, EsRestType, EsTemplateBracketedType, EsThisType, EsThisTypeOrIdent, EsTupleType, EsType, EsTypeArguments, EsTypeOperatorOp, EsTypeOperatorType, EsTypeParamDecl, EsTypeParameters, EsTypePredicate, EsTypeQuery, EsTypeQueryExpr, EsTypeRef, Ident, Number, Str, TplElement};
     use swc_petal_ecma_visit::assert_eq_ignore_span;
 
     fn get_partial_parser(source: &str) -> Parser {
@@ -1269,6 +1303,58 @@ mod tests {
         let result = parser
             .parse_array_type()
             .expect("Failed to parse array type");
+
+        assert_eq_ignore_span!(expectation, result);
+    }
+
+    #[test]
+    fn parse_type_type_operator_type() {
+        let input = "infer U";
+        let mut parser = get_partial_parser(input);
+
+        let expectation = EsType::EsTypeOperatorType(EsTypeOperatorType {
+            span: DUMMY_SP,
+            op: EsTypeOperatorOp::Infer,
+            es_type: Box::new(EsType::EsTypeReference(EsTypeRef {
+                span: DUMMY_SP,
+                type_name: EsEntityName::Ident(Ident{
+                    span: DUMMY_SP,
+                    sym: "U".into(),
+                    optional: false,
+                }),
+                type_arguments: None,
+            })),
+        });
+
+        let result = parser.parse_type_op_type().expect("Failed to parse type operator type");
+
+        assert_eq_ignore_span!(expectation, result);
+    }
+
+    #[test]
+    fn parse_type_type_operator_type_chained() {
+        let input = "infer not U";
+        let mut parser = get_partial_parser(input);
+
+        let expectation = EsType::EsTypeOperatorType(EsTypeOperatorType {
+            span: DUMMY_SP,
+            op: EsTypeOperatorOp::Infer,
+            es_type: Box::new(EsType::EsTypeOperatorType(EsTypeOperatorType {
+                span: DUMMY_SP,
+                op: EsTypeOperatorOp::Not,
+                es_type: Box::new(EsType::EsTypeReference(EsTypeRef {
+                    span: DUMMY_SP,
+                    type_name: EsEntityName::Ident(Ident{
+                        span: DUMMY_SP,
+                        sym: "U".into(),
+                        optional: false,
+                    }),
+                    type_arguments: None,
+                })),
+            })),
+        });
+
+        let result = parser.parse_type_op_type().expect("Failed to parse type operator type");
 
         assert_eq_ignore_span!(expectation, result);
     }

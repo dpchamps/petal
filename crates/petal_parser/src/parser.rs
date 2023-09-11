@@ -75,13 +75,30 @@ impl<'a> Parser<'a> {
         None
     }
 
+    fn print_current(&mut self){
+        if self.current.is_none() {
+            self.advance()
+        }
+
+        match self.current {
+            Some(t) => println!("Token: {:?}, Position: {:?}, Raw: {:?}", t, self.span_start(), self.raw_from_token(self.span_start(), t)),
+            _ => println!("Unknown parser state")
+        };
+    }
+
     fn pop(&mut self) -> ParseResult<(Token, BytePos)> {
         if self.current.is_none() {
             self.advance()
         }
         let position = self.span_start();
 
-        self.current.map(|t| (t, position)).ok_or(ParseErr::UnexpectedParserState(self.span(), "Expected current token".into()))
+        let result = self.current.map(|t| (t, position)).ok_or(ParseErr::UnexpectedParserState(self.span(), "Expected current token".into()));
+
+        if let Ok(_) = result {
+            self.advance();
+        }
+
+        result
     }
 
     fn expect(&mut self, token: SyntaxKind) -> ParseResult<Token> {
