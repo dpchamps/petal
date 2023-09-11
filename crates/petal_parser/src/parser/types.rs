@@ -55,44 +55,73 @@ impl<'a> Parser<'a> {
         todo!()
     }
 
-    fn parse_primary_type(&mut self) -> ParseResult<EsType> {
+    /// Note: this somewhat diverges from how the grammar is written
+    /// keep an eye on the es types as comments repo. when they release the
+    /// next iteration of the grammar, check to see if this is different.
+    ///
+    /// Currently, the productions are as follows:
+    ///
+    /// PrimaryType:
+    ///     ArrayType
+    ///
+    /// ArrayType:
+    ///     PrimaryType []
+    ///
+    /// But it should be something closer to
+    ///
+    /// ArrayType:
+    ///     PrimaryType
+    ///     PrimaryType IndexedArrayType
+    ///
+    /// IndexedArrayType:
+    ///     [Type <sub>opt</sub>]
+    ///     [Type <sub>opt</sub>] IndexedArrayType
+
+    fn parse_array_type(&mut self) -> ParseResult<EsType> {
         let start = self.span_start();
-        let p_type = if self.is_kind(SyntaxKind::L_BRACK) {
-            Some(EsType::EsTupleType(self.parse_tuple_type()?))
+        let mut primary_type = self.parse_primary_type()?;
+
+        while self.eat(SyntaxKind::L_BRACK).is_some() {
+            primary_type = EsType::EsArrayType(EsArrayType{
+                span: self.finish_span(start),
+                elem_type: Box::new(primary_type),
+            });
+            self.expect(SyntaxKind::R_BRACK)?;
+        }
+
+        Ok(primary_type)
+    }
+
+    fn parse_primary_type(&mut self) -> ParseResult<EsType> {
+        if self.is_kind(SyntaxKind::L_BRACK) {
+            return Ok(EsType::EsTupleType(self.parse_tuple_type()?))
         } else if self.is_kind(SyntaxKind::L_PAREN) || self.is_kind(SyntaxKind::L_ANGLE) {
-            Some(EsType::EsFunctionType(self.parse_function_type()?))
+            return Ok(EsType::EsFunctionType(self.parse_function_type()?))
         } else if self.is_kind(SyntaxKind::L_CURLY) {
             todo!("Parse refinement type or object")
         } else if self.is_kind(SyntaxKind::TYPEOF_KW) {
-            Some(EsType::EsTypeQuery(self.parse_type_query()?))
+            return Ok(EsType::EsTypeQuery(self.parse_type_query()?))
         } else if self.is_kind(SyntaxKind::IMPORT_KW) {
-            Some(EsType::EsImportType(self.parse_import_type()?))
+            return Ok(EsType::EsImportType(self.parse_import_type()?))
         } else if self.is_kind(SyntaxKind::VOID_KW){
             let start = self.span_start();
             self.expect(SyntaxKind::VOID_KW)?;
-            Some(EsType::EsVoidType(EsVoidType{ span: self.finish_span(start) }))
-        } else {
-            None
-        };
-
-
-        let p_type = if let Some(p_type) = p_type {
-            p_type
-        } else {
-            self.resolve_ambiguous_primary_type()?
-        };
-
-
-        // Account for array type
-        if self.eat(SyntaxKind::L_BRACK).is_some(){
-            self.expect(SyntaxKind::R_BRACK)?;
-            return Ok(EsType::EsArrayType(EsArrayType{
-                span: self.finish_span(start),
-                elem_type: Box::new(p_type),
-            }))
+            return Ok(EsType::EsVoidType(EsVoidType{ span: self.finish_span(start) }))
         }
 
-        return Ok(p_type)
+        self.resolve_ambiguous_primary_type()
+
+
+        // // Account for array type
+        // if self.eat(SyntaxKind::L_BRACK).is_some(){
+        //     self.expect(SyntaxKind::R_BRACK)?;
+        //     return Ok(EsType::EsArrayType(EsArrayType{
+        //         span: self.finish_span(start),
+        //         elem_type: Box::new(p_type),
+        //     }))
+        // }
+        //
+        // return Ok(p_type)
     }
 
     fn resolve_ambiguous_primary_type(&mut self) -> ParseResult<EsType> {
@@ -221,19 +250,6 @@ impl<'a> Parser<'a> {
         Ok(EsTupleType {
             span: self.finish_span(start),
             elem_types,
-        })
-    }
-
-    fn parse_array_type(&mut self) -> ParseResult<EsArrayType> {
-        let start = self.span_start();
-        let elem_type = self.parse_type()?;
-
-        self.expect(SyntaxKind::L_BRACK)?;
-        self.expect(SyntaxKind::R_BRACK)?;
-
-        Ok(EsArrayType {
-            span: self.finish_span(start),
-            elem_type: Box::new(elem_type),
         })
     }
 
@@ -1205,7 +1221,7 @@ mod tests {
     }
 
     #[test]
-    fn parse_type_primary_type_array_type() {
+    fn parse_type_array_type() {
         let input = "T[]";
         let mut parser = get_partial_parser(input);
 
@@ -1223,7 +1239,35 @@ mod tests {
         });
 
         let result = parser
-            .parse_primary_type()
+            .parse_array_type()
+            .expect("Failed to parse array type");
+
+        assert_eq_ignore_span!(expectation, result);
+    }
+
+    #[test]
+    fn parse_type_array_type_multiple() {
+        let input = "T[][]";
+        let mut parser = get_partial_parser(input);
+
+        let expectation = EsType::EsArrayType(EsArrayType {
+            span: DUMMY_SP,
+            elem_type: Box::new(EsType::EsArrayType(EsArrayType {
+                span: DUMMY_SP,
+                elem_type: Box::new(EsType::EsTypeReference(EsTypeRef {
+                    span: DUMMY_SP,
+                    type_name: EsEntityName::Ident(Ident {
+                        span: DUMMY_SP,
+                        sym: "T".into(),
+                        optional: false,
+                    }),
+                    type_arguments: None,
+                })),
+            })),
+        });
+
+        let result = parser
+            .parse_array_type()
             .expect("Failed to parse array type");
 
         assert_eq_ignore_span!(expectation, result);
