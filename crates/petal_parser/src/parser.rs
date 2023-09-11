@@ -75,14 +75,19 @@ impl<'a> Parser<'a> {
         None
     }
 
-    fn print_current(&mut self){
+    fn print_current(&mut self) {
         if self.current.is_none() {
             self.advance()
         }
 
         match self.current {
-            Some(t) => println!("Token: {:?}, Position: {:?}, Raw: {:?}", t, self.span_start(), self.raw_from_token(self.span_start(), t)),
-            _ => println!("Unknown parser state")
+            Some(t) => println!(
+                "Token: {:?}, Position: {:?}, Raw: {:?}",
+                t,
+                self.span_start(),
+                self.raw_from_token(self.span_start(), t)
+            ),
+            _ => println!("Unknown parser state"),
         };
     }
 
@@ -92,9 +97,15 @@ impl<'a> Parser<'a> {
         }
         let position = self.span_start();
 
-        let result = self.current.map(|t| (t, position)).ok_or(ParseErr::UnexpectedParserState(self.span(), "Expected current token".into()));
+        let result = self
+            .current
+            .map(|t| (t, position))
+            .ok_or(ParseErr::UnexpectedParserState(
+                self.span(),
+                "Expected current token".into(),
+            ));
 
-        if let Ok(_) = result {
+        if result.is_ok() {
             self.advance();
         }
 
