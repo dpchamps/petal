@@ -26,7 +26,7 @@ impl<'a> Parser<'a> {
         })
     }
 
-    fn parse_type(&mut self) -> ParseResult<EsType> {
+    pub(super) fn parse_type(&mut self) -> ParseResult<EsType> {
         self.parse_conditional_type()
     }
 
