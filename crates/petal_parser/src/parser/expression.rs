@@ -1,5 +1,4 @@
-use crate::parser::{ParseErr, ParseResult, Parser};
-use rslint_lexer::SyntaxKind;
+use crate::parser::{ParseResult, Parser};
 
 use swc_petal_ast::*;
 

@@ -4,11 +4,11 @@ use rslint_rowan::{TextRange, TextSize};
 use swc_common::{BytePos, Span, SyntaxContext};
 
 use swc_petal_ast::*;
-mod module;
-mod types;
-mod function;
 mod expression;
+mod function;
+mod module;
 mod statement;
+mod types;
 
 pub struct Parser<'a> {
     lexer: Lexer<'a>,
