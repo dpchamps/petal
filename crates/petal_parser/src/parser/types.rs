@@ -48,7 +48,7 @@ impl<'a> Parser<'a> {
                 extends_type: Box::new(extends_type),
                 true_type: Box::new(true_type),
                 false_type: Box::new(false_type),
-            }))
+            }));
         }
 
         Ok(nc_type)
@@ -63,14 +63,14 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_union_type(&mut self) -> ParseResult<EsType> {
-        let mut start = self.span_start();
+        let start = self.span_start();
 
         self.eat(SyntaxKind::PIPE);
 
         let t = self.parse_intersection_type()?;
 
         if !self.is_kind(SyntaxKind::PIPE) {
-            return Ok(t)
+            return Ok(t);
         }
 
         let mut union_type = EsUnionType {
@@ -79,21 +79,23 @@ impl<'a> Parser<'a> {
         };
 
         while self.eat(SyntaxKind::PIPE).is_some() {
-            union_type.types.push(Box::new(self.parse_intersection_type()?))
+            union_type
+                .types
+                .push(Box::new(self.parse_intersection_type()?))
         }
 
         Ok(union_type.into())
     }
 
     fn parse_intersection_type(&mut self) -> ParseResult<EsType> {
-        let mut start = self.span_start();
+        let start = self.span_start();
 
         self.eat(SyntaxKind::AMP);
 
         let t = self.parse_type_op_type()?;
 
         if !self.is_kind(SyntaxKind::AMP) {
-            return Ok(t)
+            return Ok(t);
         }
 
         let mut intersection_type = EsIntersectionType {
@@ -102,7 +104,9 @@ impl<'a> Parser<'a> {
         };
 
         while self.eat(SyntaxKind::AMP).is_some() {
-            intersection_type.types.push(Box::new(self.parse_type_op_type()?))
+            intersection_type
+                .types
+                .push(Box::new(self.parse_type_op_type()?))
         }
 
         Ok(intersection_type.into())
@@ -648,7 +652,14 @@ mod tests {
     use crate::parser::Parser;
     use swc_common::DUMMY_SP;
     use swc_petal_ast::EsType::EsTypeReference;
-    use swc_petal_ast::{Bool, EsArrayType, EsConditionalType, EsEntityName, EsFunctionType, EsHeritageTypeConstraint, EsImportType, EsIntersectionType, EsLiteralType, EsQualifiedName, EsRestType, EsTemplateBracketedType, EsThisType, EsThisTypeOrIdent, EsTupleType, EsType, EsTypeArguments, EsTypeOperatorOp, EsTypeOperatorType, EsTypeParamDecl, EsTypeParameters, EsTypePredicate, EsTypeQuery, EsTypeQueryExpr, EsTypeRef, EsUnionType, Ident, Number, Str, TplElement};
+    use swc_petal_ast::{
+        Bool, EsArrayType, EsConditionalType, EsEntityName, EsFunctionType,
+        EsHeritageTypeConstraint, EsImportType, EsIntersectionType, EsLiteralType, EsQualifiedName,
+        EsRestType, EsTemplateBracketedType, EsThisType, EsThisTypeOrIdent, EsTupleType, EsType,
+        EsTypeArguments, EsTypeOperatorOp, EsTypeOperatorType, EsTypeParamDecl, EsTypeParameters,
+        EsTypePredicate, EsTypeQuery, EsTypeQueryExpr, EsTypeRef, EsUnionType, Ident, Number, Str,
+        TplElement,
+    };
     use swc_petal_ecma_visit::assert_eq_ignore_span;
 
     fn get_partial_parser(source: &str) -> Parser {
@@ -1461,7 +1472,7 @@ mod tests {
             types: vec![
                 Box::new(EsType::EsTypeReference(EsTypeRef {
                     span: DUMMY_SP,
-                    type_name:  EsEntityName::Ident(Ident {
+                    type_name: EsEntityName::Ident(Ident {
                         span: DUMMY_SP,
                         sym: "T".into(),
                         optional: false,
@@ -1471,7 +1482,7 @@ mod tests {
                 Box::new(EsType::EsIntersectionType(EsIntersectionType {
                     span: DUMMY_SP,
                     types: vec![
-                        Box::new(EsType::EsTypeReference(EsTypeRef{
+                        Box::new(EsType::EsTypeReference(EsTypeRef {
                             span: DUMMY_SP,
                             type_name: EsEntityName::Ident(Ident {
                                 span: DUMMY_SP,
@@ -1480,7 +1491,7 @@ mod tests {
                             }),
                             type_arguments: None,
                         })),
-                        Box::new(EsType::EsTypeReference(EsTypeRef{
+                        Box::new(EsType::EsTypeReference(EsTypeRef {
                             span: DUMMY_SP,
                             type_name: EsEntityName::Ident(Ident {
                                 span: DUMMY_SP,
@@ -1488,9 +1499,9 @@ mod tests {
                                 optional: false,
                             }),
                             type_arguments: None,
-                        }))
+                        })),
                     ],
-                }))
+                })),
             ],
         });
 
@@ -1506,50 +1517,50 @@ mod tests {
         let input = "true extends false ? Record<string, unknown> : unknown";
         let mut parser = get_partial_parser(input);
 
-        let expectation = EsType::EsConditionalType(EsConditionalType{
+        let expectation = EsType::EsConditionalType(EsConditionalType {
             span: DUMMY_SP,
-            check_type: Box::new(EsType::EsLiteralType(EsLiteralType::Bool(Bool{
+            check_type: Box::new(EsType::EsLiteralType(EsLiteralType::Bool(Bool {
                 span: DUMMY_SP,
                 value: true,
             }))),
-            extends_type: Box::new(EsType::EsLiteralType(EsLiteralType::Bool(Bool{
+            extends_type: Box::new(EsType::EsLiteralType(EsLiteralType::Bool(Bool {
                 span: DUMMY_SP,
                 value: false,
             }))),
-            true_type: Box::new(EsType::EsTypeReference(EsTypeRef{
+            true_type: Box::new(EsType::EsTypeReference(EsTypeRef {
                 span: DUMMY_SP,
-                type_name: EsEntityName::Ident(Ident{
+                type_name: EsEntityName::Ident(Ident {
                     span: DUMMY_SP,
                     sym: "Record".into(),
                     optional: false,
                 }),
-                type_arguments: Some(EsTypeArguments{
+                type_arguments: Some(EsTypeArguments {
                     span: DUMMY_SP,
                     params: vec![
-                        Box::new(EsType::EsTypeReference(EsTypeRef{
+                        Box::new(EsType::EsTypeReference(EsTypeRef {
                             span: DUMMY_SP,
-                            type_name: EsEntityName::Ident(Ident{
+                            type_name: EsEntityName::Ident(Ident {
                                 span: DUMMY_SP,
                                 sym: "string".into(),
                                 optional: false,
                             }),
                             type_arguments: None,
                         })),
-                        Box::new(EsType::EsTypeReference(EsTypeRef{
+                        Box::new(EsType::EsTypeReference(EsTypeRef {
                             span: DUMMY_SP,
-                            type_name: EsEntityName::Ident(Ident{
+                            type_name: EsEntityName::Ident(Ident {
                                 span: DUMMY_SP,
                                 sym: "unknown".into(),
                                 optional: false,
                             }),
                             type_arguments: None,
-                        }))
+                        })),
                     ],
                 }),
             })),
-            false_type: Box::new(EsType::EsTypeReference(EsTypeRef{
+            false_type: Box::new(EsType::EsTypeReference(EsTypeRef {
                 span: DUMMY_SP,
-                type_name: EsEntityName::Ident(Ident{
+                type_name: EsEntityName::Ident(Ident {
                     span: DUMMY_SP,
                     sym: "unknown".into(),
                     optional: false,
@@ -1558,7 +1569,9 @@ mod tests {
             })),
         });
 
-        let result = parser.parse_conditional_type().expect("failed to parse conditional type");
+        let result = parser
+            .parse_conditional_type()
+            .expect("failed to parse conditional type");
 
         assert_eq_ignore_span!(expectation, result);
     }
