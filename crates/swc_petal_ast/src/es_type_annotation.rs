@@ -171,7 +171,6 @@ pub struct EsConditionalType {
 #[derive(Eq, Hash, EqIgnoreSpan)]
 pub struct EsUnionType {
     pub span: Span,
-    pub op: EsTypeOperatorOp,
     pub types: Vec<Box<EsType>>,
 }
 
@@ -179,7 +178,6 @@ pub struct EsUnionType {
 #[derive(Eq, Hash, EqIgnoreSpan)]
 pub struct EsIntersectionType {
     pub span: Span,
-    pub op: EsTypeOperatorOp,
     pub types: Vec<Box<EsType>>,
 }
 

@@ -1890,13 +1890,11 @@ define!({
 
     pub struct EsUnionType {
         pub span: Span,
-        pub op: EsTypeOperatorOp,
         pub types: Vec<Box<EsType>>,
     }
 
     pub struct EsIntersectionType {
         pub span: Span,
-        pub op: EsTypeOperatorOp,
         pub types: Vec<Box<EsType>>,
     }
 

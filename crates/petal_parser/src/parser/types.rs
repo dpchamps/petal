@@ -26,29 +26,86 @@ impl<'a> Parser<'a> {
         })
     }
 
-    fn parse_type_angle_bracketed_list(&mut self) -> ParseResult<EsAngleBracketedType> {
-        unimplemented!()
-    }
-
     fn parse_type(&mut self) -> ParseResult<EsType> {
-        // TODO: this is just a placeholder, not correct.
-        self.parse_primary_type()
+        self.parse_conditional_type()
     }
 
-    fn parse_conditional_type(&mut self) -> ParseResult<EsConditionalType> {
-        todo!()
+    fn parse_conditional_type(&mut self) -> ParseResult<EsType> {
+        let start = self.span_start();
+
+        let nc_type = self.parse_non_conditional_type()?;
+
+        if self.eat(SyntaxKind::EXTENDS_KW).is_some() {
+            let extends_type = self.parse_non_conditional_type()?;
+            self.expect(SyntaxKind::QUESTION)?;
+            let true_type = self.parse_type()?;
+            self.expect(SyntaxKind::COLON)?;
+            let false_type = self.parse_type()?;
+
+            return Ok(EsType::EsConditionalType(EsConditionalType {
+                span: self.finish_span(start),
+                check_type: Box::new(nc_type),
+                extends_type: Box::new(extends_type),
+                true_type: Box::new(true_type),
+                false_type: Box::new(false_type),
+            }))
+        }
+
+        Ok(nc_type)
     }
 
-    fn parse_non_conditional_type<T>(&mut self) -> ParseResult<T> {
-        todo!()
+    fn parse_non_conditional_type(&mut self) -> ParseResult<EsType> {
+        if self.is_kind(SyntaxKind::L_PAREN) || self.is_kind(SyntaxKind::L_ANGLE) {
+            return Ok(EsType::EsFunctionType(self.parse_function_type()?));
+        }
+
+        self.parse_union_type()
     }
 
-    fn parse_union_type(&mut self) -> ParseResult<EsUnionType> {
-        todo!()
+    fn parse_union_type(&mut self) -> ParseResult<EsType> {
+        let mut start = self.span_start();
+
+        self.eat(SyntaxKind::PIPE);
+
+        let t = self.parse_intersection_type()?;
+
+        if !self.is_kind(SyntaxKind::PIPE) {
+            return Ok(t)
+        }
+
+        let mut union_type = EsUnionType {
+            span: self.finish_span(start),
+            types: vec![Box::new(t)],
+        };
+
+        while self.eat(SyntaxKind::PIPE).is_some() {
+            union_type.types.push(Box::new(self.parse_intersection_type()?))
+        }
+
+        Ok(union_type.into())
     }
 
-    fn parse_intersection_type(&mut self) -> ParseResult<EsIntersectionType> {
-        todo!()
+    fn parse_intersection_type(&mut self) -> ParseResult<EsType> {
+        let mut start = self.span_start();
+
+        self.eat(SyntaxKind::AMP);
+
+        let t = self.parse_type_op_type()?;
+
+        if !self.is_kind(SyntaxKind::AMP) {
+            return Ok(t)
+        }
+
+        let mut intersection_type = EsIntersectionType {
+            span: self.finish_span(start),
+            types: vec![Box::new(t)],
+        };
+
+        while self.eat(SyntaxKind::AMP).is_some() {
+            intersection_type.types.push(Box::new(self.parse_type_op_type()?))
+        }
+
+        Ok(intersection_type.into())
     }
 
     fn parse_type_op_type(&mut self) -> ParseResult<EsType> {
@@ -134,8 +191,6 @@ impl<'a> Parser<'a> {
     fn parse_primary_type(&mut self) -> ParseResult<EsType> {
         if self.is_kind(SyntaxKind::L_BRACK) {
             return Ok(EsType::EsTupleType(self.parse_tuple_type()?));
-        } else if self.is_kind(SyntaxKind::L_PAREN) || self.is_kind(SyntaxKind::L_ANGLE) {
-            return Ok(EsType::EsFunctionType(self.parse_function_type()?));
         } else if self.is_kind(SyntaxKind::L_CURLY) {
             todo!("Parse refinement type or object")
         } else if self.is_kind(SyntaxKind::TYPEOF_KW) {
@@ -593,13 +648,7 @@ mod tests {
     use crate::parser::Parser;
     use swc_common::DUMMY_SP;
     use swc_petal_ast::EsType::EsTypeReference;
-    use swc_petal_ast::{
-        Bool, EsArrayType, EsEntityName, EsFunctionType, EsHeritageTypeConstraint, EsImportType,
-        EsLiteralType, EsQualifiedName, EsRestType, EsTemplateBracketedType, EsThisType,
-        EsThisTypeOrIdent, EsTupleType, EsType, EsTypeArguments, EsTypeOperatorOp,
-        EsTypeOperatorType, EsTypeParamDecl, EsTypeParameters, EsTypePredicate, EsTypeQuery,
-        EsTypeQueryExpr, EsTypeRef, Ident, Number, Str, TplElement,
-    };
+    use swc_petal_ast::{Bool, EsArrayType, EsConditionalType, EsEntityName, EsFunctionType, EsHeritageTypeConstraint, EsImportType, EsIntersectionType, EsLiteralType, EsQualifiedName, EsRestType, EsTemplateBracketedType, EsThisType, EsThisTypeOrIdent, EsTupleType, EsType, EsTypeArguments, EsTypeOperatorOp, EsTypeOperatorType, EsTypeParamDecl, EsTypeParameters, EsTypePredicate, EsTypeQuery, EsTypeQueryExpr, EsTypeRef, EsUnionType, Ident, Number, Str, TplElement};
     use swc_petal_ecma_visit::assert_eq_ignore_span;
 
     fn get_partial_parser(source: &str) -> Parser {
@@ -1398,6 +1447,118 @@ mod tests {
         let result = parser
             .parse_type_op_type()
             .expect("Failed to parse type operator type");
+
+        assert_eq_ignore_span!(expectation, result);
+    }
+
+    #[test]
+    fn parse_type_union_intersection() {
+        let input = "T | U & V";
+        let mut parser = get_partial_parser(input);
+
+        let expectation = EsType::EsUnionType(EsUnionType {
+            span: DUMMY_SP,
+            types: vec![
+                Box::new(EsType::EsTypeReference(EsTypeRef {
+                    span: DUMMY_SP,
+                    type_name:  EsEntityName::Ident(Ident {
+                        span: DUMMY_SP,
+                        sym: "T".into(),
+                        optional: false,
+                    }),
+                    type_arguments: None,
+                })),
+                Box::new(EsType::EsIntersectionType(EsIntersectionType {
+                    span: DUMMY_SP,
+                    types: vec![
+                        Box::new(EsType::EsTypeReference(EsTypeRef{
+                            span: DUMMY_SP,
+                            type_name: EsEntityName::Ident(Ident {
+                                span: DUMMY_SP,
+                                sym: "U".into(),
+                                optional: false,
+                            }),
+                            type_arguments: None,
+                        })),
+                        Box::new(EsType::EsTypeReference(EsTypeRef{
+                            span: DUMMY_SP,
+                            type_name: EsEntityName::Ident(Ident {
+                                span: DUMMY_SP,
+                                sym: "V".into(),
+                                optional: false,
+                            }),
+                            type_arguments: None,
+                        }))
+                    ],
+                }))
+            ],
+        });
+
+        let result = parser
+            .parse_union_type()
+            .expect("Failed to parse type union and intersection");
+
+        assert_eq_ignore_span!(expectation, result);
+    }
+
+    #[test]
+    fn parse_type_conditional_type() {
+        let input = "true extends false ? Record<string, unknown> : unknown";
+        let mut parser = get_partial_parser(input);
+
+        let expectation = EsType::EsConditionalType(EsConditionalType{
+            span: DUMMY_SP,
+            check_type: Box::new(EsType::EsLiteralType(EsLiteralType::Bool(Bool{
+                span: DUMMY_SP,
+                value: true,
+            }))),
+            extends_type: Box::new(EsType::EsLiteralType(EsLiteralType::Bool(Bool{
+                span: DUMMY_SP,
+                value: false,
+            }))),
+            true_type: Box::new(EsType::EsTypeReference(EsTypeRef{
+                span: DUMMY_SP,
+                type_name: EsEntityName::Ident(Ident{
+                    span: DUMMY_SP,
+                    sym: "Record".into(),
+                    optional: false,
+                }),
+                type_arguments: Some(EsTypeArguments{
+                    span: DUMMY_SP,
+                    params: vec![
+                        Box::new(EsType::EsTypeReference(EsTypeRef{
+                            span: DUMMY_SP,
+                            type_name: EsEntityName::Ident(Ident{
+                                span: DUMMY_SP,
+                                sym: "string".into(),
+                                optional: false,
+                            }),
+                            type_arguments: None,
+                        })),
+                        Box::new(EsType::EsTypeReference(EsTypeRef{
+                            span: DUMMY_SP,
+                            type_name: EsEntityName::Ident(Ident{
+                                span: DUMMY_SP,
+                                sym: "unknown".into(),
+                                optional: false,
+                            }),
+                            type_arguments: None,
+                        }))
+                    ],
+                }),
+            })),
+            false_type: Box::new(EsType::EsTypeReference(EsTypeRef{
+                span: DUMMY_SP,
+                type_name: EsEntityName::Ident(Ident{
+                    span: DUMMY_SP,
+                    sym: "unknown".into(),
+                    optional: false,
+                }),
+                type_arguments: None,
+            })),
+        });
+
+        let result = parser.parse_conditional_type().expect("failed to parse conditional type");
 
         assert_eq_ignore_span!(expectation, result);
     }

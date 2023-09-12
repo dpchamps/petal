@@ -1008,7 +1008,6 @@ the interpretation of CoverParenthesizedExpressionAndArrowParameterList is refin
 
 &ensp;&ensp;FunctionType
 
-&ensp;&ensp;ConstructorType
 <br><br>
 #### UnionType :
 &ensp;&ensp;|<sub>opt</sub> IntersectionType
