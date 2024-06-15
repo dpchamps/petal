@@ -8,10 +8,10 @@ edition = "2021"
 
 [dependencies]
 rslint_lexer = "0.2.0"
-swc_petal_ast = { version = "0.85.0", path = "../swc_petal_ast" }
+swc_petal_ast = { version = "=0.85.1", path = "../swc_petal_ast" }
 swc_petal_ecma_visit = { path = "../swc_petal_ecma_visit" }
 
-swc_common = { version = "0.24.0" }
-rslint_errors = "0.2.0"
-rslint_parser = "0.3.1"
-rslint_rowan = "0.10.0"
+swc_common = { version = "=0.24.0" }
+rslint_errors = "=0.2.0"
+rslint_parser = "=0.3.1"
+rslint_rowan = "=0.10.0"

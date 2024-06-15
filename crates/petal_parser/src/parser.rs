@@ -24,6 +24,7 @@ pub enum ParseErr {
     CatchAll,
     UnexpectedParserState(Span, String),
     MissingSemicolon(Span),
+    EarlyError(Span)
 }
 
 type ParseResult<T> = Result<T, ParseErr>;
@@ -230,6 +231,9 @@ impl<'a> Parser<'a> {
         let start = self.span_start();
         let ident_token = self.expect(SyntaxKind::IDENT)?;
         let ident_name = self.raw_from_token(start, ident_token);
+
+        // todo static semantics
+
         Ok(Ident {
             span: self.finish_span(start),
             sym: ident_name.into(),
